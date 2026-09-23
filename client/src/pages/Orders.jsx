@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Printer, RotateCcw } from 'lucide-react';
 import api from '../services/api';
@@ -30,7 +30,7 @@ export default function Orders() {
       });
       setReturnItems(initialItems);
     } catch (err) {
-      alert('Error fetching order details');
+      alert('Error fetching order details: ' + (err.response?.data?.message || err.message)); console.error(err);
     }
   };
 
@@ -237,6 +237,7 @@ export default function Orders() {
     </div>
   );
 }
+
 
 
 
