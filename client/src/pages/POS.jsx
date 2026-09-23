@@ -377,7 +377,14 @@ export default function POS() {
             <span>Discount</span>
             <span>- Rs. {totals.discount.toFixed(2)}</span>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', margin: '1rem 0', fontSize: '1.5rem', fontWeight: 'bold' }}>
+          
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem', color: '#16a34a' }}>
+            <span>Extra Discount</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              Rs. <input type="number" min="0" placeholder="0" value={extraDiscount} onChange={e => setExtraDiscount(e.target.value)} style={{ width: '80px', padding: '0.25rem', borderRadius: '4px', border: '1px solid #d1d5db' }} />
+            </div>
+          </div>
+<div style={{ display: 'flex', justifyContent: 'space-between', margin: '1rem 0', fontSize: '1.5rem', fontWeight: 'bold' }}>
             <span>Total</span>
             <span>Rs. {totals.total.toFixed(2)}</span>
           </div>
