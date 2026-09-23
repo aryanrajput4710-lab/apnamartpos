@@ -28,7 +28,7 @@ export default function AuditLogs() {
   return (
     <div style={{ padding: '1rem' }}>
       <h2>Audit Logs</h2>
-      <table style={{ width: '100%', borderCollapse: 'collapse', background: 'white' }}>
+      <div className="table-responsive"><table style={{ width: '100%', borderCollapse: 'collapse', background: 'white' }}>
         <thead>
           <tr style={{ background: '#f3f4f6', textAlign: 'left' }}>
             <th style={{ padding: '0.75rem' }}>Date/Time</th>
@@ -49,7 +49,7 @@ export default function AuditLogs() {
             </tr>
           ))}
         </tbody>
-      </table>
+      </table></div>
       <div style={{ marginTop: '1rem', display: 'flex', gap: '1rem' }}>
         <button disabled={page === 1} onClick={() => setPage(p => p - 1)}>Previous</button>
         <span>Page {page} of {Math.ceil(total / 50)}</span>
@@ -58,3 +58,4 @@ export default function AuditLogs() {
     </div>
   );
 }
+

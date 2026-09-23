@@ -83,7 +83,7 @@ export default function Users() {
         </form>
       </div>
 
-      <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
+      <div className="table-responsive"><table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
         <thead>
           <tr style={{ borderBottom: '1px solid #ccc' }}>
             <th>Name</th>
@@ -108,7 +108,8 @@ export default function Users() {
             </tr>
           ))}
         </tbody>
-      </table>
+      </table></div>
     </div>
   );
 }
+

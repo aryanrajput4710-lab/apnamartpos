@@ -96,7 +96,7 @@ export default function Orders() {
       ) : (
         <>
           <div style={{ overflowX: 'auto', background: 'white', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '1000px' }}>
+            <div className="table-responsive"><table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '1000px' }}>
               <thead>
                 <tr style={{ background: '#f3f4f6', borderBottom: '1px solid #e5e7eb', textAlign: 'left' }}>
                   <th style={{ padding: '1rem' }}>Order Number</th>
@@ -149,7 +149,7 @@ export default function Orders() {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table></div>
           </div>
           
           {pagination.totalPages > 1 && (
@@ -176,3 +176,4 @@ export default function Orders() {
     </div>
   );
 }
+

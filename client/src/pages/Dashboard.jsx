@@ -93,22 +93,22 @@ export default function Dashboard() {
       </div>
 
       {/* Top Cards */}
-      <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+      <div className="mobile-stack" style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
         <StatCard title="Net Sales" value={`₹${parseFloat(summary.revenue).toFixed(2)}`} icon={<IndianRupee size={24} />} color="#10b981" />
         <StatCard title="Orders" value={summary.orders} icon={<ShoppingCart size={24} />} color="#3b82f6" />
         <StatCard title="Items Sold" value={summary.itemsSold} icon={<ShoppingBag size={24} />} color="#f59e0b" />
         <StatCard title="Avg Order Value" value={`₹${parseFloat(summary.aov).toFixed(2)}`} icon={<TrendingUp size={24} />} color="#8b5cf6" />
       </div>
 
-      <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
+      <div className="mobile-stack" style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
         {/* Revenue Chart */}
-        <div style={{ flex: '2 1 500px', background: 'white', padding: '1.5rem', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+        <div style={{ flex: '2 1 100%', background: 'white', padding: '1.5rem', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
           <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.1rem' }}>Revenue Trend</h3>
           <SimpleBarChart data={chart} />
         </div>
 
         {/* Payment & Customers */}
-        <div style={{ flex: '1 1 300px', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+        <div style={{ flex: '1 1 100%', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           <div style={{ background: 'white', padding: '1.5rem', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
             <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.1rem' }}>Cash vs QR</h3>
             {totalPayment === 0 ? (
@@ -154,14 +154,14 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
+      <div className="mobile-stack" style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
         {/* Top Products */}
-        <div style={{ flex: '1 1 400px', background: 'white', padding: '1.5rem', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+        <div style={{ flex: '1 1 100%', background: 'white', padding: '1.5rem', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
           <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.1rem' }}>Top Selling Products</h3>
           {topProducts.length === 0 ? (
             <p style={{ color: '#6b7280' }}>No products sold in this period.</p>
           ) : (
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <div className="table-responsive"><table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid #e5e7eb', textAlign: 'left', color: '#6b7280', fontSize: '0.875rem' }}>
                   <th style={{ paddingBottom: '0.5rem' }}>Product</th>
@@ -183,12 +183,12 @@ export default function Dashboard() {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table></div>
           )}
         </div>
 
         {/* Low Stock Alerts */}
-        <div style={{ flex: '1 1 400px', background: 'white', padding: '1.5rem', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+        <div style={{ flex: '1 1 100%', background: 'white', padding: '1.5rem', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
             <AlertTriangle color="#f59e0b" size={20} />
             <h3 style={{ margin: 0, fontSize: '1.1rem' }}>Low Stock & Out of Stock</h3>
@@ -196,7 +196,7 @@ export default function Dashboard() {
           {lowStock.length === 0 ? (
             <p style={{ color: '#6b7280' }}>All products are well stocked.</p>
           ) : (
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <div className="table-responsive"><table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid #e5e7eb', textAlign: 'left', color: '#6b7280', fontSize: '0.875rem' }}>
                   <th style={{ paddingBottom: '0.5rem' }}>Product</th>
@@ -227,10 +227,11 @@ export default function Dashboard() {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table></div>
           )}
         </div>
       </div>
     </div>
   );
 }
+

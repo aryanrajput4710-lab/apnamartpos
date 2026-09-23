@@ -28,7 +28,7 @@ export default function InventoryHistory() {
       <h3>{variantId ? 'Variant Stock History' : 'Global Stock History'}</h3>
       
       {loading ? <p>Loading...</p> : (
-        <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse', backgroundColor: 'white' }}>
+        <div className="table-responsive"><table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse', backgroundColor: 'white' }}>
           <thead>
             <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
               <th style={{ padding: '0.75rem' }}>Date</th>
@@ -53,8 +53,9 @@ export default function InventoryHistory() {
               </tr>
             ))}
           </tbody>
-        </table>
+        </table></div>
       )}
     </div>
   );
 }
+

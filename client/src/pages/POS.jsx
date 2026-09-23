@@ -286,7 +286,7 @@ export default function POS() {
       </div>
 
       {/* Right Pane: Cart & Customer */}
-      <div style={{ width: '400px', background: 'white', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ width: '100%', maxWidth: '400px', background: 'white', display: 'flex', flexDirection: 'column' }}>
         
         {/* Customer Section */}
         <div style={{ padding: '1rem', borderBottom: '1px solid #e5e7eb', background: '#f8fafc' }}>
@@ -377,7 +377,7 @@ export default function POS() {
       {/* New Customer Modal */}
       {showCustomerModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 50 }}>
-          <div style={{ background: 'white', padding: '2rem', borderRadius: '8px', width: '400px' }}>
+          <div style={{ background: 'white', padding: '2rem', borderRadius: '8px', width: '100%', maxWidth: '400px' }}>
             <h3 style={{ marginTop: 0 }}>Add New Customer</h3>
             <p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>No customer found for {newCustomer.phone}</p>
             
@@ -407,7 +407,7 @@ export default function POS() {
       {/* Checkout Modal */}
       {showCheckoutModal && !orderSuccess && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 50 }}>
-          <div style={{ background: 'white', padding: '2rem', borderRadius: '8px', width: '400px' }}>
+          <div style={{ background: 'white', padding: '2rem', borderRadius: '8px', width: '100%', maxWidth: '400px' }}>
             <h2 style={{ marginTop: 0, marginBottom: '1.5rem', textAlign: 'center' }}>Complete Payment</h2>
             
             <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem' }}>
@@ -464,7 +464,7 @@ export default function POS() {
       {/* Success Modal */}
       {orderSuccess && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 60, overflowY: 'auto', padding: '2rem' }}>
-          <div style={{ background: 'white', padding: '2rem', borderRadius: '8px', display: 'flex', gap: '2rem', maxWidth: '800px', width: '100%', alignItems: 'flex-start' }}>
+          <div className="mobile-col" style={{ background: 'white', padding: '2rem', borderRadius: '8px', display: 'flex', gap: '2rem', maxWidth: '800px', width: '100%', alignItems: 'flex-start' }}>
             
             <div style={{ flex: 1, textAlign: 'center' }}>
               <div style={{ width: '64px', height: '64px', background: '#dcfce3', color: '#16a34a', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem auto' }}>
@@ -497,3 +497,7 @@ export default function POS() {
     </div>
   );
 }
+
+
+
+

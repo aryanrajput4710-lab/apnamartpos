@@ -53,7 +53,7 @@ export default function Products() {
       />
 
       {loading ? <p>Loading...</p> : (
-        <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse', backgroundColor: 'white' }}>
+        <div className="table-responsive"><table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse', backgroundColor: 'white' }}>
           <thead>
             <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
               <th style={{ padding: '0.75rem' }}>Name</th>
@@ -81,8 +81,9 @@ export default function Products() {
               </tr>
             ))}
           </tbody>
-        </table>
+        </table></div>
       )}
     </div>
   );
 }
+

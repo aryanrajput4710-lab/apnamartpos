@@ -126,7 +126,7 @@ export default function Inventory() {
       />
 
       {loading ? <p>Loading...</p> : (
-        <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse', backgroundColor: 'white' }}>
+        <div className="table-responsive"><table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse', backgroundColor: 'white' }}>
           <thead>
             <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
               <th style={{ padding: '0.75rem' }}>Product</th>
@@ -170,7 +170,7 @@ export default function Inventory() {
               );
             })}
           </tbody>
-        </table>
+        </table></div>
       )}
 
       {showModal && (
@@ -204,3 +204,5 @@ export default function Inventory() {
     </div>
   );
 }
+
+

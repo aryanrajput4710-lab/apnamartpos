@@ -113,7 +113,7 @@ export default function Reports() {
             {data.chart.length === 0 ? (
               <p style={{ color: '#6b7280' }}>No sales for this period.</p>
             ) : (
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <div className="table-responsive"><table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ background: '#f3f4f6', borderBottom: '1px solid #e5e7eb', textAlign: 'left' }}>
                     <th style={{ padding: '1rem' }}>Date</th>
@@ -137,14 +137,14 @@ export default function Reports() {
                     <td style={{ padding: '1rem', textAlign: 'right', color: '#10b981' }}>₹{parseFloat(data.summary.revenue).toFixed(2)}</td>
                   </tr>
                 </tfoot>
-              </table>
+              </table></div>
             )}
           </div>
 
           <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
             <div style={{ flex: '1 1 400px', background: 'white', padding: '1.5rem', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
               <h3 style={{ margin: '0 0 1rem 0' }}>Payment Report</h3>
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <div className="table-responsive"><table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ background: '#f3f4f6', borderBottom: '1px solid #e5e7eb', textAlign: 'left' }}>
                     <th style={{ padding: '1rem' }}>Method</th>
@@ -164,7 +164,7 @@ export default function Reports() {
                     <td style={{ padding: '1rem', textAlign: 'right', fontWeight: 'bold' }}>₹{data.paymentSummary.QR.amount.toFixed(2)}</td>
                   </tr>
                 </tbody>
-              </table>
+              </table></div>
             </div>
 
             <div style={{ flex: '1 1 400px', background: 'white', padding: '1.5rem', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
@@ -172,7 +172,7 @@ export default function Reports() {
               {data.topProducts.length === 0 ? (
                 <p style={{ color: '#6b7280' }}>No products sold.</p>
               ) : (
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <div className="table-responsive"><table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
                     <tr style={{ background: '#f3f4f6', borderBottom: '1px solid #e5e7eb', textAlign: 'left' }}>
                       <th style={{ padding: '1rem' }}>Product Variant</th>
@@ -192,7 +192,7 @@ export default function Reports() {
                       </tr>
                     ))}
                   </tbody>
-                </table>
+                </table></div>
               )}
             </div>
           </div>
@@ -201,3 +201,4 @@ export default function Reports() {
     </div>
   );
 }
+

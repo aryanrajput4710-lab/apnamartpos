@@ -64,7 +64,7 @@ export default function Customers() {
       ) : (
         <>
           <div style={{ overflowX: 'auto', background: 'white', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '800px' }}>
+            <div className="table-responsive"><table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '800px' }}>
               <thead>
                 <tr style={{ background: '#f3f4f6', borderBottom: '1px solid #e5e7eb', textAlign: 'left' }}>
                   <th style={{ padding: '1rem' }}>Name</th>
@@ -93,7 +93,7 @@ export default function Customers() {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table></div>
           </div>
 
           {pagination.totalPages > 1 && (
@@ -120,3 +120,4 @@ export default function Customers() {
     </div>
   );
 }
+
