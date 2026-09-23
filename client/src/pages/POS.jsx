@@ -10,6 +10,7 @@ export default function POS() {
   
   // Cart State
   const [cart, setCart] = useState([]);
+  const [extraDiscount, setExtraDiscount] = useState('');
   
   // Scanner / Search State
   const [scanInput, setScanInput] = useState('');
@@ -134,6 +135,7 @@ export default function POS() {
     if (cart.length > 0 && window.confirm('Clear all items from this sale?')) {
       setCart([]);
       setCustomer(null);
+      setExtraDiscount("");
     }
   };
 
@@ -158,11 +160,13 @@ export default function POS() {
       totalDiscount += itemDiscount;
     });
 
-    return {
-      subtotal,
-      discount: totalDiscount,
-      total: subtotal - totalDiscount
-    };
+    const manualDiscount = parseFloat(extraDiscount) || 0;
+      const finalDiscount = totalDiscount + manualDiscount;
+      return {
+        subtotal,
+        discount: finalDiscount,
+        total: Math.max(0, subtotal - finalDiscount)
+      };
   };
 
   const totals = calculateTotals();
@@ -212,6 +216,7 @@ export default function POS() {
         customerPhone: customerPhone || null,
         customerName: newCustomer.name || null,
         paymentMethod,
+        extraDiscount: parseFloat(extraDiscount) || 0,
         idempotencyKey
       };
       
@@ -220,6 +225,7 @@ export default function POS() {
       setCart([]);
       setCustomer(null);
       setCustomerPhone('');
+        setExtraDiscount('');
     } catch (err) {
       alert(err.response?.data?.message || 'Checkout failed');
     } finally {
@@ -277,9 +283,9 @@ export default function POS() {
                   <p style={{ margin: '0', fontSize: '0.875rem', color: '#4b5563' }}>{v.size ? `Size: ${v.size}` : ''} {v.color ? `Color: ${v.color}` : ''}</p>
                   <p style={{ margin: '0.25rem 0', fontSize: '0.875rem', color: '#6b7280' }}>SKU: {v.sku}</p>
                   <div style={{ marginTop: '0.5rem' }}>
-                      <div style={{ textDecoration: 'line-through', color: '#9ca3af', fontSize: '0.875rem' }}>MRP: ?{v.mrp}</div>
+                      <div style={{ textDecoration: 'line-through', color: '#9ca3af', fontSize: '0.875rem' }}>MRP: Rs. {v.mrp}</div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontWeight: 'bold', fontSize: '1.25rem', color: '#16a34a' }}>?{v.sellingPrice}</span>
+                        <span style={{ fontWeight: 'bold', fontSize: '1.25rem', color: '#16a34a' }}>Rs. {v.sellingPrice}</span>
                         <span style={{ fontSize: '0.875rem', color: v.stock > 0 ? '#16a34a' : '#dc2626', fontWeight: 'bold' }}>
                           {v.stock > 0 ? `Stock: ${v.stock}` : 'Out of Stock'}
                         </span>
@@ -337,8 +343,8 @@ export default function POS() {
                   <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
                     {item.size || ''} {item.color ? `/ ${item.color}` : ''}
                   </div>
-                  <div style={{ fontSize: '0.75rem', color: '#9ca3af', textDecoration: 'line-through' }}>MRP: ?{item.mrp}</div>
-                    <div style={{ fontSize: '1rem', color: '#16a34a', fontWeight: 'bold' }}>?{item.sellingPrice}</div>
+                  <div style={{ fontSize: '0.75rem', color: '#9ca3af', textDecoration: 'line-through' }}>MRP: Rs. {item.mrp}</div>
+                    <div style={{ fontSize: '1rem', color: '#16a34a', fontWeight: 'bold' }}>Rs. {item.sellingPrice}</div>
                 </div>
                 
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
@@ -360,15 +366,15 @@ export default function POS() {
         <div style={{ padding: '1.5rem', background: '#f8fafc', borderTop: '1px solid #e5e7eb' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', color: '#4b5563' }}>
             <span>Subtotal</span>
-            <span>?{totals.subtotal.toFixed(2)}</span>
+            <span>Rs. {totals.subtotal.toFixed(2)}</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', color: '#16a34a' }}>
             <span>Discount</span>
-            <span>- ?{totals.discount.toFixed(2)}</span>
+            <span>- Rs. {totals.discount.toFixed(2)}</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', margin: '1rem 0', fontSize: '1.5rem', fontWeight: 'bold' }}>
             <span>Total</span>
-            <span>?{totals.total.toFixed(2)}</span>
+            <span>Rs. {totals.total.toFixed(2)}</span>
           </div>
           
           <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -541,6 +547,10 @@ export default function POS() {
     </div>
   );
 }
+
+
+
+
 
 
 

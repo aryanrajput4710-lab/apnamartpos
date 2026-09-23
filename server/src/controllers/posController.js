@@ -1,4 +1,4 @@
-const { PrismaClient } = require('@prisma/client');
+﻿const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 const scanProduct = async (req, res) => {
@@ -72,7 +72,7 @@ const searchProducts = async (req, res) => {
 
 const checkout = async (req, res) => {
   try {
-    let { items, customerId, customerPhone, customerName, paymentMethod, idempotencyKey } = req.body;
+    let { items, customerId, customerPhone, customerName, paymentMethod, idempotencyKey, extraDiscount } = req.body;
 
     if (!customerId && customerPhone) {
       const existingCustomer = await prisma.customer.findUnique({ where: { phone: customerPhone } });
@@ -105,7 +105,7 @@ const checkout = async (req, res) => {
 
     const order = await prisma.$transaction(async (tx) => {
       let subtotal = 0;
-      let totalDiscount = 0;
+      let totalDiscount = parseFloat(extraDiscount) || 0;
       const orderItemsData = [];
 
       for (const item of items) {
@@ -151,7 +151,7 @@ const checkout = async (req, res) => {
         });
       }
 
-      const total = subtotal - totalDiscount;
+      const total = Math.max(0, subtotal - totalDiscount);
 
       // Generate order number
       // In a very high concurrency environment, you'd want a DB sequence.
@@ -269,4 +269,5 @@ module.exports = {
   checkout,
   getReceipt
 };
+
 
