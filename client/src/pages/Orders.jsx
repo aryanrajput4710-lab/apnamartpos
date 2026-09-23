@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Printer, RotateCcw } from 'lucide-react';
 import api from '../services/api';
@@ -186,7 +186,7 @@ export default function Orders() {
                       )}
                     </td>
                     <td style={{ padding: '1rem' }}>{o._count?.items || 0} line items</td>
-                    <td style={{ padding: '1rem', fontWeight: 'bold' }}>â‚¹{parseFloat(o.total).toFixed(2)}</td>
+                    <td style={{ padding: '1rem', fontWeight: 'bold' }}>Rs. {parseFloat(o.total).toFixed(2)}</td>
                     <td style={{ padding: '1rem' }}>{o.payments?.[0]?.method || ' '}</td>
                     <td style={{ padding: '1rem' }}>
                       <span style={{ padding: '0.25rem 0.5rem', background: o.payments?.[0]?.status === 'COMPLETED' ? '#dcfce3' : '#fef3c7', color: o.payments?.[0]?.status === 'COMPLETED' ? '#16a34a' : '#d97706', borderRadius: '999px', fontSize: '0.75rem', fontWeight: 'bold' }}>
@@ -237,6 +237,7 @@ export default function Orders() {
     </div>
   );
 }
+
 
 
 

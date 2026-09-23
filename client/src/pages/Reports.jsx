@@ -126,7 +126,7 @@ export default function Reports() {
                     <tr key={c.date} style={{ borderBottom: '1px solid #e5e7eb' }}>
                       <td style={{ padding: '1rem' }}>{c.date}</td>
                       <td style={{ padding: '1rem', textAlign: 'right' }}>{c.orders}</td>
-                      <td style={{ padding: '1rem', textAlign: 'right', fontWeight: 'bold' }}>₹{c.revenue.toFixed(2)}</td>
+                      <td style={{ padding: '1rem', textAlign: 'right', fontWeight: 'bold' }}>Rs. {c.revenue.toFixed(2)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -134,7 +134,7 @@ export default function Reports() {
                   <tr style={{ background: '#f9fafb', fontWeight: 'bold' }}>
                     <td style={{ padding: '1rem' }}>Total</td>
                     <td style={{ padding: '1rem', textAlign: 'right' }}>{data.summary.orders}</td>
-                    <td style={{ padding: '1rem', textAlign: 'right', color: '#10b981' }}>₹{parseFloat(data.summary.revenue).toFixed(2)}</td>
+                    <td style={{ padding: '1rem', textAlign: 'right', color: '#10b981' }}>Rs. {parseFloat(data.summary.revenue).toFixed(2)}</td>
                   </tr>
                 </tfoot>
               </table></div>
@@ -147,7 +147,7 @@ export default function Reports() {
             <div style={{ display: 'flex', gap: '2rem', marginBottom: '1.5rem', background: '#fef2f2', padding: '1rem', borderRadius: '8px' }}>
               <div>
                 <p style={{ margin: 0, fontSize: '0.875rem', color: '#991b1b' }}>Total Refunded Amount</p>
-                <h2 style={{ margin: 0, color: '#dc2626' }}>Rs. {data.returns?.summary?.refundAmount?.toFixed(2) || '0.00'}</h2>
+                <h2 style={{ margin: 0, color: '#dc2626' }}>Rs. {data.returns?.summary?.refundAmount?.toFixed(2) || Rs. 0.00'}</h2>
               </div>
               <div>
                 <p style={{ margin: 0, fontSize: '0.875rem', color: '#991b1b' }}>Items Returned</p>
@@ -175,7 +175,7 @@ export default function Reports() {
                       <td style={{ padding: '1rem' }}>{r.orderItem.productNameSnapshot}</td>
                       <td style={{ padding: '1rem' }}>{r.reason}</td>
                       <td style={{ padding: '1rem', textAlign: 'right' }}>{r.quantity}</td>
-                      <td style={{ padding: '1rem', textAlign: 'right', fontWeight: 'bold', color: '#ef4444' }}>Rs. {parseFloat(r.refundAmount).toFixed(2)}</td>
+                      <td style={{ padding: '1rem', textAlign: 'right', fontWeight: 'bold', color: '#ef4444' }}>Rs.Rs. {parseFloat(r.refundAmount).toFixed(2)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -230,7 +230,7 @@ export default function Reports() {
                           <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>{tp.skuSnapshot}</div>
                         </td>
                         <td style={{ padding: '1rem', textAlign: 'right' }}>{tp._sum.quantity}</td>
-                        <td style={{ padding: '1rem', textAlign: 'right', fontWeight: 'bold' }}>₹{parseFloat(tp._sum.total).toFixed(2)}</td>
+                        <td style={{ padding: '1rem', textAlign: 'right', fontWeight: 'bold' }}>Rs. {parseFloat(tp._sum.total).toFixed(2)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -243,5 +243,6 @@ export default function Reports() {
     </div>
   );
 }
+
 
 

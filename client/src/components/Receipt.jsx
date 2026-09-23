@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import './Receipt.css';
 
 export default function Receipt({ order }) {
@@ -67,9 +67,9 @@ export default function Receipt({ order }) {
             <div className="receipt-item-main">
               <span className="col-item">{item.productNameSnapshot}</span>
               <span className="col-qty">{item.quantity}</span>
-              <span className="col-price">â‚¹{parseFloat(item.unitPrice).toFixed(0)}</span>
-              <span className="col-disc">â‚¹{parseFloat(item.discount).toFixed(0)}</span>
-              <span className="col-sub">â‚¹{parseFloat(item.total).toFixed(0)}</span>
+              <span className="col-price">Rs. {parseFloat(item.unitPrice).toFixed(0)}</span>
+              <span className="col-disc">Rs. {parseFloat(item.discount).toFixed(0)}</span>
+              <span className="col-sub">Rs. {parseFloat(item.total).toFixed(0)}</span>
             </div>
             <div className="receipt-item-details">
               {item.sizeSnapshot && `Size: ${item.sizeSnapshot}`}
@@ -90,19 +90,19 @@ export default function Receipt({ order }) {
       <div className="receipt-totals">
         <div className="receipt-total-row">
           <span>Subtotal</span>
-          <span>â‚¹{parseFloat(order.subtotal).toFixed(2)}</span>
+          <span>Rs. {parseFloat(order.subtotal).toFixed(2)}</span>
         </div>
         <div className="receipt-total-row">
           <span>Discount</span>
-          <span>â‚¹{parseFloat(order.discount).toFixed(2)}</span>
+          <span>Rs. {parseFloat(order.discount).toFixed(2)}</span>
         </div>
         <div className="receipt-total-row">
           <span>Tax</span>
-          <span>â‚¹0.00</span>
+          <span>Rs. 0.00</span>
         </div>
         <div className="receipt-total-row receipt-final-total">
           <span>TOTAL</span>
-          <span>â‚¹{parseFloat(order.total).toFixed(2)}</span>
+          <span>Rs. {parseFloat(order.total).toFixed(2)}</span>
         </div>
       </div>
 
@@ -126,12 +126,12 @@ export default function Receipt({ order }) {
             <div className="receipt-pay-row">
               <span className="receipt-info-label">Cash Received</span>
               <span className="receipt-info-colon">:</span>
-              <span className="receipt-info-value">â‚¹{parseFloat(cashAmount).toFixed(2)}</span>
+              <span className="receipt-info-value">Rs. {parseFloat(cashAmount).toFixed(2)}</span>
             </div>
             <div className="receipt-pay-row">
               <span className="receipt-info-label">Change Returned</span>
               <span className="receipt-info-colon">:</span>
-              <span className="receipt-info-value">â‚¹0.00</span>
+              <span className="receipt-info-value">Rs. 0.00</span>
             </div>
           </>
         )}
@@ -149,5 +149,6 @@ export default function Receipt({ order }) {
     </div>
   );
 }
+
 
 
