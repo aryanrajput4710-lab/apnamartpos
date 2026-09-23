@@ -67,7 +67,116 @@ const createCustomer = async (req, res) => {
   }
 };
 
+const getCustomers = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const search = req.query.search || '';
+
+    const skip = (page - 1) * limit;
+
+    const where = search ? {
+      OR: [
+        { name: { contains: search, mode: 'insensitive' } },
+        { phone: { contains: search } }
+      ]
+    } : {};
+
+    const [customers, total] = await Promise.all([
+      prisma.customer.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          orders: {
+            where: { status: 'COMPLETED' },
+            orderBy: { createdAt: 'desc' },
+            take: 1
+          }
+        }
+      }),
+      prisma.customer.count({ where })
+    ]);
+
+    res.status(200).json({
+      success: true,
+      data: customers,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit)
+      }
+    });
+  } catch (error) {
+    console.error('Get customers error:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+const getCustomerById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const customer = await prisma.customer.findUnique({
+      where: { id },
+      include: {
+        orders: {
+          where: { status: 'COMPLETED' },
+          orderBy: { createdAt: 'desc' },
+          take: 1
+        }
+      }
+    });
+
+    if (!customer) return res.status(404).json({ success: false, message: 'Not found' });
+    res.status(200).json({ success: true, data: customer });
+  } catch (error) {
+    console.error('Get customer by id error:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+const getCustomerOrders = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const skip = (page - 1) * limit;
+
+    const where = { customerId: id };
+
+    const [orders, total] = await Promise.all([
+      prisma.order.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        include: { payments: true, items: true }
+      }),
+      prisma.order.count({ where })
+    ]);
+
+    res.status(200).json({
+      success: true,
+      data: orders,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit)
+      }
+    });
+  } catch (error) {
+    console.error('Get customer orders error:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
 module.exports = {
   searchCustomers,
-  createCustomer
+  createCustomer,
+  getCustomers,
+  getCustomerById,
+  getCustomerOrders
 };

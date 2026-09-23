@@ -34,7 +34,7 @@ export default function Receipt({ order }) {
         <div className="receipt-info-row">
           <span className="receipt-info-label">Order No</span>
           <span className="receipt-info-colon">:</span>
-          <span className="receipt-info-value">{order.id.split('-')[0].toUpperCase()}</span>
+          <span className="receipt-info-value">{order.orderNumber || order.id.split('-')[0].toUpperCase()}</span>
         </div>
         <div className="receipt-info-row">
           <span className="receipt-info-label">Date</span>

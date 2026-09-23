@@ -136,6 +136,7 @@ enum PaymentMethod {
 
 model Order {
   id          String      @id @default(uuid())
+  orderNumber String      @unique @default(uuid())
   customerId  String?
   subtotal    Decimal
   discount    Decimal     @default(0)
@@ -153,6 +154,7 @@ model Order {
   @@index([customerId])
   @@index([createdBy])
   @@index([createdAt])
+  @@index([orderNumber])
 }
 
 model OrderItem {
@@ -192,3 +194,4 @@ model Payment {
 
   @@index([orderId])
 }
+

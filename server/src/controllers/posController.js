@@ -131,9 +131,16 @@ const checkout = async (req, res) => {
 
       const total = subtotal - totalDiscount;
 
+      // Generate order number
+      // In a very high concurrency environment, you'd want a DB sequence.
+      // For this offline POS, a simple count + 1 padded is safe enough.
+      const orderCount = await tx.order.count();
+      const orderNumber = `STORE-${String(orderCount + 1).padStart(6, '0')}`;
+
       // Create Order
       const newOrder = await tx.order.create({
         data: {
+          orderNumber,
           customerId: customerId || null,
           subtotal,
           discount: totalDiscount,
