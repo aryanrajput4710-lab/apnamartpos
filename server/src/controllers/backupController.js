@@ -64,7 +64,7 @@ const createBackup = async (req, res) => {
     const dbUrl = process.env.DATABASE_URL;
     if (!dbUrl) throw new Error('Database URL not found');
 
-    const command = "pg_dump "$dbUrl" -F c -f "$filepath"";
+    const command = `pg_dump "${dbUrl}" -F c -f "${filepath}"`;
 
     exec(command, async (error, stdout, stderr) => {
       if (error) {
@@ -110,7 +110,7 @@ const restoreBackup = async (req, res) => {
     }
 
     const dbUrl = process.env.DATABASE_URL;
-    const command = "pg_restore --clean -d "$dbUrl" "$filepath"";
+    const command = `pg_restore --clean -d "${dbUrl}" "${filepath}"`;
 
     exec(command, async (error, stdout, stderr) => {
       if (error) {
