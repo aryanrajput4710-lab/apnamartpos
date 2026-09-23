@@ -1,0 +1,356 @@
+import { useState, useRef, useEffect } from 'react';
+import api from '../services/api';
+import { useAuth } from '../context/AuthContext';
+import { ShoppingCart, User, Search, Trash2, Plus, Minus, X } from 'lucide-react';
+
+export default function POS() {
+  const { currentUser } = useAuth();
+  
+  // Cart State
+  const [cart, setCart] = useState([]);
+  
+  // Scanner / Search State
+  const [scanInput, setScanInput] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const scanInputRef = useRef(null);
+
+  // Customer State
+  const [customerPhone, setCustomerPhone] = useState('');
+  const [customer, setCustomer] = useState(null);
+  const [showCustomerModal, setShowCustomerModal] = useState(false);
+  const [newCustomer, setNewCustomer] = useState({ name: '', email: '', address: '' });
+
+  // Focus scanner on mount and on clicks outside
+  useEffect(() => {
+    scanInputRef.current?.focus();
+    const handleWindowClick = (e) => {
+      // If they aren't clicking an input, refocus the scanner
+      if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+        scanInputRef.current?.focus();
+      }
+    };
+    window.addEventListener('click', handleWindowClick);
+    return () => window.removeEventListener('click', handleWindowClick);
+  }, []);
+
+  const handleScanSubmit = async (e) => {
+    e.preventDefault();
+    if (!scanInput.trim()) return;
+    
+    // First try as exact barcode scan
+    try {
+      // Strip "STOREPOS:" prefix if scanner reads it, or just pass exact
+      let code = scanInput.trim();
+      if (code.startsWith('STOREPOS:')) code = code.replace('STOREPOS:', '');
+
+      const res = await api.get(`/pos/scan/${code}`);
+      const variant = res.data.data;
+      
+      if (variant.stock <= 0) {
+        alert('Product is out of stock!');
+      } else {
+        addToCart(variant);
+      }
+      setScanInput('');
+      setSearchResults([]);
+    } catch (err) {
+      // If 404, maybe they typed a name. Try search.
+      if (err.response?.status === 404) {
+        searchProducts(scanInput);
+      } else {
+        alert(err.response?.data?.message || 'Error scanning product');
+      }
+    }
+  };
+
+  const searchProducts = async (query) => {
+    setIsSearching(true);
+    try {
+      const res = await api.get(`/pos/search?q=${query}`);
+      setSearchResults(res.data.data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const addToCart = (variant) => {
+    setCart(prev => {
+      const existing = prev.find(item => item.id === variant.id);
+      if (existing) {
+        if (existing.quantity >= variant.stock) {
+          alert(`Only ${variant.stock} available in stock.`);
+          return prev;
+        }
+        return prev.map(item => 
+          item.id === variant.id ? { ...item, quantity: item.quantity + 1 } : item
+        );
+      }
+      return [...prev, { ...variant, quantity: 1 }];
+    });
+    setSearchResults([]);
+    setScanInput('');
+    scanInputRef.current?.focus();
+  };
+
+  const updateQuantity = (id, delta) => {
+    setCart(prev => prev.map(item => {
+      if (item.id === id) {
+        const newQty = item.quantity + delta;
+        if (newQty <= 0) return item; // Handled by remove
+        if (newQty > item.stock) {
+          alert(`Only ${item.stock} available in stock.`);
+          return item;
+        }
+        return { ...item, quantity: newQty };
+      }
+      return item;
+    }));
+  };
+
+  const removeFromCart = (id) => {
+    setCart(prev => prev.filter(item => item.id !== id));
+  };
+
+  const clearCart = () => {
+    if (cart.length > 0 && window.confirm('Clear all items from this sale?')) {
+      setCart([]);
+      setCustomer(null);
+    }
+  };
+
+  // Calculations
+  const calculateTotals = () => {
+    let subtotal = 0;
+    let totalDiscount = 0;
+    
+    cart.forEach(item => {
+      const price = parseFloat(item.sellingPrice);
+      const qty = item.quantity;
+      const lineTotal = price * qty;
+      
+      let itemDiscount = 0;
+      if (item.discountType === 'FIXED') {
+        itemDiscount = parseFloat(item.discountValue) * qty;
+      } else if (item.discountType === 'PERCENTAGE') {
+        itemDiscount = lineTotal * (parseFloat(item.discountValue) / 100);
+      }
+
+      subtotal += lineTotal;
+      totalDiscount += itemDiscount;
+    });
+
+    return {
+      subtotal,
+      discount: totalDiscount,
+      total: subtotal - totalDiscount
+    };
+  };
+
+  const totals = calculateTotals();
+
+  // Customer Management
+  const searchCustomer = async () => {
+    if (!customerPhone) return;
+    try {
+      const res = await api.get(`/customers/search?q=${customerPhone}`);
+      const found = res.data.data;
+      if (found.length > 0) {
+        setCustomer(found[0]); // Take exact/closest match
+      } else {
+        setShowCustomerModal(true);
+        setNewCustomer(prev => ({ ...prev, phone: customerPhone }));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const createCustomer = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await api.post('/customers', newCustomer);
+      setCustomer(res.data.data);
+      setShowCustomerModal(false);
+    } catch (err) {
+      alert(err.response?.data?.message || 'Error creating customer');
+    }
+  };
+
+  return (
+    <div style={{ display: 'flex', height: 'calc(100vh - 64px)', background: '#f3f4f6', margin: '-2rem', overflow: 'hidden' }}>
+      
+      {/* Left Pane: Scanner & Search */}
+      <div style={{ flex: '1', display: 'flex', flexDirection: 'column', padding: '1rem', borderRight: '1px solid #e5e7eb' }}>
+        <form onSubmit={handleScanSubmit} style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+          <div style={{ flex: 1, position: 'relative' }}>
+            <Search size={20} style={{ position: 'absolute', left: '10px', top: '10px', color: '#6b7280' }} />
+            <input
+              ref={scanInputRef}
+              type="text"
+              value={scanInput}
+              onChange={(e) => setScanInput(e.target.value)}
+              placeholder="Scan barcode or type to search..."
+              style={{ width: '100%', padding: '0.75rem 1rem 0.75rem 2.5rem', fontSize: '1.1rem', borderRadius: '8px', border: '2px solid #3b82f6', outline: 'none' }}
+            />
+          </div>
+          <button type="submit" style={{ padding: '0 1.5rem', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold' }}>
+            Find
+          </button>
+        </form>
+
+        {isSearching && <p>Searching...</p>}
+
+        <div style={{ flex: 1, overflowY: 'auto' }}>
+          {searchResults.length > 0 && (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem' }}>
+              {searchResults.map(v => (
+                <div 
+                  key={v.id} 
+                  onClick={() => v.stock > 0 && addToCart(v)}
+                  style={{ 
+                    background: 'white', padding: '1rem', borderRadius: '8px', cursor: v.stock > 0 ? 'pointer' : 'not-allowed',
+                    border: '1px solid #e5e7eb', opacity: v.stock > 0 ? 1 : 0.6,
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+                  }}
+                >
+                  <h4 style={{ margin: '0 0 0.5rem 0' }}>{v.product.name}</h4>
+                  <p style={{ margin: '0', fontSize: '0.875rem', color: '#4b5563' }}>{v.size ? `Size: ${v.size}` : ''} {v.color ? `Color: ${v.color}` : ''}</p>
+                  <p style={{ margin: '0.25rem 0', fontSize: '0.875rem', color: '#6b7280' }}>SKU: {v.sku}</p>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.5rem' }}>
+                    <span style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>₹{v.sellingPrice}</span>
+                    <span style={{ fontSize: '0.875rem', color: v.stock > 0 ? '#16a34a' : '#dc2626', fontWeight: 'bold' }}>
+                      {v.stock > 0 ? `Stock: ${v.stock}` : 'Out of Stock'}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Right Pane: Cart & Customer */}
+      <div style={{ width: '400px', background: 'white', display: 'flex', flexDirection: 'column' }}>
+        
+        {/* Customer Section */}
+        <div style={{ padding: '1rem', borderBottom: '1px solid #e5e7eb', background: '#f8fafc' }}>
+          {customer ? (
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <div style={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <User size={16}/> {customer.name}
+                </div>
+                <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>{customer.phone} • Orders: {customer.totalOrders}</div>
+              </div>
+              <button onClick={() => setCustomer(null)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer' }}><X size={20}/></button>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <input 
+                type="text" 
+                placeholder="Customer Phone..." 
+                value={customerPhone} 
+                onChange={e => setCustomerPhone(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && searchCustomer()}
+                style={{ flex: 1, padding: '0.5rem', borderRadius: '4px', border: '1px solid #d1d5db' }}
+              />
+              <button onClick={searchCustomer} style={{ padding: '0.5rem 1rem', background: '#1e293b', color: 'white', border: 'none', borderRadius: '4px' }}>Find</button>
+            </div>
+          )}
+        </div>
+
+        {/* Cart Items */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: '1rem' }}>
+          {cart.length === 0 ? (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#9ca3af' }}>
+              <ShoppingCart size={48} style={{ marginBottom: '1rem' }} />
+              <p>Cart is empty. Scan a product to begin.</p>
+            </div>
+          ) : (
+            cart.map(item => (
+              <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', paddingBottom: '1rem', borderBottom: '1px solid #f3f4f6' }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 'bold' }}>{item.product.name}</div>
+                  <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+                    {item.size || ''} {item.color ? `/ ${item.color}` : ''}
+                  </div>
+                  <div style={{ fontSize: '0.875rem', color: '#3b82f6', fontWeight: 'bold' }}>₹{item.sellingPrice}</div>
+                </div>
+                
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#f3f4f6', borderRadius: '4px', padding: '0.25rem' }}>
+                    <button onClick={() => updateQuantity(item.id, -1)} disabled={item.quantity <= 1} style={{ border: 'none', background: 'white', borderRadius: '4px', padding: '0.25rem', cursor: 'pointer' }}><Minus size={16}/></button>
+                    <span style={{ width: '2rem', textAlign: 'center', fontWeight: 'bold' }}>{item.quantity}</span>
+                    <button onClick={() => updateQuantity(item.id, 1)} style={{ border: 'none', background: 'white', borderRadius: '4px', padding: '0.25rem', cursor: 'pointer' }}><Plus size={16}/></button>
+                  </div>
+                  <button onClick={() => removeFromCart(item.id)} style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.25rem', cursor: 'pointer' }}>
+                    <Trash2 size={14} /> Remove
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Totals & Actions */}
+        <div style={{ padding: '1.5rem', background: '#f8fafc', borderTop: '1px solid #e5e7eb' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', color: '#4b5563' }}>
+            <span>Subtotal</span>
+            <span>₹{totals.subtotal.toFixed(2)}</span>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', color: '#16a34a' }}>
+            <span>Discount</span>
+            <span>- ₹{totals.discount.toFixed(2)}</span>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', margin: '1rem 0', fontSize: '1.5rem', fontWeight: 'bold' }}>
+            <span>Total</span>
+            <span>₹{totals.total.toFixed(2)}</span>
+          </div>
+          
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button onClick={clearCart} disabled={cart.length === 0} style={{ padding: '1rem', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: cart.length === 0 ? 'not-allowed' : 'pointer' }}>
+              Clear
+            </button>
+            <button disabled={cart.length === 0} style={{ flex: 1, padding: '1rem', background: cart.length === 0 ? '#9ca3af' : '#22c55e', color: 'white', border: 'none', borderRadius: '8px', fontSize: '1.1rem', fontWeight: 'bold', cursor: cart.length === 0 ? 'not-allowed' : 'pointer' }}>
+              Continue to Payment
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* New Customer Modal */}
+      {showCustomerModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 50 }}>
+          <div style={{ background: 'white', padding: '2rem', borderRadius: '8px', width: '400px' }}>
+            <h3 style={{ marginTop: 0 }}>Add New Customer</h3>
+            <p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>No customer found for {newCustomer.phone}</p>
+            
+            <form onSubmit={createCustomer} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.875rem', marginBottom: '0.25rem' }}>Phone Number *</label>
+                <input required value={newCustomer.phone} onChange={e => setNewCustomer({...newCustomer, phone: e.target.value})} style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d1d5db' }} />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.875rem', marginBottom: '0.25rem' }}>Full Name *</label>
+                <input required autoFocus value={newCustomer.name} onChange={e => setNewCustomer({...newCustomer, name: e.target.value})} style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d1d5db' }} />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.875rem', marginBottom: '0.25rem' }}>Email (Optional)</label>
+                <input type="email" value={newCustomer.email} onChange={e => setNewCustomer({...newCustomer, email: e.target.value})} style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d1d5db' }} />
+              </div>
+              
+              <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                <button type="button" onClick={() => setShowCustomerModal(false)} style={{ flex: 1, padding: '0.75rem', border: '1px solid #d1d5db', background: 'white', borderRadius: '4px' }}>Cancel</button>
+                <button type="submit" style={{ flex: 1, padding: '0.75rem', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '4px', fontWeight: 'bold' }}>Save Customer</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
+}

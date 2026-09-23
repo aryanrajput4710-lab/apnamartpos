@@ -12,6 +12,7 @@ import ProductForm from './pages/ProductForm';
 import ProductDetail from './pages/ProductDetail';
 import Inventory from './pages/Inventory';
 import InventoryHistory from './pages/InventoryHistory';
+import POS from './pages/POS';
 
 function App() {
   return (
@@ -25,7 +26,7 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route element={<AppLayout />}>
               <Route path="/" element={<Dashboard />} />
-              <Route path="/pos" element={<div>POS Page</div>} />
+              <Route path="/pos" element={<POS />} />
               
               <Route path="/products" element={<Products />} />
               <Route path="/products/:id" element={<ProductDetail />} />
