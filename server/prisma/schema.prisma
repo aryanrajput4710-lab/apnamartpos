@@ -23,6 +23,7 @@ model User {
   updatedAt    DateTime @updatedAt
 
   inventoryTransactions InventoryTransaction[]
+  orders                Order[]
 }
 
 enum DiscountType {
@@ -67,6 +68,7 @@ model ProductVariant {
 
   product           Product  @relation(fields: [productId], references: [id])
   inventoryTransactions InventoryTransaction[]
+  orderItems        OrderItem[]
 
   @@index([sku])
   @@index([barcode])
@@ -120,6 +122,65 @@ model Customer {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  orders      Order[]
+
   @@index([phone])
   @@index([name])
+}
+
+
+enum PaymentMethod {
+  CASH
+  QR
+}
+
+model Order {
+  id          String      @id @default(uuid())
+  customerId  String?
+  subtotal    Decimal
+  discount    Decimal     @default(0)
+  total       Decimal
+  status      String      @default("COMPLETED")
+  createdBy   String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  customer    Customer?   @relation(fields: [customerId], references: [id])
+  user        User        @relation(fields: [createdBy], references: [id])
+  items       OrderItem[]
+  payments    Payment[]
+
+  @@index([customerId])
+  @@index([createdBy])
+  @@index([createdAt])
+}
+
+model OrderItem {
+  id          String         @id @default(uuid())
+  orderId     String
+  variantId   String
+  quantity    Int
+  unitPrice   Decimal
+  discount    Decimal        @default(0)
+  total       Decimal
+  createdAt   DateTime       @default(now())
+
+  order       Order          @relation(fields: [orderId], references: [id])
+  variant     ProductVariant @relation(fields: [variantId], references: [id])
+
+  @@index([orderId])
+  @@index([variantId])
+}
+
+model Payment {
+  id          String        @id @default(uuid())
+  orderId     String
+  amount      Decimal
+  method      PaymentMethod
+  status      String        @default("COMPLETED")
+  createdAt   DateTime      @default(now())
+
+  order       Order         @relation(fields: [orderId], references: [id])
+
+  @@index([orderId])
 }

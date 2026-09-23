@@ -23,6 +23,12 @@ export default function POS() {
   const [showCustomerModal, setShowCustomerModal] = useState(false);
   const [newCustomer, setNewCustomer] = useState({ name: '', email: '', address: '' });
 
+  // Checkout State
+  const [showCheckoutModal, setShowCheckoutModal] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState('CASH');
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [orderSuccess, setOrderSuccess] = useState(null);
+
   // Focus scanner on mount and on clicks outside
   useEffect(() => {
     scanInputRef.current?.focus();
@@ -187,6 +193,33 @@ export default function POS() {
     }
   };
 
+  const handleCheckout = async () => {
+    setIsProcessing(true);
+    try {
+      const payload = {
+        items: cart.map(item => ({ variantId: item.id, quantity: item.quantity })),
+        customerId: customer?.id || null,
+        paymentMethod
+      };
+      
+      const res = await api.post('/pos/checkout', payload);
+      setOrderSuccess(res.data.data);
+      setCart([]);
+      setCustomer(null);
+      setCustomerPhone('');
+    } catch (err) {
+      alert(err.response?.data?.message || 'Checkout failed');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const closeSuccessModal = () => {
+    setOrderSuccess(null);
+    setShowCheckoutModal(false);
+    scanInputRef.current?.focus();
+  };
+
   return (
     <div style={{ display: 'flex', height: 'calc(100vh - 64px)', background: '#f3f4f6', margin: '-2rem', overflow: 'hidden' }}>
       
@@ -325,7 +358,7 @@ export default function POS() {
             <button onClick={clearCart} disabled={cart.length === 0} style={{ padding: '1rem', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: cart.length === 0 ? 'not-allowed' : 'pointer' }}>
               Clear
             </button>
-            <button disabled={cart.length === 0} style={{ flex: 1, padding: '1rem', background: cart.length === 0 ? '#9ca3af' : '#22c55e', color: 'white', border: 'none', borderRadius: '8px', fontSize: '1.1rem', fontWeight: 'bold', cursor: cart.length === 0 ? 'not-allowed' : 'pointer' }}>
+            <button onClick={() => setShowCheckoutModal(true)} disabled={cart.length === 0} style={{ flex: 1, padding: '1rem', background: cart.length === 0 ? '#9ca3af' : '#22c55e', color: 'white', border: 'none', borderRadius: '8px', fontSize: '1.1rem', fontWeight: 'bold', cursor: cart.length === 0 ? 'not-allowed' : 'pointer' }}>
               Continue to Payment
             </button>
           </div>
@@ -358,6 +391,79 @@ export default function POS() {
                 <button type="submit" style={{ flex: 1, padding: '0.75rem', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '4px', fontWeight: 'bold' }}>Save Customer</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Checkout Modal */}
+      {showCheckoutModal && !orderSuccess && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 50 }}>
+          <div style={{ background: 'white', padding: '2rem', borderRadius: '8px', width: '400px' }}>
+            <h2 style={{ marginTop: 0, marginBottom: '1.5rem', textAlign: 'center' }}>Complete Payment</h2>
+            
+            <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.1rem', marginBottom: '0.5rem' }}>
+                <span>Subtotal</span>
+                <span>₹{totals.subtotal.toFixed(2)}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.1rem', marginBottom: '0.5rem', color: '#16a34a' }}>
+                <span>Discount</span>
+                <span>- ₹{totals.discount.toFixed(2)}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.5rem', fontWeight: 'bold', marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #e5e7eb' }}>
+                <span>Total to Pay</span>
+                <span>₹{totals.total.toFixed(2)}</span>
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '1.5rem' }}>
+              <h4 style={{ margin: '0 0 0.5rem 0' }}>Payment Method</h4>
+              <div style={{ display: 'flex', gap: '1rem' }}>
+                <button 
+                  onClick={() => setPaymentMethod('CASH')}
+                  style={{ flex: 1, padding: '1rem', border: paymentMethod === 'CASH' ? '2px solid #3b82f6' : '1px solid #d1d5db', background: paymentMethod === 'CASH' ? '#eff6ff' : 'white', borderRadius: '8px', fontWeight: 'bold' }}
+                >
+                  CASH
+                </button>
+                <button 
+                  onClick={() => setPaymentMethod('QR')}
+                  style={{ flex: 1, padding: '1rem', border: paymentMethod === 'QR' ? '2px solid #3b82f6' : '1px solid #d1d5db', background: paymentMethod === 'QR' ? '#eff6ff' : 'white', borderRadius: '8px', fontWeight: 'bold' }}
+                >
+                  STORE QR
+                </button>
+              </div>
+            </div>
+
+            {paymentMethod === 'QR' && (
+              <div style={{ textAlign: 'center', marginBottom: '1.5rem', padding: '1rem', background: '#f8fafc', borderRadius: '8px' }}>
+                <p style={{ margin: '0 0 1rem 0', fontWeight: 'bold' }}>Scan to Pay</p>
+                <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=store@upi&pn=StorePOS&am=${totals.total.toFixed(2)}`} alt="UPI QR" style={{ width: '150px', height: '150px' }} />
+                <p style={{ margin: '1rem 0 0 0', fontSize: '0.875rem', color: '#6b7280' }}>Ask customer to scan using any UPI app</p>
+              </div>
+            )}
+
+            <div style={{ display: 'flex', gap: '1rem' }}>
+              <button onClick={() => setShowCheckoutModal(false)} disabled={isProcessing} style={{ flex: 1, padding: '1rem', border: '1px solid #d1d5db', background: 'white', borderRadius: '8px' }}>Cancel</button>
+              <button onClick={handleCheckout} disabled={isProcessing} style={{ flex: 2, padding: '1rem', background: '#22c55e', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '1.1rem' }}>
+                {isProcessing ? 'Processing...' : 'Confirm Payment'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Success Modal */}
+      {orderSuccess && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 60 }}>
+          <div style={{ background: 'white', padding: '3rem 2rem', borderRadius: '8px', width: '400px', textAlign: 'center' }}>
+            <div style={{ width: '64px', height: '64px', background: '#dcfce3', color: '#16a34a', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem auto' }}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </div>
+            <h2 style={{ margin: '0 0 0.5rem 0' }}>Payment Successful!</h2>
+            <p style={{ color: '#6b7280', margin: '0 0 2rem 0' }}>Order #{orderSuccess.id.substring(0,8).toUpperCase()}</p>
+            <button onClick={closeSuccessModal} style={{ width: '100%', padding: '1rem', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '1.1rem' }}>
+              Start New Sale
+            </button>
           </div>
         </div>
       )}
