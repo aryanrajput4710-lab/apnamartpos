@@ -3,16 +3,13 @@ import { useParams } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import api from '../services/api';
 import './LabelPrint.css';
-
 export default function ProductDetail() {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     fetchProduct();
   }, [id]);
-
   const fetchProduct = async () => {
     try {
       const res = await api.get(`/products/${id}`);
@@ -23,14 +20,11 @@ export default function ProductDetail() {
       setLoading(false);
     }
   };
-
   const handlePrint = () => {
     window.print();
   };
-
   if (loading) return <div>Loading...</div>;
   if (!product) return <div>Product not found</div>;
-
   return (
     <div className="product-detail-container">
       <div className="no-print" style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between' }}>
@@ -42,7 +36,6 @@ export default function ProductDetail() {
           Print Labels
         </button>
       </div>
-
       <div className="print-area">
         {product.variants.map((variant) => (
           <div className="label-container" key={variant.id}>
@@ -52,7 +45,8 @@ export default function ProductDetail() {
               </div>
               <div className="label-info-wrapper">
                 <div className="label-product-name">{product.name}</div>
-                <div className="label-info-line">Size: {variant.size || 'N/A'}</div>
+                <div className="label-info-line">Brand: {product.brand || 'N/A'}</div>
+                  <div className="label-info-line">Size: {variant.size || 'N/A'}</div>
                 <div className="label-info-line">Color: {variant.color || 'N/A'}</div>
                 {/* Ingredient is COMPLETELY REMOVED per specs */}
               </div>
@@ -61,8 +55,8 @@ export default function ProductDetail() {
             <div className="label-divider"></div>
             
             <div className="label-price-section">
-                <div className="label-mrp-text" style={{ textDecoration: 'line-through', fontSize: '0.7rem', color: '#666', marginBottom: '2px' }}>MRP: Rs. {variant.mrp}</div>
-                <div className="label-price-text" style={{ fontSize: '0.95rem', fontWeight: 'bold' }}>Rs. {variant.sellingPrice}</div>
+                <div className="label-mrp-text" style={{ textDecoration: 'line-through', fontSize: '0.95rem', letterSpacing: '2px', color: '#333', marginBottom: '2px' }}>MRP: Rs. {variant.mrp}</div>
+                <div className="label-price-text" style={{ fontSize: '1.3rem', fontWeight: 'bold' }}>Discount Price: Rs. {variant.sellingPrice}</div>
               </div>
           </div>
         ))}
@@ -70,4 +64,6 @@ export default function ProductDetail() {
     </div>
   );
 }
+
+
 
