@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import api from '../services/api';
 
 export default function Settings() {
@@ -95,6 +95,24 @@ export default function Settings() {
             <input value={settings.storePhone || ''} onChange={e => setSettings({...settings, storePhone: e.target.value})} style={{ width: '100%', padding: '0.5rem' }} />
           </div>
           <div>
+            <label>Payment QR Image (Upload)</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.5rem' }}>
+              {settings.paymentQrCodeUrl && (
+                <img src={settings.paymentQrCodeUrl} alt="QR Code" style={{ width: '100px', height: '100px', objectFit: 'contain', border: '1px solid #d1d5db', borderRadius: '4px' }} />
+              )}
+              <input type="file" accept="image/*" onChange={(e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                  setSettings({ ...settings, paymentQrCodeUrl: ev.target.result });
+                };
+                reader.readAsDataURL(file);
+              }} />
+            </div>
+            <small style={{ color: '#6b7280' }}>Upload your store's UPI QR code image to show it during checkout.</small>
+          </div>
+          <div>
             <label>Receipt Footer</label>
             <textarea value={settings.receiptFooter || ''} onChange={e => setSettings({...settings, receiptFooter: e.target.value})} style={{ width: '100%', padding: '0.5rem' }} />
           </div>
@@ -174,3 +192,4 @@ export default function Settings() {
     </div>
   );
 }
+

@@ -1,4 +1,4 @@
-﻿import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { ShoppingCart, User, Search, Trash2, Plus, Minus, X, Camera } from 'lucide-react';
@@ -31,6 +31,11 @@ export default function POS() {
   const [paymentMethod, setPaymentMethod] = useState('CASH');
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(null);
+  const [settings, setSettings] = useState(null);
+
+  useEffect(() => {
+    api.get('/settings').then(res => setSettings(res.data.data)).catch(console.error);
+  }, []);
 
   // Focus scanner on mount and on clicks outside
   useEffect(() => {
@@ -494,7 +499,11 @@ export default function POS() {
                 {paymentMethod === 'QR' && (
                   <div style={{ textAlign: 'center', marginBottom: '1.5rem', padding: '1rem', background: '#f8fafc', borderRadius: '8px' }}>
                     <p style={{ margin: '0 0 1rem 0', fontWeight: 'bold' }}>Scan to Pay</p>
-                    <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=store@upi&pn=StorePOS&am=${totals.total.toFixed(2)}`} alt="UPI QR" style={{ width: '150px', height: '150px' }} />
+                    {settings?.paymentQrCodeUrl ? (
+                        <img src={settings.paymentQrCodeUrl} alt="Store QR" style={{ width: '150px', height: '150px', objectFit: 'contain' }} />
+                      ) : (
+                        <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=store@upi&pn=StorePOS&am=${totals.total.toFixed(2)}`} alt="UPI QR" style={{ width: '150px', height: '150px' }} />
+                      )}
                     <p style={{ margin: '1rem 0 0 0', fontSize: '0.875rem', color: '#6b7280' }}>Ask customer to scan using any UPI app</p>
                   </div>
                 )}
@@ -547,6 +556,9 @@ export default function POS() {
     </div>
   );
 }
+
+
+
 
 
 

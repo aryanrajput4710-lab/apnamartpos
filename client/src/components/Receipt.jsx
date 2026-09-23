@@ -1,16 +1,22 @@
-import React from 'react';
+﻿import React, { useState, useEffect } from 'react';
+import api from '../services/api';
 import './Receipt.css';
 
 export default function Receipt({ order }) {
+  const [settings, setSettings] = useState(null);
+
+  useEffect(() => {
+    api.get('/settings').then(res => setSettings(res.data.data)).catch(console.error);
+  }, []);
+
   if (!order) return null;
 
-  // Format date and time
   const dateObj = new Date(order.createdAt);
   const dateStr = dateObj.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
   const timeStr = dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 
   const isCash = order.payments && order.payments[0]?.method === 'CASH';
-  const cashAmount = isCash ? order.payments[0].amount : 0; // For now just show amount as received
+  const cashAmount = isCash ? order.payments[0].amount : 0;
 
   return (
     <div className="receipt-container">
@@ -20,9 +26,10 @@ export default function Receipt({ order }) {
           <img src="/receipt-logo.jpg" alt="Apna Mart" className="receipt-logo" />
         </div>
         <div className="receipt-header-right">
-          <h1 className="receipt-store-name">Apna Mart</h1>
-          <p className="receipt-address">Gaya Bhagat Chowk,Golma</p>
+          <h1 className="receipt-store-name">{settings?.storeName || 'Apna Mart'}</h1>
+          <p className="receipt-address">{settings?.storeAddress || 'Gaya Bhagat Chowk,Golma'}</p>
           <p className="receipt-location">District - Saharsa,PIN-852107</p>
+          {settings?.storePhone && <p className="receipt-tagline">Phone: {settings.storePhone}</p>}
           <p className="receipt-tagline">Best Quality Low Price</p>
         </div>
       </div>
@@ -46,8 +53,6 @@ export default function Receipt({ order }) {
           <span className="receipt-info-colon">:</span>
           <span className="receipt-info-value">{timeStr}</span>
         </div>
-        
-        
       </div>
 
       <div className="receipt-separator" />
@@ -72,9 +77,9 @@ export default function Receipt({ order }) {
               <span className="col-sub">Rs. {parseFloat(item.total).toFixed(0)}</span>
             </div>
             <div className="receipt-item-details">
-              {item.sizeSnapshot && `Size: ${item.sizeSnapshot}`}
+              {item.sizeSnapshot && Size:  + item.sizeSnapshot}
               {item.sizeSnapshot && item.colorSnapshot && ' | '}
-              {item.colorSnapshot && `Color: ${item.colorSnapshot}`}
+              {item.colorSnapshot && Color:  + item.colorSnapshot}
               <br />
               SKU: {item.skuSnapshot}
               <br />
@@ -149,6 +154,3 @@ export default function Receipt({ order }) {
     </div>
   );
 }
-
-
-
