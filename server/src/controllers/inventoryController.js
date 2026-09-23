@@ -157,6 +157,17 @@ const performStockOperation = async (variantId, quantity, reason, userId, type, 
       }
     });
 
+    await tx.auditLog.create({
+      data: {
+        userId,
+        action: \`STOCK_\${type.split('_').pop()}\`, // e.g., STOCK_IN
+        entityType: 'INVENTORY',
+        entityId: variantId,
+        description: \`Manual \${type} of \${quantity}\`,
+        metadata: { previousStock, newStock, reason }
+      }
+    });
+
     return txn;
   });
 };
@@ -208,7 +219,7 @@ const adjustStock = async (req, res) => {
         UPDATE "ProductVariant" SET stock = ${physicalStock}, "updatedAt" = NOW() WHERE id = ${variantId}
       `;
 
-      return tx.inventoryTransaction.create({
+      const txn = await tx.inventoryTransaction.create({
         data: {
           variantId,
           type: 'ADJUSTMENT',
@@ -220,6 +231,19 @@ const adjustStock = async (req, res) => {
           createdBy: req.user.id
         }
       });
+
+      await tx.auditLog.create({
+        data: {
+          userId: req.user.id,
+          action: 'STOCK_ADJUSTED',
+          entityType: 'INVENTORY',
+          entityId: variantId,
+          description: \`Manual stock adjustment to \${physicalStock}\`,
+          metadata: { previousStock, newStock: physicalStock, reason }
+        }
+      });
+
+      return txn;
     });
 
     res.status(200).json({ success: true, data: txn });

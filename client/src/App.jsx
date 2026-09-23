@@ -18,6 +18,8 @@ import Customers from './pages/Customers';
 import CustomerDetail from './pages/CustomerDetail';
 import Orders from './pages/Orders';
 import Reports from './pages/Reports';
+import Settings from './pages/Settings';
+import AuditLogs from './pages/AuditLogs';
 
 function App() {
   return (
@@ -49,7 +51,8 @@ function App() {
                 <Route path="/products/new" element={<ProductForm />} />
                 <Route path="/inventory/history" element={<InventoryHistory />} />
                 <Route path="/users" element={<Users />} />
-                <Route path="/settings" element={<div>Settings Page</div>} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/audit-logs" element={<AuditLogs />} />
               </Route>
             </Route>
           </Route>

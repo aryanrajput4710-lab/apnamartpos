@@ -6,7 +6,9 @@ const {
   updateProduct, 
   toggleProductStatus,
   createVariant,
-  getVariantsByProduct
+  getVariantsByProduct,
+  exportCatalog,
+  importCatalog
 } = require('../controllers/productController');
 const { requireAuth, requireRole } = require('../middleware/auth');
 
@@ -16,6 +18,8 @@ router.use(requireAuth);
 
 // Product Routes
 router.get('/', getProducts);
+router.get('/catalog/export', requireRole('ADMIN'), exportCatalog);
+router.post('/catalog/import', requireRole('ADMIN'), importCatalog);
 router.get('/:id', getProductById);
 router.post('/', requireRole('ADMIN'), createProduct);
 router.put('/:id', requireRole('ADMIN'), updateProduct);

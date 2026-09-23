@@ -194,13 +194,21 @@ export default function POS() {
     }
   };
 
+  const [idempotencyKey, setIdempotencyKey] = useState('');
+
+  const openCheckout = () => {
+    setIdempotencyKey(crypto.randomUUID());
+    setShowCheckoutModal(true);
+  };
+
   const handleCheckout = async () => {
     setIsProcessing(true);
     try {
       const payload = {
         items: cart.map(item => ({ variantId: item.id, quantity: item.quantity })),
         customerId: customer?.id || null,
-        paymentMethod
+        paymentMethod,
+        idempotencyKey
       };
       
       const res = await api.post('/pos/checkout', payload);
@@ -359,7 +367,7 @@ export default function POS() {
             <button onClick={clearCart} disabled={cart.length === 0} style={{ padding: '1rem', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: cart.length === 0 ? 'not-allowed' : 'pointer' }}>
               Clear
             </button>
-            <button onClick={() => setShowCheckoutModal(true)} disabled={cart.length === 0} style={{ flex: 1, padding: '1rem', background: cart.length === 0 ? '#9ca3af' : '#22c55e', color: 'white', border: 'none', borderRadius: '8px', fontSize: '1.1rem', fontWeight: 'bold', cursor: cart.length === 0 ? 'not-allowed' : 'pointer' }}>
+            <button onClick={openCheckout} disabled={cart.length === 0} style={{ flex: 1, padding: '1rem', background: cart.length === 0 ? '#9ca3af' : '#22c55e', color: 'white', border: 'none', borderRadius: '8px', fontSize: '1.1rem', fontWeight: 'bold', cursor: cart.length === 0 ? 'not-allowed' : 'pointer' }}>
               Continue to Payment
             </button>
           </div>

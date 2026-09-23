@@ -24,6 +24,7 @@ model User {
 
   inventoryTransactions InventoryTransaction[]
   orders                Order[]
+  auditLogs             AuditLog[]
 }
 
 enum DiscountType {
@@ -142,6 +143,7 @@ model Order {
   discount    Decimal     @default(0)
   total       Decimal
   status      String      @default("COMPLETED")
+  idempotencyKey String?  @unique
   createdBy   String
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
@@ -195,3 +197,33 @@ model Payment {
   @@index([orderId])
 }
 
+
+model StoreSettings {
+  id              String   @id @default("default")
+  storeName       String   @default("Apna Mart")
+  storeAddress    String?
+  storePhone      String?
+  receiptFooter   String?
+  paymentQrCodeUrl String?
+  updatedAt       DateTime @updatedAt
+}
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  userId      String?
+  action      String
+  entityType  String
+  entityId    String?
+  description String?
+  metadata    Json?
+  ipAddress   String?
+  createdAt   DateTime @default(now())
+
+  user        User?    @relation(fields: [userId], references: [id])
+
+  @@index([createdAt])
+  @@index([userId])
+  @@index([action])
+  @@index([entityType])
+  @@index([entityId])
+}

@@ -72,13 +72,23 @@ const searchProducts = async (req, res) => {
 
 const checkout = async (req, res) => {
   try {
-    const { items, customerId, paymentMethod } = req.body;
+    const { items, customerId, paymentMethod, idempotencyKey } = req.body;
     
     if (!items || items.length === 0) {
       return res.status(400).json({ success: false, message: 'Cart is empty' });
     }
     if (!paymentMethod || (paymentMethod !== 'CASH' && paymentMethod !== 'QR')) {
       return res.status(400).json({ success: false, message: 'Invalid payment method' });
+    }
+
+    if (idempotencyKey) {
+      const existingOrder = await prisma.order.findUnique({
+        where: { idempotencyKey },
+        include: { items: true, payments: true, customer: true, user: { select: { name: true } } }
+      });
+      if (existingOrder) {
+        return res.status(200).json({ success: true, data: existingOrder, message: 'Order already processed' });
+      }
     }
 
     const order = await prisma.$transaction(async (tx) => {
@@ -141,6 +151,7 @@ const checkout = async (req, res) => {
       const newOrder = await tx.order.create({
         data: {
           orderNumber,
+          idempotencyKey: idempotencyKey || null,
           customerId: customerId || null,
           subtotal,
           discount: totalDiscount,
@@ -170,6 +181,17 @@ const checkout = async (req, res) => {
           }
         },
         include: { items: true, payments: true, customer: true, user: { select: { name: true } } }
+      });
+
+      await tx.auditLog.create({
+        data: {
+          userId: req.user.id,
+          action: 'ORDER_CREATED',
+          entityType: 'ORDER',
+          entityId: newOrder.id,
+          description: `Order ${orderNumber} created for total ${total}`,
+          metadata: { total, paymentMethod, itemsCount: items.length }
+        }
       });
 
       // Update Stock & Create Inventory Transactions

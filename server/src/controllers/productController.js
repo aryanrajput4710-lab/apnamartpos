@@ -244,6 +244,74 @@ const getVariantsByProduct = async (req, res) => {
   }
 };
 
+
+
+const exportCatalog = async (req, res) => {
+  try {
+    const products = await prisma.product.findMany({
+      include: {
+        variants: true
+      }
+    });
+    res.status(200).json({ success: true, data: products });
+  } catch (error) {
+    console.error('Export error:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+const importCatalog = async (req, res) => {
+  try {
+    const { products } = req.body;
+    if (!products || !Array.isArray(products)) {
+      return res.status(400).json({ success: false, message: 'Invalid payload' });
+    }
+
+    const imported = await prisma.$transaction(async (tx) => {
+      let count = 0;
+      for (const p of products) {
+        if (!p.name) throw new Error('Product name is required');
+        
+        const newProduct = await tx.product.create({
+          data: {
+            name: p.name,
+            description: p.description || null,
+            category: p.category || null,
+            brand: p.brand || null,
+            isActive: p.isActive !== undefined ? p.isActive : true,
+            variants: {
+              create: (p.variants || []).map(v => {
+                if (!v.sku || !v.barcode || v.mrp === undefined || v.sellingPrice === undefined) {
+                  throw new Error(`Variant missing required fields for product ${p.name}`);
+                }
+                return {
+                  sku: v.sku,
+                  barcode: v.barcode,
+                  color: v.color || null,
+                  size: v.size || null,
+                  mrp: v.mrp,
+                  sellingPrice: v.sellingPrice,
+                  discountType: v.discountType || 'NONE',
+                  discountValue: v.discountValue || 0,
+                  stock: 0, // Never import stock! Must use opening stock transactions.
+                  lowStockThreshold: v.lowStockThreshold || 5,
+                  isActive: v.isActive !== undefined ? v.isActive : true,
+                };
+              })
+            }
+          }
+        });
+        count++;
+      }
+      return count;
+    });
+
+    res.status(200).json({ success: true, message: `Successfully imported ${imported} products.` });
+  } catch (error) {
+    console.error('Import error:', error);
+    res.status(400).json({ success: false, message: error.message || 'Import failed' });
+  }
+};
 module.exports = {
   createProduct,
   getProducts,
@@ -251,5 +319,7 @@ module.exports = {
   updateProduct,
   toggleProductStatus,
   createVariant,
-  getVariantsByProduct
+  getVariantsByProduct,
+  exportCatalog,
+  importCatalog
 };

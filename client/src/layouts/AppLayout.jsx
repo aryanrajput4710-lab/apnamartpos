@@ -21,6 +21,7 @@ export default function AppLayout() {
     { name: 'Reports', path: '/reports', icon: <TrendingUp size={20} />, roles: ['ADMIN'] },
     { name: 'Users', path: '/users', icon: <UserPlus size={20} />, roles: ['ADMIN'] },
     { name: 'Settings', path: '/settings', icon: <Settings size={20} />, roles: ['ADMIN'] },
+    { name: 'Audit Logs', path: '/audit-logs', icon: <FileText size={20} />, roles: ['ADMIN'] },
   ];
 
   return (
