@@ -10,6 +10,7 @@ const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const productRoutes = require('./routes/productRoutes');
 const variantRoutes = require('./routes/variantRoutes');
+const inventoryRoutes = require('./routes/inventoryRoutes');
 
 // Important: set credentials to true for cookies over CORS
 app.use(cors({
@@ -24,6 +25,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/variants', variantRoutes);
+app.use('/api/inventory', inventoryRoutes);
 
 // Temporary test routes for role validation
 const { requireAuth, requireRole } = require('./middleware/auth');

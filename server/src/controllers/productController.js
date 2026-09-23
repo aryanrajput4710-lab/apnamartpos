@@ -46,7 +46,7 @@ const createProduct = async (req, res) => {
         });
 
         for (const v of variants) {
-          await tx.productVariant.create({
+          const variant = await tx.productVariant.create({
             data: {
               productId: p.id,
               sku: v.sku || generateUniqueSku(p.name, v.color, v.size),
@@ -61,6 +61,20 @@ const createProduct = async (req, res) => {
               lowStockThreshold: v.lowStockThreshold || 5,
             }
           });
+
+          if (v.stock > 0) {
+            await tx.inventoryTransaction.create({
+              data: {
+                variantId: variant.id,
+                type: 'STOCK_IN',
+                quantity: v.stock,
+                previousStock: 0,
+                newStock: v.stock,
+                reason: 'OPENING_STOCK',
+                createdBy: req.user.id
+              }
+            });
+          }
         }
         
         return tx.product.findUnique({
@@ -176,20 +190,37 @@ const createVariant = async (req, res) => {
       actualSku = generateUniqueSku(product.name, color, size);
     }
 
-    const variant = await prisma.productVariant.create({
-      data: {
-        productId,
-        sku: actualSku,
-        barcode: generateUniqueBarcode(),
-        color: color || null,
-        size: size || null,
-        mrp,
-        sellingPrice,
-        discountType: discountType || 'NONE',
-        discountValue: discountValue || 0,
-        stock: stock || 0,
-        lowStockThreshold: lowStockThreshold || 5
+    const variant = await prisma.$transaction(async (tx) => {
+      const v = await tx.productVariant.create({
+        data: {
+          productId,
+          sku: actualSku,
+          barcode: generateUniqueBarcode(),
+          color: color || null,
+          size: size || null,
+          mrp,
+          sellingPrice,
+          discountType: discountType || 'NONE',
+          discountValue: discountValue || 0,
+          stock: stock || 0,
+          lowStockThreshold: lowStockThreshold || 5
+        }
+      });
+
+      if (v.stock > 0) {
+        await tx.inventoryTransaction.create({
+          data: {
+            variantId: v.id,
+            type: 'STOCK_IN',
+            quantity: v.stock,
+            previousStock: 0,
+            newStock: v.stock,
+            reason: 'OPENING_STOCK',
+            createdBy: req.user.id
+          }
+        });
       }
+      return v;
     });
 
     res.status(201).json({ success: true, data: variant });

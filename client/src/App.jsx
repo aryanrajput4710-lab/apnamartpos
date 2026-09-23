@@ -10,6 +10,8 @@ import AppLayout from './layouts/AppLayout';
 import Products from './pages/Products';
 import ProductForm from './pages/ProductForm';
 import ProductDetail from './pages/ProductDetail';
+import Inventory from './pages/Inventory';
+import InventoryHistory from './pages/InventoryHistory';
 
 function App() {
   return (
@@ -28,12 +30,16 @@ function App() {
               <Route path="/products" element={<Products />} />
               <Route path="/products/:id" element={<ProductDetail />} />
               
+              <Route path="/inventory" element={<Inventory />} />
+              <Route path="/inventory/:variantId/history" element={<InventoryHistory />} />
+              
               <Route path="/customers" element={<div>Customers Page</div>} />
               <Route path="/orders" element={<div>Orders Page</div>} />
               
               {/* Admin Only Routes */}
               <Route element={<RoleRoute allowedRoles={['ADMIN']} />}>
                 <Route path="/products/new" element={<ProductForm />} />
+                <Route path="/inventory/history" element={<InventoryHistory />} />
                 <Route path="/users" element={<Users />} />
                 <Route path="/settings" element={<div>Settings Page</div>} />
               </Route>
