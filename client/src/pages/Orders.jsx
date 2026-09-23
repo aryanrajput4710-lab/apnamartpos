@@ -234,9 +234,84 @@ export default function Orders() {
           )}
         </>
       )}
+      {returnOrder && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 100, overflowY: 'auto' }}>
+          <div style={{ background: 'white', padding: '2rem', borderRadius: '8px', width: '90%', maxWidth: '800px', maxHeight: '90vh', overflowY: 'auto' }}>
+            <h2 style={{ marginTop: 0 }}>Process Return (Order {returnOrder.orderNumber.split('-')[0]})</h2>
+            
+            <form onSubmit={handleReturnSubmit}>
+              <div className="table-responsive" style={{ marginBottom: '1.5rem' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr style={{ background: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
+                      <th style={{ padding: '0.5rem', textAlign: 'left' }}>Product</th>
+                      <th style={{ padding: '0.5rem', textAlign: 'left' }}>Purchased</th>
+                      <th style={{ padding: '0.5rem', textAlign: 'left' }}>Returned</th>
+                      <th style={{ padding: '0.5rem', textAlign: 'left' }}>Return Qty</th>
+                      <th style={{ padding: '0.5rem', textAlign: 'left' }}>Reason</th>
+                      <th style={{ padding: '0.5rem', textAlign: 'left' }}>Missing Tag?</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {returnOrder.items.map(item => {
+                      const availableToReturn = item.quantity - (item.returnedQty || 0);
+                      return (
+                        <tr key={item.id} style={{ borderBottom: '1px solid #e5e7eb' }}>
+                          <td style={{ padding: '0.5rem' }}>{item.productNameSnapshot} <br/><small>{item.skuSnapshot}</small></td>
+                          <td style={{ padding: '0.5rem' }}>{item.quantity}</td>
+                          <td style={{ padding: '0.5rem' }}>{item.returnedQty || 0}</td>
+                          <td style={{ padding: '0.5rem' }}>
+                            <input 
+                              type="number" 
+                              min="0" 
+                              max={availableToReturn} 
+                              value={returnItems[item.id]?.quantity || 0}
+                              onChange={e => setReturnItems({...returnItems, [item.id]: { ...returnItems[item.id], quantity: parseInt(e.target.value) || 0 }})}
+                              disabled={availableToReturn === 0}
+                              style={{ width: '60px', padding: '0.25rem' }}
+                            />
+                          </td>
+                          <td style={{ padding: '0.5rem' }}>
+                            <select 
+                              value={returnItems[item.id]?.reason || 'Customer Return'}
+                              onChange={e => setReturnItems({...returnItems, [item.id]: { ...returnItems[item.id], reason: e.target.value }})}
+                              disabled={availableToReturn === 0}
+                              style={{ padding: '0.25rem' }}
+                            >
+                              <option value="Customer Return">Customer Return</option>
+                              <option value="Defective">Defective</option>
+                              <option value="Wrong Item">Wrong Item</option>
+                              <option value="Wrong Size">Wrong Size</option>
+                            </select>
+                          </td>
+                          <td style={{ padding: '0.5rem' }}>
+                            {returnItems[item.id]?.quantity > 0 && (
+                              <button type="button" onClick={() => printReplacementLabel(item)} style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', padding: '0.25rem 0.5rem', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '4px', fontSize: '0.8rem', cursor: 'pointer' }}>
+                                <Printer size={12}/> Print Tag
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+              
+              <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+                <button type="button" onClick={() => setReturnOrder(null)} style={{ padding: '0.75rem 1.5rem', border: '1px solid #d1d5db', background: 'white', borderRadius: '4px', cursor: 'pointer' }}>Cancel</button>
+                <button type="submit" disabled={returnProcessing} style={{ padding: '0.75rem 1.5rem', background: '#ef4444', color: 'white', border: 'none', borderRadius: '4px', fontWeight: 'bold', cursor: returnProcessing ? 'not-allowed' : 'pointer' }}>
+                  {returnProcessing ? 'Processing...' : 'Confirm Return'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
 
 
 
