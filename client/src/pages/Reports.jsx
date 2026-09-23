@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import api from '../services/api';
 
 export default function Reports() {
@@ -147,7 +147,7 @@ export default function Reports() {
             <div style={{ display: 'flex', gap: '2rem', marginBottom: '1.5rem', background: '#fef2f2', padding: '1rem', borderRadius: '8px' }}>
               <div>
                 <p style={{ margin: 0, fontSize: '0.875rem', color: '#991b1b' }}>Total Refunded Amount</p>
-                <h2 style={{ margin: 0, color: '#dc2626' }}>Rs. {data.returns?.summary?.refundAmount?.toFixed(2) || Rs. 0.00'}</h2>
+                <h2 style={{ margin: 0, color: '#dc2626' }}>Rs. {data.returns?.summary?.refundAmount?.toFixed(2) || '0.00'}</h2>
               </div>
               <div>
                 <p style={{ margin: 0, fontSize: '0.875rem', color: '#991b1b' }}>Items Returned</p>
@@ -198,12 +198,12 @@ export default function Reports() {
                   <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
                     <td style={{ padding: '1rem' }}>CASH</td>
                     <td style={{ padding: '1rem', textAlign: 'right' }}>{data.paymentSummary.CASH.orders}</td>
-                    <td style={{ padding: '1rem', textAlign: 'right', fontWeight: 'bold' }}>₹{data.paymentSummary.CASH.amount.toFixed(2)}</td>
+                    <td style={{ padding: '1rem', textAlign: 'right', fontWeight: 'bold' }}>â‚¹{data.paymentSummary.CASH.amount.toFixed(2)}</td>
                   </tr>
                   <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
                     <td style={{ padding: '1rem' }}>QR</td>
                     <td style={{ padding: '1rem', textAlign: 'right' }}>{data.paymentSummary.QR.orders}</td>
-                    <td style={{ padding: '1rem', textAlign: 'right', fontWeight: 'bold' }}>₹{data.paymentSummary.QR.amount.toFixed(2)}</td>
+                    <td style={{ padding: '1rem', textAlign: 'right', fontWeight: 'bold' }}>â‚¹{data.paymentSummary.QR.amount.toFixed(2)}</td>
                   </tr>
                 </tbody>
               </table></div>
@@ -243,6 +243,7 @@ export default function Reports() {
     </div>
   );
 }
+
 
 
 
