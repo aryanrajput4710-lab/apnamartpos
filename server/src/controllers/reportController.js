@@ -75,9 +75,9 @@ const getDashboardSummary = async (req, res) => {
       }
     });
 
-    const revenue = orderAgg._sum.total || 0;
+    const revenue = parseFloat(orderAgg._sum.total || 0);
     const ordersCount = orderAgg._count.id || 0;
-    const discounts = orderAgg._sum.discount || 0;
+    const discounts = parseFloat(orderAgg._sum.discount || 0);
     // Assuming no tax column on Order in Phase 5 schema; we'll treat it as 0.
     const tax = 0;
     const aov = ordersCount > 0 ? (revenue / ordersCount) : 0;
@@ -113,10 +113,10 @@ const getDashboardSummary = async (req, res) => {
 
     payments.forEach(p => {
       if (p.method === 'CASH') {
-        paymentSummary.CASH.amount = p._sum.amount || 0;
+        paymentSummary.CASH.amount = parseFloat(p._sum.amount || 0);
         paymentSummary.CASH.orders = p._count.id;
       } else if (p.method === 'QR') {
-        paymentSummary.QR.amount = p._sum.amount || 0;
+        paymentSummary.QR.amount = parseFloat(p._sum.amount || 0);
         paymentSummary.QR.orders = p._count.id;
       }
     });
@@ -147,6 +147,14 @@ const getDashboardSummary = async (req, res) => {
       },
       take: 5
     });
+
+    const formattedTopProducts = topItemsAgg.map(tp => ({
+      ...tp,
+      _sum: {
+        quantity: tp._sum.quantity,
+        total: parseFloat(tp._sum.total || 0)
+      }
+    }));
 
     // 6. Customers Stats
     const totalCustomers = await prisma.customer.count();
@@ -214,7 +222,7 @@ const getDashboardSummary = async (req, res) => {
         },
         paymentSummary,
         lowStock: lowStockVariants,
-        topProducts: topItemsAgg,
+        topProducts: formattedTopProducts,
         customerStats: {
           total: totalCustomers,
           new: newCustomers,
