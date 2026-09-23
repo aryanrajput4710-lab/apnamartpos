@@ -209,6 +209,28 @@ const getDashboardSummary = async (req, res) => {
       orders: Number(d.orders || 0)
     }));
 
+    // 8. Returns Stats
+    const returnAgg = await prisma.returnRecord.aggregate({
+      where: {
+        createdAt: { gte: start, lte: end }
+      },
+      _sum: { quantity: true, refundAmount: true }
+    });
+    const returnsSummary = {
+      quantity: returnAgg._sum.quantity || 0,
+      refundAmount: parseFloat(returnAgg._sum.refundAmount || 0)
+    };
+    
+    const recentReturns = await prisma.returnRecord.findMany({
+       where: { createdAt: { gte: start, lte: end } },
+       include: {
+         order: { select: { orderNumber: true } },
+         orderItem: { select: { productNameSnapshot: true } }
+       },
+       orderBy: { createdAt: 'desc' },
+       take: 10
+    });
+
     res.status(200).json({
       success: true,
       data: {
@@ -220,6 +242,7 @@ const getDashboardSummary = async (req, res) => {
           tax,
           discounts
         },
+        returns: { summary: returnsSummary, recent: recentReturns },
         paymentSummary,
         lowStock: lowStockVariants,
         topProducts: formattedTopProducts,
@@ -241,3 +264,4 @@ const getDashboardSummary = async (req, res) => {
 module.exports = {
   getDashboardSummary
 };
+

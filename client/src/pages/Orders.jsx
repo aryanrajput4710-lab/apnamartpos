@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Search } from 'lucide-react';
+import { Search, Printer, RotateCcw } from 'lucide-react';
 import api from '../services/api';
 
 export default function Orders() {
@@ -15,7 +15,65 @@ export default function Orders() {
   // Pagination
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState({});
+  const [returnOrder, setReturnOrder] = useState(null);
+  const [returnItems, setReturnItems] = useState({});
+  const [returnProcessing, setReturnProcessing] = useState(false);
 
+    const openReturnModal = async (orderId) => {
+    try {
+      const res = await api.get('/orders/' + orderId);
+      const order = res.data.data;
+      setReturnOrder(order);
+      const initialItems = {};
+      order.items.forEach(item => {
+        initialItems[item.id] = { quantity: 0, reason: 'Customer Return' };
+      });
+      setReturnItems(initialItems);
+    } catch (err) {
+      alert('Error fetching order details');
+    }
+  };
+
+  const handleReturnSubmit = async (e) => {
+    e.preventDefault();
+    const itemsToReturn = Object.entries(returnItems)
+      .filter(([id, data]) => data.quantity > 0)
+      .map(([id, data]) => ({ orderItemId: id, quantity: data.quantity, reason: data.reason }));
+      
+    if (itemsToReturn.length === 0) {
+      alert('No items selected to return');
+      return;
+    }
+
+    setReturnProcessing(true);
+    try {
+      await api.post('/orders/' + returnOrder.id + '/return', { items: itemsToReturn });
+      alert('Return processed successfully!');
+      setReturnOrder(null);
+      fetchOrders();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Error processing return');
+    } finally {
+      setReturnProcessing(false);
+    }
+  };
+
+  const printReplacementLabel = (item) => {
+    const printWin = window.open('', '_blank');
+    printWin.document.write(
+      <html>
+        <head><title>Replacement Label</title></head>
+        <body style="font-family: monospace; text-align: center; padding: 20px;">
+          <h2> + item.productNameSnapshot + </h2>
+          <p>Size:  + (item.sizeSnapshot || 'N/A') +  | Color:  + (item.colorSnapshot || 'N/A') + </p>
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data= + item.barcodeSnapshot + " />
+          <p><strong>Rs.  + item.unitPrice + </strong></p>
+          <script>window.print(); window.close();</script>
+        </body>
+      </html>
+    );
+    printWin.document.close();
+  };
   const fetchOrders = async () => {
     setLoading(true);
     try {
@@ -128,7 +186,7 @@ export default function Orders() {
                       )}
                     </td>
                     <td style={{ padding: '1rem' }}>{o._count?.items || 0} line items</td>
-                    <td style={{ padding: '1rem', fontWeight: 'bold' }}>₹{parseFloat(o.total).toFixed(2)}</td>
+                    <td style={{ padding: '1rem', fontWeight: 'bold' }}>â‚¹{parseFloat(o.total).toFixed(2)}</td>
                     <td style={{ padding: '1rem' }}>{o.payments?.[0]?.method || 'N/A'}</td>
                     <td style={{ padding: '1rem' }}>
                       <span style={{ padding: '0.25rem 0.5rem', background: o.payments?.[0]?.status === 'COMPLETED' ? '#dcfce3' : '#fef3c7', color: o.payments?.[0]?.status === 'COMPLETED' ? '#16a34a' : '#d97706', borderRadius: '999px', fontSize: '0.75rem', fontWeight: 'bold' }}>
@@ -141,10 +199,13 @@ export default function Orders() {
                       </span>
                     </td>
                     <td style={{ padding: '1rem', color: '#6b7280' }}>{o.user?.name}</td>
-                    <td style={{ padding: '1rem' }}>
-                      <Link to={`/receipt/${o.id}`} style={{ color: '#3b82f6', textDecoration: 'none', fontWeight: 'bold' }}>
-                        View / Print
-                      </Link>
+                    <td style={{ padding: '1rem', display: 'flex', gap: '0.5rem' }}>
+                      <Link to={`/receipt/${o.id}`} style={{ padding: '0.25rem 0.5rem', background: '#e5e7eb', borderRadius: '4px', textDecoration: 'none', color: 'black' }}>View / Print</Link>
+                      {(o.status === 'COMPLETED' || o.status === 'PARTIAL_RETURN') && (
+                        <button onClick={() => openReturnModal(o.id)} style={{ padding: '0.25rem 0.5rem', background: '#ef4444', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                          <RotateCcw size={14}/> Return
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -176,4 +237,6 @@ export default function Orders() {
     </div>
   );
 }
+
+
 

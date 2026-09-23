@@ -141,6 +141,48 @@ export default function Reports() {
             )}
           </div>
 
+          <div style={{ background: 'white', padding: '1.5rem', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+            <h3 style={{ margin: '0 0 1rem 0', color: '#ef4444' }}>Returns & Refunds Report</h3>
+            
+            <div style={{ display: 'flex', gap: '2rem', marginBottom: '1.5rem', background: '#fef2f2', padding: '1rem', borderRadius: '8px' }}>
+              <div>
+                <p style={{ margin: 0, fontSize: '0.875rem', color: '#991b1b' }}>Total Refunded Amount</p>
+                <h2 style={{ margin: 0, color: '#dc2626' }}>Rs. {data.returns?.summary?.refundAmount?.toFixed(2) || '0.00'}</h2>
+              </div>
+              <div>
+                <p style={{ margin: 0, fontSize: '0.875rem', color: '#991b1b' }}>Items Returned</p>
+                <h2 style={{ margin: 0, color: '#dc2626' }}>{data.returns?.summary?.quantity || 0}</h2>
+              </div>
+            </div>
+
+            {data.returns?.recent?.length === 0 ? (
+              <p style={{ color: '#6b7280' }}>No returns logged for this period.</p>
+            ) : (
+              <div className="table-responsive"><table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ background: '#f3f4f6', borderBottom: '1px solid #e5e7eb', textAlign: 'left' }}>
+                    <th style={{ padding: '1rem' }}>Order No</th>
+                    <th style={{ padding: '1rem' }}>Product</th>
+                    <th style={{ padding: '1rem' }}>Reason</th>
+                    <th style={{ padding: '1rem', textAlign: 'right' }}>Qty Returned</th>
+                    <th style={{ padding: '1rem', textAlign: 'right' }}>Refund Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.returns?.recent?.map(r => (
+                    <tr key={r.id} style={{ borderBottom: '1px solid #e5e7eb' }}>
+                      <td style={{ padding: '1rem' }}>{r.order.orderNumber.split('-')[0]}</td>
+                      <td style={{ padding: '1rem' }}>{r.orderItem.productNameSnapshot}</td>
+                      <td style={{ padding: '1rem' }}>{r.reason}</td>
+                      <td style={{ padding: '1rem', textAlign: 'right' }}>{r.quantity}</td>
+                      <td style={{ padding: '1rem', textAlign: 'right', fontWeight: 'bold', color: '#ef4444' }}>Rs. {parseFloat(r.refundAmount).toFixed(2)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table></div>
+            )}
+          </div>
+
           <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
             <div style={{ flex: '1 1 400px', background: 'white', padding: '1.5rem', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
               <h3 style={{ margin: '0 0 1rem 0' }}>Payment Report</h3>
@@ -201,4 +243,5 @@ export default function Reports() {
     </div>
   );
 }
+
 

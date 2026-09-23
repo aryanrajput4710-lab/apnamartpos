@@ -25,6 +25,7 @@ model User {
   inventoryTransactions InventoryTransaction[]
   orders                Order[]
   auditLogs             AuditLog[]
+  ReturnRecord          ReturnRecord[]
 }
 
 enum DiscountType {
@@ -43,7 +44,7 @@ model Product {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  variants    ProductVariant[]
+  variants ProductVariant[]
 
   @@index([name])
   @@index([category])
@@ -51,33 +52,32 @@ model Product {
 }
 
 model ProductVariant {
-  id                String   @id @default(uuid())
+  id                String       @id @default(uuid())
   productId         String
-  sku               String   @unique
-  barcode           String   @unique
+  sku               String       @unique
+  barcode           String       @unique
   color             String?
   size              String?
   mrp               Decimal
   sellingPrice      Decimal
   discountType      DiscountType @default(NONE)
-  discountValue     Decimal  @default(0)
-  stock             Int      @default(0)
-  lowStockThreshold Int      @default(5)
-  isActive          Boolean  @default(true)
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  discountValue     Decimal      @default(0)
+  stock             Int          @default(0)
+  lowStockThreshold Int          @default(5)
+  isActive          Boolean      @default(true)
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
 
-  product           Product  @relation(fields: [productId], references: [id])
+  product               Product                @relation(fields: [productId], references: [id])
   inventoryTransactions InventoryTransaction[]
-  orderItems        OrderItem[]
+  orderItems            OrderItem[]
+  ReturnRecord          ReturnRecord[]
 
   @@index([sku])
   @@index([barcode])
   @@index([productId])
   @@index([isActive])
 }
-
-
 
 enum InventoryTransactionType {
   STOCK_IN
@@ -100,8 +100,8 @@ model InventoryTransaction {
   createdBy     String
   createdAt     DateTime                 @default(now())
 
-  variant       ProductVariant           @relation(fields: [variantId], references: [id])
-  user          User                     @relation(fields: [createdBy], references: [id])
+  variant ProductVariant @relation(fields: [variantId], references: [id])
+  user    User           @relation(fields: [createdBy], references: [id])
 
   @@index([variantId])
   @@index([type])
@@ -109,8 +109,6 @@ model InventoryTransaction {
   @@index([createdBy])
   @@index([referenceType, referenceId])
 }
-
-
 
 model Customer {
   id          String   @id @default(uuid())
@@ -123,12 +121,11 @@ model Customer {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  orders      Order[]
+  orders Order[]
 
   @@index([phone])
   @@index([name])
 }
-
 
 enum PaymentMethod {
   CASH
@@ -136,22 +133,24 @@ enum PaymentMethod {
 }
 
 model Order {
-  id          String      @id @default(uuid())
-  orderNumber String      @unique @default(uuid())
-  customerId  String?
-  subtotal    Decimal
-  discount    Decimal     @default(0)
-  total       Decimal
-  status      String      @default("COMPLETED")
+  id             String   @id @default(uuid())
+  orderNumber    String   @unique @default(uuid())
+  customerId     String?
+  subtotal       Decimal
+  discount       Decimal  @default(0)
+  total          Decimal
+  refundedAmount Decimal  @default(0)
+  status         String   @default("COMPLETED")
   idempotencyKey String?  @unique
-  createdBy   String
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  createdBy      String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
-  customer    Customer?   @relation(fields: [customerId], references: [id])
-  user        User        @relation(fields: [createdBy], references: [id])
-  items       OrderItem[]
-  payments    Payment[]
+  customer Customer?      @relation(fields: [customerId], references: [id])
+  user     User           @relation(fields: [createdBy], references: [id])
+  items    OrderItem[]
+  payments Payment[]
+  returns  ReturnRecord[]
 
   @@index([customerId])
   @@index([createdBy])
@@ -160,52 +159,54 @@ model Order {
 }
 
 model OrderItem {
-  id          String         @id @default(uuid())
-  orderId     String
-  variantId   String
-  quantity    Int
-  unitPrice   Decimal
-  discount    Decimal        @default(0)
-  total       Decimal
-  
+  id             String  @id @default(uuid())
+  orderId        String
+  variantId      String
+  quantity       Int
+  returnedQty    Int     @default(0)
+  unitPrice      Decimal
+  discount       Decimal @default(0)
+  total          Decimal
+  refundedAmount Decimal @default(0)
+
   // Snapshots
   productNameSnapshot String
   skuSnapshot         String
   barcodeSnapshot     String
   sizeSnapshot        String?
   colorSnapshot       String?
+  returns             ReturnRecord[]
 
-  createdAt   DateTime       @default(now())
+  createdAt DateTime @default(now())
 
-  order       Order          @relation(fields: [orderId], references: [id])
-  variant     ProductVariant @relation(fields: [variantId], references: [id])
+  order   Order          @relation(fields: [orderId], references: [id])
+  variant ProductVariant @relation(fields: [variantId], references: [id])
 
   @@index([orderId])
   @@index([variantId])
 }
 
 model Payment {
-  id          String        @id @default(uuid())
-  orderId     String
-  amount      Decimal
-  method      PaymentMethod
-  status      String        @default("COMPLETED")
-  createdAt   DateTime      @default(now())
+  id        String        @id @default(uuid())
+  orderId   String
+  amount    Decimal
+  method    PaymentMethod
+  status    String        @default("COMPLETED")
+  createdAt DateTime      @default(now())
 
-  order       Order         @relation(fields: [orderId], references: [id])
+  order Order @relation(fields: [orderId], references: [id])
 
   @@index([orderId])
 }
 
-
 model StoreSettings {
-  id              String   @id @default("default")
-  storeName       String   @default("Apna Mart")
-  storeAddress    String?
-  storePhone      String?
-  receiptFooter   String?
+  id               String   @id @default("default")
+  storeName        String   @default("Apna Mart")
+  storeAddress     String?
+  storePhone       String?
+  receiptFooter    String?
   paymentQrCodeUrl String?
-  updatedAt       DateTime @updatedAt
+  updatedAt        DateTime @updatedAt
 }
 
 model AuditLog {
@@ -219,11 +220,31 @@ model AuditLog {
   ipAddress   String?
   createdAt   DateTime @default(now())
 
-  user        User?    @relation(fields: [userId], references: [id])
+  user User? @relation(fields: [userId], references: [id])
 
   @@index([createdAt])
   @@index([userId])
   @@index([action])
   @@index([entityType])
   @@index([entityId])
+}
+
+model ReturnRecord {
+  id           String   @id @default(uuid())
+  orderId      String
+  orderItemId  String
+  variantId    String
+  quantity     Int
+  reason       String
+  refundAmount Decimal
+  createdAt    DateTime @default(now())
+  createdBy    String
+
+  order     Order          @relation(fields: [orderId], references: [id])
+  orderItem OrderItem      @relation(fields: [orderItemId], references: [id])
+  variant   ProductVariant @relation(fields: [variantId], references: [id])
+  user      User           @relation(fields: [createdBy], references: [id])
+
+  @@index([orderId])
+  @@index([createdAt])
 }
