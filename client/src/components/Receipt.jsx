@@ -17,7 +17,7 @@ export default function Receipt({ order }) {
       {/* Header */}
       <div className="receipt-header">
         <div className="receipt-header-left">
-          <img src="/logo.png" alt="Apna Mart" className="receipt-logo" />
+          <img src="/receipt-logo.jpg" alt="Apna Mart" className="receipt-logo" />
         </div>
         <div className="receipt-header-right">
           <h1 className="receipt-store-name">Apna Mart</h1>
@@ -162,3 +162,4 @@ export default function Receipt({ order }) {
     </div>
   );
 }
+

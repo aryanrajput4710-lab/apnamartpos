@@ -72,7 +72,19 @@ const searchProducts = async (req, res) => {
 
 const checkout = async (req, res) => {
   try {
-    const { items, customerId, paymentMethod, idempotencyKey } = req.body;
+    let { items, customerId, customerPhone, customerName, paymentMethod, idempotencyKey } = req.body;
+
+    if (!customerId && customerPhone) {
+      const existingCustomer = await prisma.customer.findUnique({ where: { phone: customerPhone } });
+      if (existingCustomer) {
+        customerId = existingCustomer.id;
+      } else {
+        const newCustomer = await prisma.customer.create({
+          data: { phone: customerPhone, name: customerName || 'Unknown Customer' }
+        });
+        customerId = newCustomer.id;
+      }
+    }
     
     if (!items || items.length === 0) {
       return res.status(400).json({ success: false, message: 'Cart is empty' });
@@ -257,3 +269,4 @@ module.exports = {
   checkout,
   getReceipt
 };
+

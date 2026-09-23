@@ -26,7 +26,7 @@
   height: 60px;
   border-radius: 50%;
   object-fit: cover;
-  filter: grayscale(100%);
+  /* filter: grayscale(100%); */
 }
 
 .receipt-header-right {
@@ -158,3 +158,4 @@
     margin: 0;
   }
 }
+

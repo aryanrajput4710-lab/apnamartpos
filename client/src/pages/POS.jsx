@@ -26,6 +26,7 @@ export default function POS() {
 
   // Checkout State
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
+  const [checkoutStep, setCheckoutStep] = useState('CUSTOMER');
   const [paymentMethod, setPaymentMethod] = useState('CASH');
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(null);
@@ -198,6 +199,7 @@ export default function POS() {
 
   const openCheckout = () => {
     setIdempotencyKey(crypto.randomUUID());
+    setCheckoutStep('CUSTOMER');
     setShowCheckoutModal(true);
   };
 
@@ -207,6 +209,8 @@ export default function POS() {
       const payload = {
         items: cart.map(item => ({ variantId: item.id, quantity: item.quantity })),
         customerId: customer?.id || null,
+        customerPhone: customerPhone || null,
+        customerName: newCustomer.name || null,
         paymentMethod,
         idempotencyKey
       };
@@ -273,9 +277,9 @@ export default function POS() {
                   <p style={{ margin: '0', fontSize: '0.875rem', color: '#4b5563' }}>{v.size ? `Size: ${v.size}` : ''} {v.color ? `Color: ${v.color}` : ''}</p>
                   <p style={{ margin: '0.25rem 0', fontSize: '0.875rem', color: '#6b7280' }}>SKU: {v.sku}</p>
                   <div style={{ marginTop: '0.5rem' }}>
-                      <div style={{ textDecoration: 'line-through', color: '#9ca3af', fontSize: '0.875rem' }}>MRP: ₹{v.mrp}</div>
+                      <div style={{ textDecoration: 'line-through', color: '#9ca3af', fontSize: '0.875rem' }}>MRP: ?{v.mrp}</div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontWeight: 'bold', fontSize: '1.25rem', color: '#16a34a' }}>₹{v.sellingPrice}</span>
+                        <span style={{ fontWeight: 'bold', fontSize: '1.25rem', color: '#16a34a' }}>?{v.sellingPrice}</span>
                         <span style={{ fontSize: '0.875rem', color: v.stock > 0 ? '#16a34a' : '#dc2626', fontWeight: 'bold' }}>
                           {v.stock > 0 ? `Stock: ${v.stock}` : 'Out of Stock'}
                         </span>
@@ -333,8 +337,8 @@ export default function POS() {
                   <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
                     {item.size || ''} {item.color ? `/ ${item.color}` : ''}
                   </div>
-                  <div style={{ fontSize: '0.75rem', color: '#9ca3af', textDecoration: 'line-through' }}>MRP: ₹{item.mrp}</div>
-                    <div style={{ fontSize: '1rem', color: '#16a34a', fontWeight: 'bold' }}>₹{item.sellingPrice}</div>
+                  <div style={{ fontSize: '0.75rem', color: '#9ca3af', textDecoration: 'line-through' }}>MRP: ?{item.mrp}</div>
+                    <div style={{ fontSize: '1rem', color: '#16a34a', fontWeight: 'bold' }}>?{item.sellingPrice}</div>
                 </div>
                 
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
@@ -356,15 +360,15 @@ export default function POS() {
         <div style={{ padding: '1.5rem', background: '#f8fafc', borderTop: '1px solid #e5e7eb' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', color: '#4b5563' }}>
             <span>Subtotal</span>
-            <span>₹{totals.subtotal.toFixed(2)}</span>
+            <span>?{totals.subtotal.toFixed(2)}</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', color: '#16a34a' }}>
             <span>Discount</span>
-            <span>- ₹{totals.discount.toFixed(2)}</span>
+            <span>- ?{totals.discount.toFixed(2)}</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', margin: '1rem 0', fontSize: '1.5rem', fontWeight: 'bold' }}>
             <span>Total</span>
-            <span>₹{totals.total.toFixed(2)}</span>
+            <span>?{totals.total.toFixed(2)}</span>
           </div>
           
           <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -412,55 +416,91 @@ export default function POS() {
       {showCheckoutModal && !orderSuccess && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 50 }}>
           <div style={{ background: 'white', padding: '2rem', borderRadius: '8px', width: '100%', maxWidth: '400px' }}>
-            <h2 style={{ marginTop: 0, marginBottom: '1.5rem', textAlign: 'center' }}>Complete Payment</h2>
             
-            <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.1rem', marginBottom: '0.5rem' }}>
-                <span>Subtotal</span>
-                <span>₹{totals.subtotal.toFixed(2)}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.1rem', marginBottom: '0.5rem', color: '#16a34a' }}>
-                <span>Discount</span>
-                <span>- ₹{totals.discount.toFixed(2)}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.5rem', fontWeight: 'bold', marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #e5e7eb' }}>
-                <span>Total to Pay</span>
-                <span>₹{totals.total.toFixed(2)}</span>
-              </div>
-            </div>
+            {checkoutStep === 'CUSTOMER' ? (
+              <>
+                <h2 style={{ marginTop: 0, marginBottom: '1.5rem', textAlign: 'center' }}>Customer Details</h2>
+                <div style={{ marginBottom: '1rem' }}>
+                  <label style={{ display: 'block', fontSize: '0.875rem', marginBottom: '0.5rem' }}>Phone Number (Optional)</label>
+                  <input 
+                    value={customerPhone}
+                    onChange={(e) => setCustomerPhone(e.target.value)}
+                    placeholder="Enter phone number"
+                    style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #d1d5db' }}
+                  />
+                </div>
+                <div style={{ marginBottom: '1.5rem' }}>
+                  <label style={{ display: 'block', fontSize: '0.875rem', marginBottom: '0.5rem' }}>Customer Name (Optional)</label>
+                  <input 
+                    value={customer ? customer.name : newCustomer.name}
+                    onChange={(e) => {
+                      if (customer) { setCustomer({...customer, name: e.target.value}); }
+                      else { setNewCustomer({...newCustomer, name: e.target.value}); }
+                    }}
+                    placeholder="Enter customer name"
+                    style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #d1d5db' }}
+                  />
+                </div>
+                <div style={{ display: 'flex', gap: '1rem' }}>
+                  <button onClick={() => setShowCheckoutModal(false)} style={{ flex: 1, padding: '1rem', border: '1px solid #d1d5db', background: 'white', borderRadius: '8px' }}>Cancel</button>
+                  <button onClick={() => setCheckoutStep('PAYMENT')} style={{ flex: 2, padding: '1rem', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '1.1rem' }}>
+                    Next Step
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <h2 style={{ marginTop: 0, marginBottom: '1.5rem', textAlign: 'center' }}>Complete Payment</h2>
+                
+                <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.1rem', marginBottom: '0.5rem' }}>
+                    <span>Subtotal</span>
+                    <span>₹{totals.subtotal.toFixed(2)}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.1rem', marginBottom: '0.5rem', color: '#16a34a' }}>
+                    <span>Discount</span>
+                    <span>- ₹{totals.discount.toFixed(2)}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.5rem', fontWeight: 'bold', marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #e5e7eb' }}>
+                    <span>Total to Pay</span>
+                    <span>₹{totals.total.toFixed(2)}</span>
+                  </div>
+                </div>
 
-            <div style={{ marginBottom: '1.5rem' }}>
-              <h4 style={{ margin: '0 0 0.5rem 0' }}>Payment Method</h4>
-              <div style={{ display: 'flex', gap: '1rem' }}>
-                <button 
-                  onClick={() => setPaymentMethod('CASH')}
-                  style={{ flex: 1, padding: '1rem', border: paymentMethod === 'CASH' ? '2px solid #3b82f6' : '1px solid #d1d5db', background: paymentMethod === 'CASH' ? '#eff6ff' : 'white', borderRadius: '8px', fontWeight: 'bold' }}
-                >
-                  CASH
-                </button>
-                <button 
-                  onClick={() => setPaymentMethod('QR')}
-                  style={{ flex: 1, padding: '1rem', border: paymentMethod === 'QR' ? '2px solid #3b82f6' : '1px solid #d1d5db', background: paymentMethod === 'QR' ? '#eff6ff' : 'white', borderRadius: '8px', fontWeight: 'bold' }}
-                >
-                  STORE QR
-                </button>
-              </div>
-            </div>
+                <div style={{ marginBottom: '1.5rem' }}>
+                  <h4 style={{ margin: '0 0 0.5rem 0' }}>Payment Method</h4>
+                  <div style={{ display: 'flex', gap: '1rem' }}>
+                    <button 
+                      onClick={() => setPaymentMethod('CASH')}
+                      style={{ flex: 1, padding: '1rem', border: paymentMethod === 'CASH' ? '2px solid #3b82f6' : '1px solid #d1d5db', background: paymentMethod === 'CASH' ? '#eff6ff' : 'white', borderRadius: '8px', fontWeight: 'bold' }}
+                    >
+                      CASH
+                    </button>
+                    <button 
+                      onClick={() => setPaymentMethod('QR')}
+                      style={{ flex: 1, padding: '1rem', border: paymentMethod === 'QR' ? '2px solid #3b82f6' : '1px solid #d1d5db', background: paymentMethod === 'QR' ? '#eff6ff' : 'white', borderRadius: '8px', fontWeight: 'bold' }}
+                    >
+                      STORE QR
+                    </button>
+                  </div>
+                </div>
 
-            {paymentMethod === 'QR' && (
-              <div style={{ textAlign: 'center', marginBottom: '1.5rem', padding: '1rem', background: '#f8fafc', borderRadius: '8px' }}>
-                <p style={{ margin: '0 0 1rem 0', fontWeight: 'bold' }}>Scan to Pay</p>
-                <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=store@upi&pn=StorePOS&am=${totals.total.toFixed(2)}`} alt="UPI QR" style={{ width: '150px', height: '150px' }} />
-                <p style={{ margin: '1rem 0 0 0', fontSize: '0.875rem', color: '#6b7280' }}>Ask customer to scan using any UPI app</p>
-              </div>
+                {paymentMethod === 'QR' && (
+                  <div style={{ textAlign: 'center', marginBottom: '1.5rem', padding: '1rem', background: '#f8fafc', borderRadius: '8px' }}>
+                    <p style={{ margin: '0 0 1rem 0', fontWeight: 'bold' }}>Scan to Pay</p>
+                    <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=store@upi&pn=StorePOS&am=${totals.total.toFixed(2)}`} alt="UPI QR" style={{ width: '150px', height: '150px' }} />
+                    <p style={{ margin: '1rem 0 0 0', fontSize: '0.875rem', color: '#6b7280' }}>Ask customer to scan using any UPI app</p>
+                  </div>
+                )}
+
+                <div style={{ display: 'flex', gap: '1rem' }}>
+                  <button onClick={() => setCheckoutStep('CUSTOMER')} disabled={isProcessing} style={{ flex: 1, padding: '1rem', border: '1px solid #d1d5db', background: 'white', borderRadius: '8px' }}>Back</button>
+                  <button onClick={handleCheckout} disabled={isProcessing} style={{ flex: 2, padding: '1rem', background: '#22c55e', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '1.1rem' }}>
+                    {isProcessing ? 'Processing...' : 'Confirm Payment'}
+                  </button>
+                </div>
+              </>
             )}
-
-            <div style={{ display: 'flex', gap: '1rem' }}>
-              <button onClick={() => setShowCheckoutModal(false)} disabled={isProcessing} style={{ flex: 1, padding: '1rem', border: '1px solid #d1d5db', background: 'white', borderRadius: '8px' }}>Cancel</button>
-              <button onClick={handleCheckout} disabled={isProcessing} style={{ flex: 2, padding: '1rem', background: '#22c55e', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '1.1rem' }}>
-                {isProcessing ? 'Processing...' : 'Confirm Payment'}
-              </button>
-            </div>
           </div>
         </div>
       )}
@@ -501,6 +541,8 @@ export default function POS() {
     </div>
   );
 }
+
+
 
 
 
