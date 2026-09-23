@@ -77,9 +77,9 @@ export default function Receipt({ order }) {
               <span className="col-sub">Rs. {parseFloat(item.total).toFixed(0)}</span>
             </div>
             <div className="receipt-item-details">
-              {item.sizeSnapshot && Size:  + item.sizeSnapshot}
+              {item.sizeSnapshot && ('Size: ' + item.sizeSnapshot)}
               {item.sizeSnapshot && item.colorSnapshot && ' | '}
-              {item.colorSnapshot && Color:  + item.colorSnapshot}
+              {item.colorSnapshot && ('Color: ' + item.colorSnapshot)}
               <br />
               SKU: {item.skuSnapshot}
               <br />
