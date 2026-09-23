@@ -10,7 +10,7 @@ const runIntegrityChecks = async (req, res) => {
       where: { stock: { lt: 0 } }
     });
     if (negativeStock.length > 0) {
-      issues.push(\Found \ variants with negative stock.\);
+      issues.push("Found $($negativeStock.length) variants with negative stock.");
     }
 
     // 2. Orders without items
@@ -18,7 +18,7 @@ const runIntegrityChecks = async (req, res) => {
       where: { items: { none: {} } }
     });
     if (emptyOrders.length > 0) {
-      issues.push(\Found \ orders without any items.\);
+      issues.push("Found $($emptyOrders.length) orders without any items.");
     }
 
     // 3. Paid orders without payment
@@ -26,10 +26,10 @@ const runIntegrityChecks = async (req, res) => {
       where: { status: 'COMPLETED', payments: { none: {} } }
     });
     if (unrecordedPayments.length > 0) {
-      issues.push(\Found \ completed orders with no payment record.\);
+      issues.push("Found $($unrecordedPayments.length) completed orders with no payment record.");
     }
 
-    res.status(200).json({ success: true, data: issues, message: issues.length === 0 ? 'No integrity issues found.' : \\ integrity issues found.\ });
+    res.status(200).json({ success: true, data: issues, message: issues.length === 0 ? 'No integrity issues found.' : "$($issues.length) integrity issues found." });
   } catch (error) {
     console.error('Integrity check error:', error);
     res.status(500).json({ success: false, message: 'Internal server error' });
