@@ -17,6 +17,7 @@ import ReceiptView from './pages/ReceiptView';
 import Customers from './pages/Customers';
 import CustomerDetail from './pages/CustomerDetail';
 import Orders from './pages/Orders';
+import Reports from './pages/Reports';
 
 function App() {
   return (
@@ -29,7 +30,6 @@ function App() {
           {/* Protected Routes */}
           <Route element={<ProtectedRoute />}>
             <Route element={<AppLayout />}>
-              <Route path="/" element={<Dashboard />} />
               <Route path="/pos" element={<POS />} />
               <Route path="/receipt/:id" element={<ReceiptView />} />
               <Route path="/customers" element={<Customers />} />
@@ -42,11 +42,10 @@ function App() {
               <Route path="/inventory" element={<Inventory />} />
               <Route path="/inventory/:variantId/history" element={<InventoryHistory />} />
               
-              <Route path="/customers" element={<div>Customers Page</div>} />
-              <Route path="/orders" element={<div>Orders Page</div>} />
-              
               {/* Admin Only Routes */}
               <Route element={<RoleRoute allowedRoles={['ADMIN']} />}>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/reports" element={<Reports />} />
                 <Route path="/products/new" element={<ProductForm />} />
                 <Route path="/inventory/history" element={<InventoryHistory />} />
                 <Route path="/users" element={<Users />} />

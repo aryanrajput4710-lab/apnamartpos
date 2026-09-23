@@ -1,6 +1,6 @@
 import { Outlet, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LogOut, LayoutDashboard, ShoppingCart, Package, Users, Settings, FileText, UserPlus } from 'lucide-react';
+import { LogOut, LayoutDashboard, ShoppingCart, Package, Users, Settings, FileText, UserPlus, TrendingUp } from 'lucide-react';
 
 export default function AppLayout() {
   const { currentUser, logout } = useAuth();
@@ -12,12 +12,13 @@ export default function AppLayout() {
   };
 
   const navItems = [
-    { name: 'Dashboard', path: '/', icon: <LayoutDashboard size={20} />, roles: ['ADMIN', 'CASHIER'] },
+    { name: 'Dashboard', path: '/', icon: <LayoutDashboard size={20} />, roles: ['ADMIN'] },
     { name: 'POS', path: '/pos', icon: <ShoppingCart size={20} />, roles: ['ADMIN', 'CASHIER'] },
     { name: 'Products', path: '/products', icon: <Package size={20} />, roles: ['ADMIN', 'CASHIER'] },
     { name: 'Inventory', path: '/inventory', icon: <Package size={20} />, roles: ['ADMIN', 'CASHIER'] },
     { name: 'Customers', path: '/customers', icon: <Users size={20} />, roles: ['ADMIN', 'CASHIER'] },
     { name: 'Orders', path: '/orders', icon: <FileText size={20} />, roles: ['ADMIN', 'CASHIER'] },
+    { name: 'Reports', path: '/reports', icon: <TrendingUp size={20} />, roles: ['ADMIN'] },
     { name: 'Users', path: '/users', icon: <UserPlus size={20} />, roles: ['ADMIN'] },
     { name: 'Settings', path: '/settings', icon: <Settings size={20} />, roles: ['ADMIN'] },
   ];

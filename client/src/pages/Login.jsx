@@ -21,8 +21,12 @@ export default function Login() {
 
     setLoading(true);
     try {
-      await login(email, password);
-      navigate('/');
+      const user = await login(email, password);
+      if (user.role === 'ADMIN') {
+        navigate('/');
+      } else {
+        navigate('/pos');
+      }
     } catch (err) {
       if (err.response?.data?.message) {
         setError(err.response.data.message);
