@@ -47,7 +47,6 @@ export default function POS() {
     if (!rawCode.trim()) return;
     try {
       let code = rawCode.trim();
-      if (code.startsWith('STOREPOS:')) code = code.replace('STOREPOS:', '');
 
       const res = await api.get(`/pos/scan/${code}`);
       const variant = res.data.data;
