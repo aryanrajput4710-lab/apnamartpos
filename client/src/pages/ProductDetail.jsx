@@ -45,9 +45,9 @@ export default function ProductDetail() {
               </div>
               <div className="label-info-wrapper">
                 <div className="label-product-name">{product.name}</div>
-                <div className="label-info-line">Brand: {product.brand || 'N/A'}</div>
-                  <div className="label-info-line">Size: {variant.size || 'N/A'}</div>
-                <div className="label-info-line">Color: {variant.color || 'N/A'}</div>
+                <div className="label-info-line">Brand: {product.brand || ' '}</div>
+                  <div className="label-info-line">Size: {variant.size || ' '}</div>
+                <div className="label-info-line">Color: {variant.color || ' '}</div>
                 {/* Ingredient is COMPLETELY REMOVED per specs */}
               </div>
             </div>
@@ -64,6 +64,7 @@ export default function ProductDetail() {
     </div>
   );
 }
+
 
 
 
