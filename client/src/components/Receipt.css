@@ -1,0 +1,160 @@
+.receipt-container {
+  width: 100%;
+  max-width: 350px;
+  margin: 0 auto;
+  padding: 1rem;
+  background: white;
+  font-family: 'Courier New', Courier, monospace;
+  color: #000;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.receipt-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.receipt-header-left {
+  margin-right: 15px;
+}
+
+.receipt-logo {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  filter: grayscale(100%);
+}
+
+.receipt-header-right {
+  text-align: center;
+}
+
+.receipt-store-name {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.receipt-address,
+.receipt-location,
+.receipt-tagline {
+  margin: 2px 0;
+  font-size: 12px;
+}
+
+.receipt-separator {
+  border-top: 1px dashed #000;
+  margin: 10px 0;
+}
+
+.receipt-info-row,
+.receipt-pay-row {
+  display: flex;
+  margin-bottom: 4px;
+}
+
+.receipt-info-label {
+  width: 120px;
+}
+
+.receipt-info-colon {
+  margin-right: 8px;
+}
+
+.receipt-info-value {
+  flex: 1;
+}
+
+.receipt-item-header {
+  display: flex;
+  font-weight: bold;
+  border-bottom: 1px dashed #000;
+  padding-bottom: 5px;
+  margin-bottom: 5px;
+}
+
+.col-item { flex: 2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.col-qty { flex: 0.5; text-align: center; }
+.col-price { flex: 1; text-align: right; }
+.col-disc { flex: 1; text-align: right; }
+.col-sub { flex: 1.2; text-align: right; }
+
+.receipt-item-row {
+  margin-bottom: 10px;
+}
+
+.receipt-item-main {
+  display: flex;
+  font-weight: bold;
+}
+
+.receipt-item-details {
+  font-size: 12px;
+  color: #333;
+  padding-left: 5px;
+  margin-top: 2px;
+}
+
+.receipt-totals {
+  margin-left: 20%;
+}
+
+.receipt-total-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.receipt-final-total {
+  font-weight: bold;
+  font-size: 1.2rem;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed #000;
+}
+
+.receipt-footer {
+  text-align: center;
+  margin-top: 15px;
+}
+
+.receipt-footer h3 {
+  margin: 0 0 5px 0;
+  font-size: 1.3rem;
+  text-transform: uppercase;
+}
+
+.receipt-footer p {
+  margin: 0;
+  font-size: 12px;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  
+  .receipt-container,
+  .receipt-container * {
+    visibility: visible;
+  }
+  
+  .receipt-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    max-width: 80mm;
+    margin: 0;
+    padding: 0;
+  }
+
+  @page {
+    margin: 0;
+  }
+}

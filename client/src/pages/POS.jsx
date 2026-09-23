@@ -3,6 +3,7 @@ import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { ShoppingCart, User, Search, Trash2, Plus, Minus, X, Camera } from 'lucide-react';
 import CameraScanner from '../components/CameraScanner';
+import Receipt from '../components/Receipt';
 
 export default function POS() {
   const { currentUser } = useAuth();
@@ -454,16 +455,30 @@ export default function POS() {
 
       {/* Success Modal */}
       {orderSuccess && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 60 }}>
-          <div style={{ background: 'white', padding: '3rem 2rem', borderRadius: '8px', width: '400px', textAlign: 'center' }}>
-            <div style={{ width: '64px', height: '64px', background: '#dcfce3', color: '#16a34a', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem auto' }}>
-              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 60, overflowY: 'auto', padding: '2rem' }}>
+          <div style={{ background: 'white', padding: '2rem', borderRadius: '8px', display: 'flex', gap: '2rem', maxWidth: '800px', width: '100%', alignItems: 'flex-start' }}>
+            
+            <div style={{ flex: 1, textAlign: 'center' }}>
+              <div style={{ width: '64px', height: '64px', background: '#dcfce3', color: '#16a34a', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem auto' }}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              </div>
+              <h2 style={{ margin: '0 0 0.5rem 0' }}>SALE COMPLETED</h2>
+              <p style={{ color: '#6b7280', margin: '0 0 2rem 0' }}>Order #{orderSuccess.id.split('-')[0].toUpperCase()}</p>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <button onClick={() => window.print()} style={{ width: '100%', padding: '1rem', background: '#1f2937', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '1.1rem', cursor: 'pointer' }}>
+                  Print Bill
+                </button>
+                <button onClick={closeSuccessModal} style={{ width: '100%', padding: '1rem', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '1.1rem', cursor: 'pointer' }}>
+                  New Sale
+                </button>
+              </div>
             </div>
-            <h2 style={{ margin: '0 0 0.5rem 0' }}>Payment Successful!</h2>
-            <p style={{ color: '#6b7280', margin: '0 0 2rem 0' }}>Order #{orderSuccess.id.substring(0,8).toUpperCase()}</p>
-            <button onClick={closeSuccessModal} style={{ width: '100%', padding: '1rem', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '1.1rem' }}>
-              Start New Sale
-            </button>
+
+            <div style={{ flex: 1, borderLeft: '1px solid #e5e7eb', paddingLeft: '2rem' }} className="print-area">
+              <Receipt order={orderSuccess} />
+            </div>
+
           </div>
         </div>
       )}

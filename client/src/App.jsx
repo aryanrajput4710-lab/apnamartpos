@@ -13,6 +13,7 @@ import ProductDetail from './pages/ProductDetail';
 import Inventory from './pages/Inventory';
 import InventoryHistory from './pages/InventoryHistory';
 import POS from './pages/POS';
+import ReceiptView from './pages/ReceiptView';
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
             <Route element={<AppLayout />}>
               <Route path="/" element={<Dashboard />} />
               <Route path="/pos" element={<POS />} />
+              <Route path="/receipt/:id" element={<ReceiptView />} />
               
               <Route path="/products" element={<Products />} />
               <Route path="/products/:id" element={<ProductDetail />} />

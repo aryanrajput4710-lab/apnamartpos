@@ -163,6 +163,14 @@ model OrderItem {
   unitPrice   Decimal
   discount    Decimal        @default(0)
   total       Decimal
+  
+  // Snapshots
+  productNameSnapshot String
+  skuSnapshot         String
+  barcodeSnapshot     String
+  sizeSnapshot        String?
+  colorSnapshot       String?
+
   createdAt   DateTime       @default(now())
 
   order       Order          @relation(fields: [orderId], references: [id])

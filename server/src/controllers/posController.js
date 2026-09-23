@@ -109,6 +109,9 @@ const checkout = async (req, res) => {
         subtotal += lineTotal;
         totalDiscount += itemDiscount;
 
+        // Also fetch product for snapshots
+        const productData = await tx.product.findUnique({ where: { id: variant.productId } });
+
         orderItemsData.push({
           variantId: variant.id,
           quantity: qty,
@@ -116,7 +119,13 @@ const checkout = async (req, res) => {
           discount: itemDiscount,
           total: lineTotal - itemDiscount,
           previousStock: variant.stock,
-          newStock: variant.stock - qty
+          newStock: variant.stock - qty,
+          
+          productNameSnapshot: productData.name,
+          skuSnapshot: variant.sku,
+          barcodeSnapshot: variant.barcode,
+          sizeSnapshot: variant.size,
+          colorSnapshot: variant.color
         });
       }
 
@@ -137,7 +146,12 @@ const checkout = async (req, res) => {
               quantity: i.quantity,
               unitPrice: i.unitPrice,
               discount: i.discount,
-              total: i.total
+              total: i.total,
+              productNameSnapshot: i.productNameSnapshot,
+              skuSnapshot: i.skuSnapshot,
+              barcodeSnapshot: i.barcodeSnapshot,
+              sizeSnapshot: i.sizeSnapshot,
+              colorSnapshot: i.colorSnapshot
             }))
           },
           payments: {
@@ -148,7 +162,7 @@ const checkout = async (req, res) => {
             }
           }
         },
-        include: { items: true, payments: true }
+        include: { items: true, payments: true, customer: true, user: { select: { name: true } } }
       });
 
       // Update Stock & Create Inventory Transactions
@@ -184,8 +198,33 @@ const checkout = async (req, res) => {
   }
 };
 
+const getReceipt = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const order = await prisma.order.findUnique({
+      where: { id },
+      include: {
+        items: true,
+        payments: true,
+        customer: true,
+        user: { select: { name: true } }
+      }
+    });
+
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+
+    res.status(200).json({ success: true, data: order });
+  } catch (error) {
+    console.error('Receipt error:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
 module.exports = {
   scanProduct,
   searchProducts,
-  checkout
+  checkout,
+  getReceipt
 };
