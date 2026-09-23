@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
-import { ShoppingCart, User, Search, Trash2, Plus, Minus, X } from 'lucide-react';
+import { ShoppingCart, User, Search, Trash2, Plus, Minus, X, Camera } from 'lucide-react';
+import CameraScanner from '../components/CameraScanner';
 
 export default function POS() {
   const { currentUser } = useAuth();
@@ -13,6 +14,7 @@ export default function POS() {
   const [scanInput, setScanInput] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [showCamera, setShowCamera] = useState(false);
   const scanInputRef = useRef(null);
 
   // Customer State
@@ -34,14 +36,17 @@ export default function POS() {
     return () => window.removeEventListener('click', handleWindowClick);
   }, []);
 
-  const handleScanSubmit = async (e) => {
-    e.preventDefault();
-    if (!scanInput.trim()) return;
-    
-    // First try as exact barcode scan
+  const handleCameraScan = (code) => {
+    setShowCamera(false);
+    setScanInput(code);
+    // Programmatically trigger the search with the scanned code
+    handleScanRequest(code);
+  };
+
+  const handleScanRequest = async (rawCode) => {
+    if (!rawCode.trim()) return;
     try {
-      // Strip "STOREPOS:" prefix if scanner reads it, or just pass exact
-      let code = scanInput.trim();
+      let code = rawCode.trim();
       if (code.startsWith('STOREPOS:')) code = code.replace('STOREPOS:', '');
 
       const res = await api.get(`/pos/scan/${code}`);
@@ -55,13 +60,17 @@ export default function POS() {
       setScanInput('');
       setSearchResults([]);
     } catch (err) {
-      // If 404, maybe they typed a name. Try search.
       if (err.response?.status === 404) {
-        searchProducts(scanInput);
+        searchProducts(rawCode);
       } else {
         alert(err.response?.data?.message || 'Error scanning product');
       }
     }
+  };
+
+  const handleScanSubmit = async (e) => {
+    e.preventDefault();
+    handleScanRequest(scanInput);
   };
 
   const searchProducts = async (query) => {
@@ -185,6 +194,9 @@ export default function POS() {
       {/* Left Pane: Scanner & Search */}
       <div style={{ flex: '1', display: 'flex', flexDirection: 'column', padding: '1rem', borderRight: '1px solid #e5e7eb' }}>
         <form onSubmit={handleScanSubmit} style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+          <button type="button" onClick={() => setShowCamera(true)} style={{ padding: '0 1rem', background: '#e5e7eb', color: '#374151', border: 'none', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Camera size={20} />
+          </button>
           <div style={{ flex: 1, position: 'relative' }}>
             <Search size={20} style={{ position: 'absolute', left: '10px', top: '10px', color: '#6b7280' }} />
             <input
@@ -350,6 +362,9 @@ export default function POS() {
           </div>
         </div>
       )}
+
+      {/* Camera Scanner Modal */}
+      {showCamera && <CameraScanner onScan={handleCameraScan} onClose={() => setShowCamera(false)} />}
 
     </div>
   );
