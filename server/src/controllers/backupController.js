@@ -4,7 +4,6 @@ const { exec } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 
-// Should ideally be in StoreSettings or environment variables
 const getBackupDir = () => {
   const defaultDir = path.join(process.cwd(), '..', 'Backups');
   if (!fs.existsSync(defaultDir)) {
@@ -59,16 +58,13 @@ const createBackup = async (req, res) => {
 
     const backupDir = getBackupDir();
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const filename = \pna-mart-backup-\.dump\;
+    const filename = "apna-mart-backup-$timestamp.dump";
     const filepath = path.join(backupDir, filename);
 
-    // Using pg_dump
-    // This assumes pg_dump is in the PATH and DATABASE_URL is correct
-    // For a local installation, we assume the pg_dump works if postgres is installed
     const dbUrl = process.env.DATABASE_URL;
     if (!dbUrl) throw new Error('Database URL not found');
 
-    const command = \pg_dump "\" -F c -f "\"\;
+    const command = "pg_dump "$dbUrl" -F c -f "$filepath"";
 
     exec(command, async (error, stdout, stderr) => {
       if (error) {
@@ -81,7 +77,7 @@ const createBackup = async (req, res) => {
           userId: req.user.id,
           action: 'BACKUP_CREATED',
           entityType: 'BACKUP',
-          description: \Backup created: \\,
+          description: "Backup created: $filename",
           metadata: { filepath }
         }
       });
@@ -114,7 +110,7 @@ const restoreBackup = async (req, res) => {
     }
 
     const dbUrl = process.env.DATABASE_URL;
-    const command = \pg_restore --clean -d "\" "\"\;
+    const command = "pg_restore --clean -d "$dbUrl" "$filepath"";
 
     exec(command, async (error, stdout, stderr) => {
       if (error) {
@@ -127,7 +123,7 @@ const restoreBackup = async (req, res) => {
           userId: req.user.id,
           action: 'BACKUP_RESTORED',
           entityType: 'BACKUP',
-          description: \Backup restored from: \\,
+          description: "Backup restored from: $filename",
           metadata: { filepath }
         }
       });
