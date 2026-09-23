@@ -41,7 +41,11 @@ export default function Login() {
   return (
     <div style={{ display: 'flex', height: '100vh', justifyContent: 'center', alignItems: 'center', backgroundColor: '#f3f4f6' }}>
       <div style={{ backgroundColor: 'white', padding: '2rem', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', width: '100%', maxWidth: '400px' }}>
-        <h2 style={{ textAlign: 'center', marginBottom: '1.5rem', fontSize: '1.5rem', fontWeight: 'bold' }}>Store POS Login</h2>
+        <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+        <img src="/apna-mart-logo.jpg" alt="Apna Mart Logo" style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', border: '3px solid #f8fafc', boxShadow: '0 4px 10px rgba(0,0,0,0.1)', marginBottom: '0.75rem' }} />
+        <h2 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 'bold', color: '#0f172a', letterSpacing: '-0.025em' }}>Apna Mart</h2>
+        
+      </div>
         
         {error && (
           <div style={{ backgroundColor: '#fee2e2', color: '#991b1b', padding: '0.75rem', borderRadius: '4px', marginBottom: '1rem', fontSize: '0.875rem' }}>
@@ -92,4 +96,6 @@ export default function Login() {
     </div>
   );
 }
+
+
 

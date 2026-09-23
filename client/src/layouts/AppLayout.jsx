@@ -35,7 +35,13 @@ export default function AppLayout() {
   const SidebarContent = () => (
     <>
       <div style={{ padding: '1.5rem', borderBottom: '1px solid #374151', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h1 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 'bold' }}>Store POS</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <img src="/apna-mart-logo.jpg" alt="Apna Mart" style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #374151' }} />
+          <div>
+            <h1 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 'bold', color: 'white' }}>Apna Mart</h1>
+            
+          </div>
+        </div>
         <button className="show-on-mobile" onClick={() => setDrawerOpen(false)} style={{ background: 'transparent', border: 'none', color: 'white', cursor: 'pointer', padding: '0.5rem' }}>
           <X size={24} />
         </button>
@@ -125,9 +131,12 @@ export default function AppLayout() {
             <Menu size={24} />
           </button>
           
-          <h2 style={{ margin: 0, fontSize: '1.25rem', flex: 1 }}>
+          <h2 style={{ margin: 0, fontSize: '1.25rem', flex: 1, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <span className="hide-on-mobile">Welcome, {currentUser.name}</span>
-            <span className="show-on-mobile">Store POS</span>
+            <span className="show-on-mobile" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <img src="/apna-mart-logo.jpg" alt="Logo" style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }} />
+              Apna Mart
+            </span>
           </h2>
 
           <div className="show-on-mobile" style={{ fontSize: '0.875rem', color: '#6b7280' }}>
@@ -142,3 +151,5 @@ export default function AppLayout() {
     </div>
   );
 }
+
+
