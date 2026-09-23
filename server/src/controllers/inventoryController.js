@@ -160,10 +160,10 @@ const performStockOperation = async (variantId, quantity, reason, userId, type, 
     await tx.auditLog.create({
       data: {
         userId,
-        action: \`STOCK_\${type.split('_').pop()}\`, // e.g., STOCK_IN
+        action: `STOCK_${type.split('_').pop()}`, // e.g., STOCK_IN
         entityType: 'INVENTORY',
         entityId: variantId,
-        description: \`Manual \${type} of \${quantity}\`,
+        description: `Manual ${type} of ${quantity}`,
         metadata: { previousStock, newStock, reason }
       }
     });
@@ -238,7 +238,7 @@ const adjustStock = async (req, res) => {
           action: 'STOCK_ADJUSTED',
           entityType: 'INVENTORY',
           entityId: variantId,
-          description: \`Manual stock adjustment to \${physicalStock}\`,
+          description: `Manual stock adjustment to ${physicalStock}`,
           metadata: { previousStock, newStock: physicalStock, reason }
         }
       });
