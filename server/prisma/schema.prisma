@@ -1,0 +1,74 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  CASHIER
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         UserRole @default(CASHIER)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+
+enum DiscountType {
+  NONE
+  PERCENTAGE
+  FIXED
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  category    String?
+  brand       String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  variants    ProductVariant[]
+
+  @@index([name])
+  @@index([category])
+  @@index([isActive])
+}
+
+model ProductVariant {
+  id                String   @id @default(uuid())
+  productId         String
+  sku               String   @unique
+  barcode           String   @unique
+  color             String?
+  size              String?
+  mrp               Decimal
+  sellingPrice      Decimal
+  discountType      DiscountType @default(NONE)
+  discountValue     Decimal  @default(0)
+  stock             Int      @default(0)
+  lowStockThreshold Int      @default(5)
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  product           Product  @relation(fields: [productId], references: [id])
+
+  @@index([sku])
+  @@index([barcode])
+  @@index([productId])
+  @@index([isActive])
+}
+
