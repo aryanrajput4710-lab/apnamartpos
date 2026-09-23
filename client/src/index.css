@@ -10,10 +10,7 @@ body { margin: 0; font-family: system-ui, sans-serif; background-color: #f9fafb;
   overflow-x: hidden;
 }
 
-/* Base utility classes for responsive overrides of inline styles */
-.hide-on-mobile { display: none !important; }
-.show-on-mobile { display: block !important; }
-.flex-on-mobile { display: flex !important; }
+/* Base utilities removed from global scope */
 
 /* Responsive tables */
 .table-responsive {
@@ -86,3 +83,4 @@ body { margin: 0; font-family: system-ui, sans-serif; background-color: #f9fafb;
   .receipt-container { position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 0; }
   .no-print { display: none !important; }
 }
+
