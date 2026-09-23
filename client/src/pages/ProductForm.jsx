@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 
@@ -47,11 +47,11 @@ export default function ProductForm() {
         </div>
         <div style={{ display: 'flex', gap: '1rem' }}>
           <div style={{ flex: 1 }}>
-            <label>Category</label><br/>
+            <label>Category (Optional)</label><br/>
             <input style={{ width: '100%' }} value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })} />
           </div>
           <div style={{ flex: 1 }}>
-            <label>Brand</label><br/>
+            <label>Brand (Optional)</label><br/>
             <input style={{ width: '100%' }} value={formData.brand} onChange={e => setFormData({ ...formData, brand: e.target.value })} />
           </div>
         </div>
@@ -66,8 +66,8 @@ export default function ProductForm() {
           <div key={i} style={{ border: '1px solid #ccc', padding: '1rem', borderRadius: '4px', position: 'relative' }}>
             <button type="button" onClick={() => removeVariant(i)} style={{ position: 'absolute', right: '0.5rem', top: '0.5rem', color: 'red' }}>X</button>
             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              <div><label>Size</label><br/><input value={v.size} onChange={e => updateVariant(i, 'size', e.target.value)} /></div>
-              <div><label>Color</label><br/><input value={v.color} onChange={e => updateVariant(i, 'color', e.target.value)} /></div>
+              <div><label>Size (Optional)</label><br/><input value={v.size} onChange={e => updateVariant(i, 'size', e.target.value)} /></div>
+              <div><label>Color (Optional)</label><br/><input value={v.color} onChange={e => updateVariant(i, 'color', e.target.value)} /></div>
               <div><label>MRP*</label><br/><input type="number" required value={v.mrp} onChange={e => updateVariant(i, 'mrp', parseFloat(e.target.value))} /></div>
               <div><label>Selling Price*</label><br/><input type="number" required value={v.sellingPrice} onChange={e => updateVariant(i, 'sellingPrice', parseFloat(e.target.value))} /></div>
               <div><label>Initial Stock</label><br/><input type="number" value={v.stock} onChange={e => updateVariant(i, 'stock', parseInt(e.target.value))} /></div>
@@ -82,4 +82,5 @@ export default function ProductForm() {
     </div>
   );
 }
+
 

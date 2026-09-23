@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+﻿import { useState, useRef, useEffect } from 'react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { ShoppingCart, User, Search, Trash2, Plus, Minus, X, Camera } from 'lucide-react';
@@ -272,12 +272,15 @@ export default function POS() {
                   <h4 style={{ margin: '0 0 0.5rem 0' }}>{v.product.name}</h4>
                   <p style={{ margin: '0', fontSize: '0.875rem', color: '#4b5563' }}>{v.size ? `Size: ${v.size}` : ''} {v.color ? `Color: ${v.color}` : ''}</p>
                   <p style={{ margin: '0.25rem 0', fontSize: '0.875rem', color: '#6b7280' }}>SKU: {v.sku}</p>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.5rem' }}>
-                    <span style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>₹{v.sellingPrice}</span>
-                    <span style={{ fontSize: '0.875rem', color: v.stock > 0 ? '#16a34a' : '#dc2626', fontWeight: 'bold' }}>
-                      {v.stock > 0 ? `Stock: ${v.stock}` : 'Out of Stock'}
-                    </span>
-                  </div>
+                  <div style={{ marginTop: '0.5rem' }}>
+                      <div style={{ textDecoration: 'line-through', color: '#9ca3af', fontSize: '0.875rem' }}>MRP: ₹{v.mrp}</div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontWeight: 'bold', fontSize: '1.25rem', color: '#16a34a' }}>₹{v.sellingPrice}</span>
+                        <span style={{ fontSize: '0.875rem', color: v.stock > 0 ? '#16a34a' : '#dc2626', fontWeight: 'bold' }}>
+                          {v.stock > 0 ? `Stock: ${v.stock}` : 'Out of Stock'}
+                        </span>
+                      </div>
+                    </div>
                 </div>
               ))}
             </div>
@@ -330,7 +333,8 @@ export default function POS() {
                   <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
                     {item.size || ''} {item.color ? `/ ${item.color}` : ''}
                   </div>
-                  <div style={{ fontSize: '0.875rem', color: '#3b82f6', fontWeight: 'bold' }}>₹{item.sellingPrice}</div>
+                  <div style={{ fontSize: '0.75rem', color: '#9ca3af', textDecoration: 'line-through' }}>MRP: ₹{item.mrp}</div>
+                    <div style={{ fontSize: '1rem', color: '#16a34a', fontWeight: 'bold' }}>₹{item.sellingPrice}</div>
                 </div>
                 
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
@@ -497,6 +501,9 @@ export default function POS() {
     </div>
   );
 }
+
+
+
 
 
 

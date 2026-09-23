@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+﻿import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import api from '../services/api';
@@ -61,11 +61,13 @@ export default function ProductDetail() {
             <div className="label-divider"></div>
             
             <div className="label-price-section">
-              <span className="label-price-text">Price: Rs. {variant.sellingPrice}</span>
-            </div>
+                <div className="label-mrp-text" style={{ textDecoration: 'line-through', fontSize: '0.7rem', color: '#666', marginBottom: '2px' }}>MRP: Rs. {variant.mrp}</div>
+                <div className="label-price-text" style={{ fontSize: '0.95rem', fontWeight: 'bold' }}>Rs. {variant.sellingPrice}</div>
+              </div>
           </div>
         ))}
       </div>
     </div>
   );
 }
+
