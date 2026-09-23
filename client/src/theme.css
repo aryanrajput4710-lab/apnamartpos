@@ -72,7 +72,7 @@ tbody tr:hover {
 }
 td {
   border-bottom: 1px solid #f1f5f9 !important;
-  color: #334155 !important;
+  color: #334155;
   padding: 1rem !important;
 }
 
@@ -84,7 +84,7 @@ td {
 
 /* Headings */
 h1, h2, h3 {
-  color: #0f172a !important;
+  color: #0f172a;
   letter-spacing: -0.02em !important;
 }
 
@@ -107,5 +107,7 @@ h1, h2, h3 {
 
 /* General Layout Tweaks */
 body {
-  color: #334155 !important;
+  color: #334155;
 }
+
+
