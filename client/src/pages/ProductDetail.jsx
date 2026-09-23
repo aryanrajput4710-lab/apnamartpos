@@ -55,7 +55,7 @@ export default function ProductDetail() {
             <div className="label-divider"></div>
             
             <div className="label-price-section">
-                <div className="label-mrp-text" style={{ textDecoration: 'line-through', fontSize: '0.95rem', letterSpacing: '2px', color: '#333', marginBottom: '2px' }}>MRP: Rs. {variant.mrp}</div>
+                <div className="label-mrp-text" style={{ textDecoration: 'line-through', fontSize: '0.95rem', letterSpacing: '4px', fontSize: '1.05rem', color: '#333', marginBottom: '2px' }}>MRP: Rs. {variant.mrp}</div>
                 <div className="label-price-text" style={{ fontSize: '1.3rem', fontWeight: 'bold' }}>Discount Price: Rs. {variant.sellingPrice}</div>
               </div>
           </div>
@@ -64,6 +64,7 @@ export default function ProductDetail() {
     </div>
   );
 }
+
 
 
 

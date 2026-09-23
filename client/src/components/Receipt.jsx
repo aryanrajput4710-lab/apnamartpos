@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import './Receipt.css';
 
 export default function Receipt({ order }) {
@@ -46,23 +46,8 @@ export default function Receipt({ order }) {
           <span className="receipt-info-colon">:</span>
           <span className="receipt-info-value">{timeStr}</span>
         </div>
-        <div className="receipt-info-row">
-          <span className="receipt-info-label">Cashier</span>
-          <span className="receipt-info-colon">:</span>
-          <span className="receipt-info-value">{order.user?.name || 'Cashier'}</span>
-        </div>
-        <div className="receipt-info-row">
-          <span className="receipt-info-label">Customer</span>
-          <span className="receipt-info-colon">:</span>
-          <span className="receipt-info-value">{order.customer?.name || 'Walk-in Customer'}</span>
-        </div>
-        {order.customer?.phone && (
-          <div className="receipt-info-row">
-            <span className="receipt-info-label">Phone</span>
-            <span className="receipt-info-colon">:</span>
-            <span className="receipt-info-value">{order.customer.phone}</span>
-          </div>
-        )}
+        
+        
       </div>
 
       <div className="receipt-separator" />
@@ -82,9 +67,9 @@ export default function Receipt({ order }) {
             <div className="receipt-item-main">
               <span className="col-item">{item.productNameSnapshot}</span>
               <span className="col-qty">{item.quantity}</span>
-              <span className="col-price">₹{parseFloat(item.unitPrice).toFixed(0)}</span>
-              <span className="col-disc">₹{parseFloat(item.discount).toFixed(0)}</span>
-              <span className="col-sub">₹{parseFloat(item.total).toFixed(0)}</span>
+              <span className="col-price">â‚¹{parseFloat(item.unitPrice).toFixed(0)}</span>
+              <span className="col-disc">â‚¹{parseFloat(item.discount).toFixed(0)}</span>
+              <span className="col-sub">â‚¹{parseFloat(item.total).toFixed(0)}</span>
             </div>
             <div className="receipt-item-details">
               {item.sizeSnapshot && `Size: ${item.sizeSnapshot}`}
@@ -105,19 +90,19 @@ export default function Receipt({ order }) {
       <div className="receipt-totals">
         <div className="receipt-total-row">
           <span>Subtotal</span>
-          <span>₹{parseFloat(order.subtotal).toFixed(2)}</span>
+          <span>â‚¹{parseFloat(order.subtotal).toFixed(2)}</span>
         </div>
         <div className="receipt-total-row">
           <span>Discount</span>
-          <span>₹{parseFloat(order.discount).toFixed(2)}</span>
+          <span>â‚¹{parseFloat(order.discount).toFixed(2)}</span>
         </div>
         <div className="receipt-total-row">
           <span>Tax</span>
-          <span>₹0.00</span>
+          <span>â‚¹0.00</span>
         </div>
         <div className="receipt-total-row receipt-final-total">
           <span>TOTAL</span>
-          <span>₹{parseFloat(order.total).toFixed(2)}</span>
+          <span>â‚¹{parseFloat(order.total).toFixed(2)}</span>
         </div>
       </div>
 
@@ -141,12 +126,12 @@ export default function Receipt({ order }) {
             <div className="receipt-pay-row">
               <span className="receipt-info-label">Cash Received</span>
               <span className="receipt-info-colon">:</span>
-              <span className="receipt-info-value">₹{parseFloat(cashAmount).toFixed(2)}</span>
+              <span className="receipt-info-value">â‚¹{parseFloat(cashAmount).toFixed(2)}</span>
             </div>
             <div className="receipt-pay-row">
               <span className="receipt-info-label">Change Returned</span>
               <span className="receipt-info-colon">:</span>
-              <span className="receipt-info-value">₹0.00</span>
+              <span className="receipt-info-value">â‚¹0.00</span>
             </div>
           </>
         )}
@@ -158,8 +143,11 @@ export default function Receipt({ order }) {
       <div className="receipt-footer">
         <h3>Thank You</h3>
         <p>Please Visit Us Again</p>
+        <p style={{ marginTop: '10px', fontWeight: 'bold' }}>Cashier: {order.user?.name || 'Cashier'}</p>
+        <p style={{ marginTop: '5px', fontSize: '10px' }}>Terms & Conditions apply for returns</p>
       </div>
     </div>
   );
 }
+
 
