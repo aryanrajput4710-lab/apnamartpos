@@ -113,7 +113,7 @@ export default function Settings() {
             <small style={{ color: '#6b7280' }}>Upload your store's UPI QR code image to show it during checkout.</small>
           </div>
           <div>
-            <label>Receipt Footer</label>
+            <label>Store Slogan</label>
             <textarea value={settings.receiptFooter || ''} onChange={e => setSettings({...settings, receiptFooter: e.target.value})} style={{ width: '100%', padding: '0.5rem' }} />
           </div>
           <button type="submit" style={{ padding: '0.75rem', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '4px' }}>Save Settings</button>

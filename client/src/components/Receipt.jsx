@@ -29,7 +29,7 @@ export default function Receipt({ order }) {
           <h1 className="receipt-store-name">{settings?.storeName || 'Apna Mart'}</h1>
           <p className="receipt-address">{settings?.storeAddress || 'Gaya Bhagat Chowk, Golma, District - Saharsa, PIN-852107'}</p>
           {settings?.storePhone && <p className="receipt-tagline">Phone: {settings.storePhone}</p>}
-          <p className="receipt-tagline">Best Quality Low Price</p>
+          <p className="receipt-tagline">{settings?.receiptFooter || 'Best Quality Low Price'}</p>
         </div>
       </div>
 
@@ -147,7 +147,6 @@ export default function Receipt({ order }) {
       <div className="receipt-footer">
         <h3>Thank You</h3>
         <p>Please Visit Us Again</p>
-        {settings?.receiptFooter && <p style={{ marginTop: '10px', whiteSpace: 'pre-wrap', fontSize: '12px' }}>{settings.receiptFooter}</p>}
         <p style={{ marginTop: '10px', fontWeight: 'bold' }}>Cashier: {order.user?.name || 'Cashier'}</p>
         <p style={{ marginTop: '5px', fontSize: '10px' }}>Terms & Conditions apply for returns</p>
       </div>
