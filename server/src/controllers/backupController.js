@@ -58,7 +58,7 @@ const createBackup = async (req, res) => {
 
     const backupDir = getBackupDir();
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const filename = "apna-mart-backup-$timestamp.dump";
+    const filename = `apna-mart-backup-${timestamp}.dump`;
     const filepath = path.join(backupDir, filename);
 
     const dbUrl = process.env.DATABASE_URL;
@@ -77,7 +77,7 @@ const createBackup = async (req, res) => {
           userId: req.user.id,
           action: 'BACKUP_CREATED',
           entityType: 'BACKUP',
-          description: "Backup created: $filename",
+          description: `Backup created: ${filename}`,
           metadata: { filepath }
         }
       });
@@ -123,7 +123,7 @@ const restoreBackup = async (req, res) => {
           userId: req.user.id,
           action: 'BACKUP_RESTORED',
           entityType: 'BACKUP',
-          description: "Backup restored from: $filename",
+          description: `Backup restored from: ${filename}`,
           metadata: { filepath }
         }
       });
@@ -141,3 +141,4 @@ module.exports = {
   createBackup,
   restoreBackup
 };
+
