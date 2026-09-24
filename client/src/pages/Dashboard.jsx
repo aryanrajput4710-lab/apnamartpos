@@ -99,7 +99,7 @@ export default function Dashboard() {
           <StatCard title="Gross Profit" value={`₹${parseFloat(summary.profit || 0).toFixed(2)}`} icon={<TrendingUp size={24} />} color="#059669" />
           <StatCard title="Orders" value={summary.orders} icon={<ShoppingCart size={24} />} color="#3b82f6" />
 
-        <StatCard title="Orders" value={summary.orders} icon={<ShoppingCart size={24} />} color="#3b82f6" />
+        
         <StatCard title="Items Sold" value={summary.itemsSold} icon={<ShoppingBag size={24} />} color="#f59e0b" />
         <StatCard title="Avg Order Value" value={`₹${parseFloat(summary.aov).toFixed(2)}`} icon={<TrendingUp size={24} />} color="#8b5cf6" />
       </div>
