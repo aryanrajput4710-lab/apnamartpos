@@ -1,6 +1,8 @@
 const express = require('express');
 const { getUsers, createUser, toggleUserActive } = require('../controllers/userController');
 const { requireAuth, requireRole } = require('../middleware/auth');
+const validate = require('../middleware/validate');
+const { createUserSchema, toggleUserSchema } = require('../schemas/userSchema');
 
 const router = express.Router();
 
@@ -8,7 +10,7 @@ const router = express.Router();
 router.use(requireAuth, requireRole('ADMIN'));
 
 router.get('/', getUsers);
-router.post('/', createUser);
-router.patch('/:id/active', toggleUserActive);
+router.post('/', validate(createUserSchema), createUser);
+router.patch('/:id/active', validate(toggleUserSchema), toggleUserActive);
 
 module.exports = router;
