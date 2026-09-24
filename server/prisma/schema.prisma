@@ -248,3 +248,14 @@ model ReturnRecord {
   @@index([orderId])
   @@index([createdAt])
 }
+model StoreOffer {
+  id            String   @id @default(uuid())
+  title         String
+  description   String?
+  discountType  String   // 'FIXED' or 'PERCENTAGE'
+  discountValue Decimal
+  minCartValue  Decimal  @default(0)
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}

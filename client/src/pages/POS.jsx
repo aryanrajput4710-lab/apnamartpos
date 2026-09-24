@@ -32,9 +32,11 @@ export default function POS() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(null);
   const [settings, setSettings] = useState(null);
+  const [offers, setOffers] = useState([]);
 
   useEffect(() => {
     api.get('/settings').then(res => setSettings(res.data.data)).catch(console.error);
+    api.get('/offers?active=true').then(res => setOffers(res.data.data)).catch(console.error);
   }, []);
 
   // Focus scanner on mount and on clicks outside

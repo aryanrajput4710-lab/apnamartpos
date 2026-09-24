@@ -18,6 +18,7 @@ const reportRoutes = require('./routes/reportRoutes');
 const auditLogRoutes = require('./routes/auditLogRoutes');
 const backupRoutes = require('./routes/backupRoutes');
 const settingsRoutes = require('./routes/settingsRoutes');
+const offerRoutes = require('./routes/offerRoutes');
 const integrityRoutes = require('./routes/integrityRoutes');
 
 const helmet = require('helmet');
@@ -56,6 +57,7 @@ app.use('/api/reports', reportRoutes);
 app.use('/api/audit-logs', auditLogRoutes);
 app.use('/api/backup', backupRoutes);
 app.use('/api/settings', settingsRoutes);
+app.use('/api/offers', offerRoutes);
 app.use('/api/integrity', integrityRoutes);
 
 // Temporary test routes for role validation
