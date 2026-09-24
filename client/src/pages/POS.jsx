@@ -311,6 +311,9 @@ export default function POS() {
     scanInputRef.current?.focus();
   };
 
+  // Global Hardware Barcode Scanner Listener
+  useBarcodeScanner(handleScanRequest);
+
   return (
     <div style={{ display: 'flex', height: 'calc(100vh - 64px)', background: '#f3f4f6', margin: '-2rem', overflow: 'hidden' }}>
       
