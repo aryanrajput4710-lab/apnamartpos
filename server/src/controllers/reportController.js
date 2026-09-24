@@ -62,55 +62,113 @@ const getDashboardSummary = async (req, res) => {
       payments: { some: { status: 'COMPLETED' } }
     };
 
-    // 1. Summary Cards (Revenue, Orders, Tax, Discount)
-    const orderAgg = await prisma.order.aggregate({
-      where: successfulOrderWhere,
-      _sum: {
-        total: true,
-        subtotal: true,
-        discount: true
-      },
-      _count: {
-        id: true
-      }
-    });
+    // Execute all independent queries concurrently
+    const [
+      orderAgg,
+      itemsAgg,
+      payments,
+      lowStockVariants,
+      topItemsAgg,
+      totalCustomers,
+      newCustomers,
+      returningCustomersAgg,
+      chartData,
+      returnAgg,
+      recentReturns
+    ] = await Promise.all([
+      // 1. Summary Cards (Revenue, Orders, Tax, Discount)
+      prisma.order.aggregate({
+        where: successfulOrderWhere,
+        _sum: { total: true, subtotal: true, discount: true },
+        _count: { id: true }
+      }),
+      // 2. Items Sold
+      prisma.orderItem.aggregate({
+        where: { order: successfulOrderWhere },
+        _sum: { quantity: true }
+      }),
+      // 3. Payment Methods Breakdown
+      prisma.payment.groupBy({
+        by: ['method'],
+        where: {
+          createdAt: { gte: start, lte: end },
+          status: 'COMPLETED',
+          order: { status: 'COMPLETED' }
+        },
+        _sum: { amount: true },
+        _count: { id: true }
+      }),
+      // 4. Low Stock
+      prisma.productVariant.findMany({
+        where: { stock: { lte: prisma.productVariant.fields.lowStockThreshold } },
+        include: { product: true },
+        take: 10
+      }),
+      // 5. Top Selling Products
+      prisma.orderItem.groupBy({
+        by: ['variantId', 'productNameSnapshot', 'skuSnapshot', 'sizeSnapshot', 'colorSnapshot'],
+        where: { order: successfulOrderWhere },
+        _sum: { quantity: true, total: true },
+        orderBy: { _sum: { quantity: 'desc' } },
+        take: 5
+      }),
+      // 6a. Customers Stats (Total)
+      prisma.customer.count(),
+      // 6b. Customers Stats (New in period)
+      prisma.customer.count({
+        where: { createdAt: { gte: start, lte: end } }
+      }),
+      // 6c. Returning customers base query
+      prisma.order.groupBy({
+        by: ['customerId'],
+        where: {
+          customerId: { not: null },
+          createdAt: { gte: start, lte: end },
+          status: 'COMPLETED'
+        }
+      }),
+      // 7. Revenue Chart
+      prisma.$queryRaw`
+        SELECT 
+          DATE(o."createdAt" AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Kolkata') as date,
+          SUM(o."total") as revenue,
+          COUNT(o."id") as orders
+        FROM "Order" o
+        WHERE o."status" = 'COMPLETED'
+          AND o."createdAt" >= ${start}
+          AND o."createdAt" <= ${end}
+          AND EXISTS (
+            SELECT 1 FROM "Payment" p WHERE p."orderId" = o."id" AND p."status" = 'COMPLETED'
+          )
+        GROUP BY DATE(o."createdAt" AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Kolkata')
+        ORDER BY date ASC
+      `,
+      // 8a. Returns Summary
+      prisma.returnRecord.aggregate({
+        where: { createdAt: { gte: start, lte: end } },
+        _sum: { quantity: true, refundAmount: true }
+      }),
+      // 8b. Recent Returns
+      prisma.returnRecord.findMany({
+         where: { createdAt: { gte: start, lte: end } },
+         include: {
+           order: { select: { orderNumber: true } },
+           orderItem: { select: { productNameSnapshot: true } }
+         },
+         orderBy: { createdAt: 'desc' },
+         take: 10
+      })
+    ]);
 
+    // Format results
     const revenue = parseFloat(orderAgg._sum.total || 0);
     const ordersCount = orderAgg._count.id || 0;
     const discounts = parseFloat(orderAgg._sum.discount || 0);
-    // Assuming no tax column on Order in Phase 5 schema; we'll treat it as 0.
     const tax = 0;
     const aov = ordersCount > 0 ? (revenue / ordersCount) : 0;
-
-    // 2. Items Sold
-    const itemsAgg = await prisma.orderItem.aggregate({
-      where: {
-        order: successfulOrderWhere
-      },
-      _sum: {
-        quantity: true
-      }
-    });
     const itemsSold = itemsAgg._sum.quantity || 0;
 
-    // 3. Payment Methods Breakdown
-    // We aggregate payments directly
-    const payments = await prisma.payment.groupBy({
-      by: ['method'],
-      where: {
-        createdAt: { gte: start, lte: end },
-        status: 'COMPLETED',
-        order: { status: 'COMPLETED' }
-      },
-      _sum: { amount: true },
-      _count: { id: true }
-    });
-
-    const paymentSummary = {
-      CASH: { amount: 0, orders: 0 },
-      QR: { amount: 0, orders: 0 }
-    };
-
+    const paymentSummary = { CASH: { amount: 0, orders: 0 }, QR: { amount: 0, orders: 0 } };
     payments.forEach(p => {
       if (p.method === 'CASH') {
         paymentSummary.CASH.amount = parseFloat(p._sum.amount || 0);
@@ -121,33 +179,6 @@ const getDashboardSummary = async (req, res) => {
       }
     });
 
-    // 4. Low Stock
-    const lowStockVariants = await prisma.productVariant.findMany({
-      where: {
-        stock: { lte: prisma.productVariant.fields.lowStockThreshold }
-      },
-      include: { product: true },
-      take: 10
-    });
-
-    // 5. Top Selling Products
-    // Because prisma groupBy doesn't easily let us fetch relations (like snapshot names),
-    // we'll fetch the aggregated items and map them.
-    const topItemsAgg = await prisma.orderItem.groupBy({
-      by: ['variantId', 'productNameSnapshot', 'skuSnapshot', 'sizeSnapshot', 'colorSnapshot'],
-      where: {
-        order: successfulOrderWhere
-      },
-      _sum: {
-        quantity: true,
-        total: true
-      },
-      orderBy: {
-        _sum: { quantity: 'desc' }
-      },
-      take: 5
-    });
-
     const formattedTopProducts = topItemsAgg.map(tp => ({
       ...tp,
       _sum: {
@@ -156,23 +187,6 @@ const getDashboardSummary = async (req, res) => {
       }
     }));
 
-    // 6. Customers Stats
-    const totalCustomers = await prisma.customer.count();
-    const newCustomers = await prisma.customer.count({
-      where: { createdAt: { gte: start, lte: end } }
-    });
-    
-    // Returning customers (customers with >1 order all time, who ordered in this period)
-    const returningCustomersAgg = await prisma.order.groupBy({
-      by: ['customerId'],
-      where: {
-        customerId: { not: null },
-        createdAt: { gte: start, lte: end },
-        status: 'COMPLETED'
-      }
-    });
-    
-    // Check which of these have > 1 completed order globally
     let returningCount = 0;
     if (returningCustomersAgg.length > 0) {
       const customerIds = returningCustomersAgg.map(c => c.customerId);
@@ -184,73 +198,26 @@ const getDashboardSummary = async (req, res) => {
       returningCount = globalOrderCounts.filter(c => c._count.id > 1).length;
     }
 
-    // 7. Revenue Chart (Daily aggregation for the period)
-    // We'll use raw SQL for time grouping, safely parameterized.
-    const chartData = await prisma.$queryRaw`
-      SELECT 
-        DATE(o."createdAt" AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Kolkata') as date,
-        SUM(o."total") as revenue,
-        COUNT(o."id") as orders
-      FROM "Order" o
-      WHERE o."status" = 'COMPLETED'
-        AND o."createdAt" >= ${start}
-        AND o."createdAt" <= ${end}
-        AND EXISTS (
-          SELECT 1 FROM "Payment" p WHERE p."orderId" = o."id" AND p."status" = 'COMPLETED'
-        )
-      GROUP BY DATE(o."createdAt" AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Kolkata')
-      ORDER BY date ASC
-    `;
-
-    // Map chart dates to strings
     const formattedChart = chartData.map(d => ({
       date: d.date.toISOString().split('T')[0],
       revenue: parseFloat(d.revenue || 0),
       orders: Number(d.orders || 0)
     }));
 
-    // 8. Returns Stats
-    const returnAgg = await prisma.returnRecord.aggregate({
-      where: {
-        createdAt: { gte: start, lte: end }
-      },
-      _sum: { quantity: true, refundAmount: true }
-    });
     const returnsSummary = {
       quantity: returnAgg._sum.quantity || 0,
       refundAmount: parseFloat(returnAgg._sum.refundAmount || 0)
     };
-    
-    const recentReturns = await prisma.returnRecord.findMany({
-       where: { createdAt: { gte: start, lte: end } },
-       include: {
-         order: { select: { orderNumber: true } },
-         orderItem: { select: { productNameSnapshot: true } }
-       },
-       orderBy: { createdAt: 'desc' },
-       take: 10
-    });
 
     res.status(200).json({
       success: true,
       data: {
-        summary: {
-          revenue,
-          orders: ordersCount,
-          itemsSold,
-          aov,
-          tax,
-          discounts
-        },
+        summary: { revenue, orders: ordersCount, itemsSold, aov, tax, discounts },
         returns: { summary: returnsSummary, recent: recentReturns },
         paymentSummary,
         lowStock: lowStockVariants,
         topProducts: formattedTopProducts,
-        customerStats: {
-          total: totalCustomers,
-          new: newCustomers,
-          returning: returningCount
-        },
+        customerStats: { total: totalCustomers, new: newCustomers, returning: returningCount },
         chart: formattedChart
       }
     });
