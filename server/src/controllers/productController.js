@@ -35,8 +35,8 @@ const createProduct = async (req, res) => {
     if (variants && variants.length > 0) {
       // Validate variants
       for (const v of variants) {
-        if (!v.mrp || !v.sellingPrice) {
-          return res.status(400).json({ success: false, message: 'MRP and selling price are required for all variants' });
+        if (v.costPrice === undefined || v.costPrice === null || v.costPrice === '' || !v.mrp || !v.sellingPrice) {
+          return res.status(400).json({ success: false, message: 'Cost Price, MRP, and selling price are required for all variants' });
         }
       }
 
@@ -184,8 +184,8 @@ const createVariant = async (req, res) => {
     const { productId } = req.params;
     const { color, size, costPrice, mrp, sellingPrice, discountType, discountValue, stock, lowStockThreshold, sku } = req.body;
 
-    if (!mrp || !sellingPrice) {
-      return res.status(400).json({ success: false, message: 'MRP and selling price are required' });
+    if (costPrice === undefined || costPrice === null || costPrice === '' || !mrp || !sellingPrice) {
+      return res.status(400).json({ success: false, message: 'Cost Price, MRP, and selling price are required' });
     }
 
     const product = await prisma.product.findUnique({ where: { id: productId } });
