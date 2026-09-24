@@ -59,7 +59,7 @@ export default function Dashboard() {
   if (loading && !data) return <div style={{ padding: '2rem' }}>Loading dashboard...</div>;
   if (!data) return <div style={{ padding: '2rem', color: 'red' }}>Error loading dashboard data.</div>;
 
-  const { summary, paymentSummary, lowStock, topProducts, customerStats, chart } = data;
+  const { summary, paymentSummary, lowStock, topProducts, topCategories, customerStats, chart } = data;
 
   const StatCard = ({ title, value, icon, color }) => (
     <div style={{ background: 'white', padding: '1.5rem', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', flex: '1 1 200px' }}>
@@ -185,6 +185,33 @@ export default function Dashboard() {
                     </td>
                     <td style={{ padding: '0.75rem 0', textAlign: 'right' }}>{tp._sum.quantity}</td>
                     <td style={{ padding: '0.75rem 0', textAlign: 'right', fontWeight: '500' }}>Rs. {parseFloat(tp._sum.total).toFixed(2)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table></div>
+          )}
+        </div>
+
+        {/* Top Categories */}
+        <div style={{ flex: '1 1 100%', background: 'white', padding: '1.5rem', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+          <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.1rem' }}>Top Selling Categories</h3>
+          {(!topCategories || topCategories.length === 0) ? (
+            <p style={{ color: '#6b7280' }}>No categories sold in this period.</p>
+          ) : (
+            <div className="table-responsive"><table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid #e5e7eb', textAlign: 'left', color: '#6b7280' }}>
+                  <th style={{ paddingBottom: '0.5rem' }}>Category</th>
+                  <th style={{ paddingBottom: '0.5rem', textAlign: 'right' }}>Units</th>
+                  <th style={{ paddingBottom: '0.5rem', textAlign: 'right' }}>Revenue</th>
+                </tr>
+              </thead>
+              <tbody>
+                {topCategories.map((tc, idx) => (
+                  <tr key={idx} style={{ borderBottom: '1px solid #f3f4f6' }}>
+                    <td style={{ padding: '0.75rem 0', fontWeight: '500' }}>{tc.category}</td>
+                    <td style={{ padding: '0.75rem 0', textAlign: 'right' }}>{tc.quantity}</td>
+                    <td style={{ padding: '0.75rem 0', textAlign: 'right', fontWeight: '500' }}>Rs. {parseFloat(tc.total).toFixed(2)}</td>
                   </tr>
                 ))}
               </tbody>

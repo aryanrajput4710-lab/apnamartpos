@@ -75,7 +75,8 @@ const getDashboardSummary = async (req, res) => {
       chartData,
       profitAgg,
       returnAgg,
-      recentReturns
+      recentReturns,
+      topCategoriesAgg
     ] = await Promise.all([
       // 1. Summary Cards (Revenue, Orders, Tax, Discount)
       prisma.order.aggregate({
@@ -167,7 +168,25 @@ const getDashboardSummary = async (req, res) => {
          },
          orderBy: { createdAt: 'desc' },
          take: 10
-      })
+      }),
+
+      // 10. Top Selling Categories
+      prisma.$queryRaw`
+        SELECT 
+          p.category, 
+          SUM(oi.quantity) as quantity, 
+          SUM(oi.total) as total
+        FROM "OrderItem" oi
+        JOIN "ProductVariant" v ON oi."variantId" = v.id
+        JOIN "Product" p ON v."productId" = p.id
+        JOIN "Order" o ON oi."orderId" = o.id
+        WHERE o.status = 'COMPLETED'
+          AND o."createdAt" >= ${start}
+          AND o."createdAt" <= ${end}
+        GROUP BY p.category
+        ORDER BY quantity DESC
+        LIMIT 5
+      `
     ]);
 
     // Format results
@@ -189,6 +208,13 @@ const getDashboardSummary = async (req, res) => {
         paymentSummary.QR.orders = p._count.id;
       }
     });
+
+
+    const formattedTopCategories = (topCategoriesAgg || []).map(c => ({
+      category: c.category || 'Uncategorized',
+      quantity: Number(c.quantity || 0),
+      total: Number(c.total || 0)
+    }));
 
     const formattedTopProducts = topItemsAgg.map(tp => ({
       ...tp,
