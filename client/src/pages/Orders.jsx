@@ -138,14 +138,27 @@ export default function Orders() {
     <div style={{ padding: '2rem' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
         
-          <h2>All Orders</h2>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <h2 style={{ margin: 0 }}>All Orders</h2>
           {currentUser?.role === 'ADMIN' && (
-            <button onClick={handleClearAll} style={{ padding: '0.75rem 1.5rem', background: '#dc2626', color: 'white', border: 'none', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer' }}>
+            <button type="button" onClick={handleClearAll} style={{ padding: '0.5rem 1rem', background: '#dc2626', color: 'white', border: 'none', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer' }}>
               Clear All Test Orders
             </button>
           )}
         </div>
 
+        
+        <form onSubmit={handleSearch} style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <div style={{ position: 'relative' }}>
+            <Search style={{ position: 'absolute', left: '10px', top: '10px', color: '#9ca3af' }} size={20} />
+            <input 
+              type="text"
+              placeholder="Search Order No, Customer..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              style={{ padding: '0.5rem 0.5rem 0.5rem 2.5rem', width: '250px', borderRadius: '4px', border: '1px solid #d1d5db' }}
+            />
+          </div>
           
           <select value={paymentMethod} onChange={(e) => { setPaymentMethod(e.target.value); setPage(1); }} style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #d1d5db' }}>
             <option value="">All Methods</option>
