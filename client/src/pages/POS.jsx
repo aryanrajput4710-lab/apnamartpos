@@ -3,6 +3,7 @@ import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { ShoppingCart, User, Search, Trash2, Plus, Minus, X, Camera } from 'lucide-react';
 import CameraScanner from '../components/CameraScanner';
+import { useBarcodeScanner } from '../hooks/useBarcodeScanner';
 import Receipt from '../components/Receipt';
 
 export default function POS() {
@@ -85,18 +86,8 @@ export default function POS() {
     api.get('/register/status').then(res => setShift(res.data.data)).catch(console.error);
   }, []);
 
-  // Focus scanner on mount and on clicks outside
-  useEffect(() => {
-    scanInputRef.current?.focus();
-    const handleWindowClick = (e) => {
-      // If they aren't clicking an input, refocus the scanner
-      if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
-        scanInputRef.current?.focus();
-      }
-    };
-    window.addEventListener('click', handleWindowClick);
-    return () => window.removeEventListener('click', handleWindowClick);
-  }, []);
+  // Removed hacky auto-focus logic in favor of global useBarcodeScanner
+  useBarcodeScanner(handleScanRequest);
 
   const handleCameraScan = (code) => {
     setShowCamera(false);
