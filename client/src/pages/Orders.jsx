@@ -23,29 +23,8 @@ export default function Orders() {
 
   
 
-  const handleClearAll = async () => {
-    if (!window.confirm('CRITICAL WARNING: This will permanently wipe ALL orders, ALL payments, and ALL returns from the entire database, and reset your stock to exactly what it was before these sales! Type "YES" to confirm.')) return;
-    const prompt = window.prompt('Type YES to clear all orders:');
-    if (prompt !== 'YES') return;
-    try {
-      await api.delete('/orders');
-      alert('All test orders cleared and inventory stock has been re-calculated!');
-      fetchOrders();
-    } catch (err) {
-      alert(err.response?.data?.message || 'Error clearing orders');
-    }
-  };
 
-  const handleDeleteOrder = async (id) => {
-    if (!window.confirm('WARNING: Are you sure you want to completely delete this order? This will permanently erase the order, delete payments, reverse returns, and put stock back into inventory! This action CANNOT BE UNDONE.')) return;
-    try {
-      await api.delete('/orders/' + id);
-      alert('Order deleted successfully');
-      fetchOrders();
-    } catch (err) {
-      alert(err.response?.data?.message || 'Error deleting order');
-    }
-  };
+
 
   const openReturnModal = async (orderId) => {
     try {
@@ -140,11 +119,6 @@ export default function Orders() {
         
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <h2 style={{ margin: 0 }}>All Orders</h2>
-          {currentUser?.role === 'ADMIN' && (
-            <button type="button" onClick={handleClearAll} style={{ padding: '0.5rem 1rem', background: '#dc2626', color: 'white', border: 'none', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer' }}>
-              Clear All Test Orders
-            </button>
-          )}
         </div>
 
         
@@ -244,11 +218,7 @@ export default function Orders() {
                             <RotateCcw size={14}/> Return
                           </button>
                         )}
-                        {currentUser?.role === 'ADMIN' && (
-                          <button onClick={() => handleDeleteOrder(o.id)} style={{ padding: '0.25rem 0.5rem', background: '#000', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
-                            Delete
-                          </button>
-                        )}
+                        
 
                     </td>
                   </tr>
