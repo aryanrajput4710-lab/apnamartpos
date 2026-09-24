@@ -238,7 +238,13 @@ const deleteOrder = async (req, res) => {
 
       // 7. Deduct from Customer if applicable
       if (order.customerId) {
-        await tx.$queryRaw`UPDATE "Customer" SET "totalOrders" = GREATEST("totalOrders" - 1, 0), "totalSpent" = GREATEST("totalSpent" - ${order.total}, 0) WHERE id = ${order.customerId}`;
+        await tx.customer.update({
+          where: { id: order.customerId },
+          data: {
+            totalOrders: { decrement: 1 },
+            totalSpent: { decrement: order.total }
+          }
+        });
       }
 
       // 8. Delete the Order
@@ -248,7 +254,7 @@ const deleteOrder = async (req, res) => {
     res.json({ success: true, message: 'Order and associated records completely deleted' });
   } catch (error) {
     console.error('Delete order error:', error);
-    res.status(500).json({ success: false, message: 'Failed to delete order' });
+    res.status(500).json({ success: false, message: 'Failed to delete order: ' + error.message });
   }
 };
 
