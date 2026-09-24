@@ -22,6 +22,20 @@ export default function Orders() {
   const [returnProcessing, setReturnProcessing] = useState(false);
 
   
+
+  const handleClearAll = async () => {
+    if (!window.confirm('CRITICAL WARNING: This will permanently wipe ALL orders, ALL payments, and ALL returns from the entire database, and reset your stock to exactly what it was before these sales! Type "YES" to confirm.')) return;
+    const prompt = window.prompt('Type YES to clear all orders:');
+    if (prompt !== 'YES') return;
+    try {
+      await api.delete('/orders');
+      alert('All test orders cleared and inventory stock has been re-calculated!');
+      fetchOrders();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Error clearing orders');
+    }
+  };
+
   const handleDeleteOrder = async (id) => {
     if (!window.confirm('WARNING: Are you sure you want to completely delete this order? This will permanently erase the order, delete payments, reverse returns, and put stock back into inventory! This action CANNOT BE UNDONE.')) return;
     try {
@@ -123,19 +137,15 @@ export default function Orders() {
   return (
     <div style={{ padding: '2rem' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
-        <h2>All Orders</h2>
         
-        <form onSubmit={handleSearch} style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-          <div style={{ position: 'relative' }}>
-            <Search style={{ position: 'absolute', left: '10px', top: '10px', color: '#9ca3af' }} size={20} />
-            <input 
-              type="text"
-              placeholder="Search Order No, Customer..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              style={{ padding: '0.5rem 0.5rem 0.5rem 2.5rem', width: '250px', borderRadius: '4px', border: '1px solid #d1d5db' }}
-            />
-          </div>
+          <h2>All Orders</h2>
+          {currentUser?.role === 'ADMIN' && (
+            <button onClick={handleClearAll} style={{ padding: '0.75rem 1.5rem', background: '#dc2626', color: 'white', border: 'none', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer' }}>
+              Clear All Test Orders
+            </button>
+          )}
+        </div>
+
           
           <select value={paymentMethod} onChange={(e) => { setPaymentMethod(e.target.value); setPage(1); }} style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #d1d5db' }}>
             <option value="">All Methods</option>

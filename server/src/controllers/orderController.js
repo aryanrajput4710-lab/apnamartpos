@@ -258,7 +258,57 @@ const deleteOrder = async (req, res) => {
   }
 };
 
+
+const resetTestData = async (req, res) => {
+  try {
+    await prisma.$transaction(async (tx) => {
+      // 1. Delete all Return Records, Payments, OrderItems, Orders
+      await tx.returnRecord.deleteMany({});
+      await tx.payment.deleteMany({});
+      await tx.orderItem.deleteMany({});
+      await tx.order.deleteMany({});
+      
+      // 2. Delete SALE and SALE_RETURN inventory transactions
+      await tx.inventoryTransaction.deleteMany({
+        where: { type: { in: ['SALE', 'SALE_RETURN'] } }
+      });
+
+      // 3. Delete AuditLogs related to Orders
+      await tx.auditLog.deleteMany({
+        where: { entityType: 'ORDER' }
+      });
+
+      // 4. Reset Customer totals
+      await tx.customer.updateMany({
+        data: { totalOrders: 0, totalSpent: 0 }
+      });
+
+      // 5. Recalculate stock for ALL variants based purely on STOCK_IN, STOCK_OUT, and ADJUSTMENT
+      const variants = await tx.productVariant.findMany();
+      for (const v of variants) {
+        const txs = await tx.inventoryTransaction.findMany({ where: { variantId: v.id } });
+        let trueStock = 0;
+        // Replay transactions
+        for (const t of txs) {
+          if (t.type === 'STOCK_IN') trueStock += t.quantity;
+          if (t.type === 'STOCK_OUT') trueStock -= t.quantity;
+          if (t.type === 'ADJUSTMENT') trueStock = t.newStock; // Adjustment sets exact stock
+        }
+        await tx.productVariant.update({
+          where: { id: v.id },
+          data: { stock: trueStock }
+        });
+      }
+    });
+    res.json({ success: true, message: 'All test orders and sales data wiped, and inventory stock restored correctly!' });
+  } catch (error) {
+    console.error('Reset test data error:', error);
+    res.status(500).json({ success: false, message: 'Failed to reset test data: ' + error.message });
+  }
+};
+
 module.exports = {
+  resetTestData,
   deleteOrder,
   getOrders,
   getOrderById,
