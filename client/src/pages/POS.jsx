@@ -31,11 +31,46 @@ export default function POS() {
   const [paymentMethod, setPaymentMethod] = useState('CASH');
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(null);
-  const [settings, setSettings] = useState(null);
+  
+  const handleHoldCart = () => {
+    if (cart.length === 0) return;
+    const holdData = {
+      id: Date.now(),
+      cart,
+      customer,
+      extraDiscount,
+      time: new Date().toLocaleTimeString()
+    };
+    setHeldCarts([...heldCarts, holdData]);
+    setCart([]);
+    setCustomer(null);
+    setExtraDiscount('');
+  };
+
+  const handleRestoreCart = (heldId) => {
+    const target = heldCarts.find(hc => hc.id === heldId);
+    if (!target) return;
+    // If current cart is not empty, maybe alert?
+    if (cart.length > 0 && !confirm("Current cart will be replaced. Continue?")) return;
+    setCart(target.cart);
+    setCustomer(target.customer);
+    setExtraDiscount(target.extraDiscount);
+    setHeldCarts(heldCarts.filter(hc => hc.id !== heldId));
+    setShowHeldModal(false);
+  };
+const [settings, setSettings] = useState(null);
+  useEffect(() => {
+    localStorage.setItem('heldCarts', JSON.stringify(heldCarts));
+  }, [heldCarts]);
+
   const [offers, setOffers] = useState([]);
+  const [heldCarts, setHeldCarts] = useState(() => JSON.parse(localStorage.getItem("heldCarts") || "[]"));
+  const [showHeldModal, setShowHeldModal] = useState(false);
 
   useEffect(() => {
     api.get('/settings').then(res => setSettings(res.data.data)).catch(console.error);
+    localStorage.setItem("heldCarts", JSON.stringify(heldCarts));
+
     api.get('/offers?active=true').then(res => setOffers(res.data.data)).catch(console.error);
   }, []);
 
@@ -392,9 +427,15 @@ export default function POS() {
           </div>
           
           <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <button onClick={clearCart} disabled={cart.length === 0} style={{ padding: '1rem', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: cart.length === 0 ? 'not-allowed' : 'pointer' }}>
-              Clear
-            </button>
+            <button onClick={handleHoldCart} disabled={cart.length === 0} style={{ padding: '1rem', background: '#fef3c7', color: '#d97706', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: cart.length === 0 ? 'not-allowed' : 'pointer' }}>
+                Hold
+              </button>
+              <button onClick={() => setShowHeldModal(true)} style={{ padding: '1rem', background: '#e0e7ff', color: '#4f46e5', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
+                Held ({heldCarts.length})
+              </button>
+              <button onClick={clearCart} disabled={cart.length === 0} style={{ padding: '1rem', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: cart.length === 0 ? 'not-allowed' : 'pointer' }}>
+                Clear
+              </button>
             <button onClick={openCheckout} disabled={cart.length === 0} style={{ flex: 1, padding: '1rem', background: cart.length === 0 ? '#9ca3af' : '#22c55e', color: 'white', border: 'none', borderRadius: '8px', fontSize: '1.1rem', fontWeight: 'bold', cursor: cart.length === 0 ? 'not-allowed' : 'pointer' }}>
               Continue to Payment
             </button>
