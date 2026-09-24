@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 
@@ -16,7 +16,9 @@ const CATEGORY_TREE = {
   "Kitchen & Home Appliances": [],
   "Stationery": [],
   "Glass Set": [],
-  "Crockery": []
+  "Crockery": [],
+  "Beauty & Fashion": [],
+  "Puja Items": []
 };
 
 export default function ProductForm() {
