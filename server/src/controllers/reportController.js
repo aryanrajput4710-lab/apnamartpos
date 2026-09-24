@@ -73,6 +73,7 @@ const getDashboardSummary = async (req, res) => {
       newCustomers,
       returningCustomersAgg,
       chartData,
+      profitAgg,
       returnAgg,
       recentReturns
     ] = await Promise.all([
