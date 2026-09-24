@@ -60,6 +60,7 @@ model ProductVariant {
   barcode           String       @unique
   color             String?
   size              String?
+  costPrice         Decimal      @default(0)
   mrp               Decimal
   sellingPrice      Decimal
   discountType      DiscountType @default(NONE)
@@ -166,6 +167,7 @@ model OrderItem {
   variantId      String
   quantity       Int
   returnedQty    Int     @default(0)
+  unitCostPrice  Decimal @default(0)
   unitPrice      Decimal
   discount       Decimal @default(0)
   total          Decimal

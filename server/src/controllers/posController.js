@@ -137,6 +137,7 @@ const checkout = async (req, res) => {
         orderItemsData.push({
           variantId: variant.id,
           quantity: qty,
+          unitCostPrice: parseFloat(variant.costPrice || 0),
           unitPrice: price,
           discount: itemDiscount,
           total: lineTotal - itemDiscount,
@@ -174,6 +175,7 @@ const checkout = async (req, res) => {
             create: orderItemsData.map(i => ({
               variantId: i.variantId,
               quantity: i.quantity,
+              unitCostPrice: i.unitCostPrice,
               unitPrice: i.unitPrice,
               discount: i.discount,
               total: i.total,

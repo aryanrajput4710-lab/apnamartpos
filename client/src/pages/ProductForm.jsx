@@ -30,7 +30,7 @@ export default function ProductForm() {
   const [loading, setLoading] = useState(false);
 
   const addVariant = () => {
-    setVariants([...variants, { size: '', color: '', mrp: '', sellingPrice: '', stock: 0 }]);
+    setVariants([...variants, { size: '', color: '', costPrice: '', mrp: '', sellingPrice: '', stock: 0 }]);
   };
 
   const updateVariant = (index, field, value) => {
@@ -99,7 +99,8 @@ export default function ProductForm() {
             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
               <div><label>Size (Optional)</label><br/><input value={v.size} onChange={e => updateVariant(i, 'size', e.target.value)} /></div>
               <div><label>Color (Optional)</label><br/><input value={v.color} onChange={e => updateVariant(i, 'color', e.target.value)} /></div>
-              <div><label>MRP*</label><br/><input type="number" required value={v.mrp} onChange={e => updateVariant(i, 'mrp', parseFloat(e.target.value))} /></div>
+              <div><label>Cost Price</label><br/><input type="number" value={v.costPrice} onChange={e => updateVariant(i, 'costPrice', parseFloat(e.target.value))} /></div>
+                <div><label>MRP*</label><br/><input type="number" required value={v.mrp} onChange={e => updateVariant(i, 'mrp', parseFloat(e.target.value))} /></div>
               <div><label>Selling Price*</label><br/><input type="number" required value={v.sellingPrice} onChange={e => updateVariant(i, 'sellingPrice', parseFloat(e.target.value))} /></div>
               <div><label>Initial Stock</label><br/><input type="number" value={v.stock} onChange={e => updateVariant(i, 'stock', parseInt(e.target.value))} /></div>
             </div>

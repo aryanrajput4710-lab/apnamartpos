@@ -54,7 +54,9 @@ const createProduct = async (req, res) => {
               barcode: generateUniqueBarcode(),
               color: v.color || null,
               size: v.size || null,
-              mrp: v.mrp,
+              costPrice: v.costPrice || 0,
+              costPrice: v.costPrice || 0,
+                  mrp: v.mrp,
               sellingPrice: v.sellingPrice,
               discountType: v.discountType || 'NONE',
               discountValue: v.discountValue || 0,
@@ -180,7 +182,7 @@ const toggleProductStatus = async (req, res) => {
 const createVariant = async (req, res) => {
   try {
     const { productId } = req.params;
-    const { color, size, mrp, sellingPrice, discountType, discountValue, stock, lowStockThreshold, sku } = req.body;
+    const { color, size, costPrice, mrp, sellingPrice, discountType, discountValue, stock, lowStockThreshold, sku } = req.body;
 
     if (!mrp || !sellingPrice) {
       return res.status(400).json({ success: false, message: 'MRP and selling price are required' });
@@ -202,6 +204,7 @@ const createVariant = async (req, res) => {
           barcode: generateUniqueBarcode(),
           color: color || null,
           size: size || null,
+          costPrice: costPrice || 0,
           mrp,
           sellingPrice,
           discountType: discountType || 'NONE',

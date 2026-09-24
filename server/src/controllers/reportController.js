@@ -143,6 +143,15 @@ const getDashboardSummary = async (req, res) => {
         GROUP BY DATE(o."createdAt" AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Kolkata')
         ORDER BY date ASC
       `,
+      // 9. Profit
+      prisma.$queryRaw`
+        SELECT SUM("total" - ("unitCostPrice" * "quantity")) as profit
+        FROM "OrderItem"
+        WHERE "orderId" IN (
+          SELECT id FROM "Order" 
+          WHERE "status" = 'COMPLETED' AND "createdAt" >= ${start} AND "createdAt" <= ${end}
+        )
+      `,
       // 8a. Returns Summary
       prisma.returnRecord.aggregate({
         where: { createdAt: { gte: start, lte: end } },
@@ -166,7 +175,7 @@ const getDashboardSummary = async (req, res) => {
     const discounts = parseFloat(orderAgg._sum.discount || 0);
     const tax = 0;
     const aov = ordersCount > 0 ? (revenue / ordersCount) : 0;
-    const itemsSold = itemsAgg._sum.quantity || 0;
+    const itemsSold = itemsAgg._sum.quantity || 0;\n    const profit = profitAgg && profitAgg[0] ? parseFloat(profitAgg[0].profit || 0) : 0;
 
     const paymentSummary = { CASH: { amount: 0, orders: 0 }, QR: { amount: 0, orders: 0 } };
     payments.forEach(p => {
@@ -212,7 +221,7 @@ const getDashboardSummary = async (req, res) => {
     res.status(200).json({
       success: true,
       data: {
-        summary: { revenue, orders: ordersCount, itemsSold, aov, tax, discounts },
+        summary: { revenue, profit, orders: ordersCount, itemsSold, aov, tax, discounts },
         returns: { summary: returnsSummary, recent: recentReturns },
         paymentSummary,
         lowStock: lowStockVariants,
