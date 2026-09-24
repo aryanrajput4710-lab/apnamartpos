@@ -236,6 +236,7 @@ export default function POS() {
         discount: finalDiscount,
         total: Math.max(0, subtotal - finalDiscount)
       };
+  /* FORCE UPDATE */
   }, [cart, extraDiscount]);
 
   // Customer Management
