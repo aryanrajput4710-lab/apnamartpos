@@ -1,5 +1,7 @@
 const express = require('express');
 const { 
+  updateVariant,
+  deleteProduct,
   createProduct, 
   getProducts, 
   getProductById, 
@@ -23,10 +25,12 @@ router.post('/catalog/import', requireRole('ADMIN'), importCatalog);
 router.get('/:id', getProductById);
 router.post('/', requireRole('ADMIN'), createProduct);
 router.put('/:id', requireRole('ADMIN'), updateProduct);
+router.delete('/:id', requireRole('ADMIN'), deleteProduct);
 router.patch('/:id/status', requireRole('ADMIN'), toggleProductStatus);
 
 // Nested Variant Routes
 router.get('/:productId/variants', getVariantsByProduct);
 router.post('/:productId/variants', requireRole('ADMIN'), createVariant);
+router.put('/variants/:variantId', requireRole('ADMIN'), updateVariant);
 
 module.exports = router;

@@ -13,6 +13,7 @@ const Dashboard = React.lazy(() => import('./pages/Dashboard'));
 const Users = React.lazy(() => import('./pages/Users'));
 const Products = React.lazy(() => import('./pages/Products'));
 const ProductForm = React.lazy(() => import('./pages/ProductForm'));
+const EditProduct = React.lazy(() => import('./pages/EditProduct'));
 const ProductDetail = React.lazy(() => import('./pages/ProductDetail'));
 const Inventory = React.lazy(() => import('./pages/Inventory'));
 const InventoryHistory = React.lazy(() => import('./pages/InventoryHistory'));
@@ -61,6 +62,7 @@ function App() {
                 
                 <Route path="/products" element={<Products />} />
                 <Route path="/products/:id" element={<ProductDetail />} />
+                <Route path="/products/:id/edit" element={<EditProduct />} />
                 
                 <Route path="/inventory" element={<Inventory />} />
                 <Route path="/inventory/:variantId/history" element={<InventoryHistory />} />

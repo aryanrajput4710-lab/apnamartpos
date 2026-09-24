@@ -331,3 +331,59 @@ module.exports = {
   exportCatalog,
   importCatalog
 };
+
+const deleteProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Check if it has any orders
+    const variants = await prisma.productVariant.findMany({ where: { productId: id } });
+    const variantIds = variants.map(v => v.id);
+    const orderItems = await prisma.orderItem.findFirst({ where: { variantId: { in: variantIds } } });
+    
+    if (orderItems) {
+      return res.status(400).json({ success: false, message: 'Cannot delete a product that has been sold in orders. Please deactivate it instead.' });
+    }
+    
+    await prisma.$transaction(async (tx) => {
+      // Delete inventory transactions
+      await tx.inventoryTransaction.deleteMany({ where: { variantId: { in: variantIds } } });
+      // Delete variants
+      await tx.productVariant.deleteMany({ where: { productId: id } });
+      // Delete product
+      await tx.product.delete({ where: { id } });
+    });
+    
+    res.json({ success: true, message: 'Product deleted successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: 'Failed to delete product' });
+  }
+};
+module.exports.deleteProduct = deleteProduct;
+
+const updateVariant = async (req, res) => {
+  try {
+    const { variantId } = req.params;
+    const { color, size, costPrice, mrp, sellingPrice, discountType, discountValue, lowStockThreshold, sku } = req.body;
+    
+    const variant = await prisma.productVariant.update({
+      where: { id: variantId },
+      data: {
+        sku: sku || undefined,
+        color,
+        size,
+        costPrice,
+        mrp,
+        sellingPrice,
+        discountType,
+        discountValue,
+        lowStockThreshold
+      }
+    });
+    res.json({ success: true, data: variant });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to update variant' });
+  }
+};
+module.exports.updateVariant = updateVariant;

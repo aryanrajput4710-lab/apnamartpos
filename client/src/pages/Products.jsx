@@ -24,6 +24,16 @@ export default function Products() {
     }
   };
 
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this product? (This will fail if it has past orders)')) return;
+    try {
+      await api.delete('/products/' + id);
+      fetchProducts();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Error deleting product');
+    }
+  };
   const toggleStatus = async (id, isActive) => {
     try {
       await api.patch(`/products/${id}/status`, { isActive: !isActive });
@@ -70,12 +80,16 @@ export default function Products() {
                 <td style={{ padding: '0.75rem' }}>{p.category}{p.subcategory ? ` > ${p.subcategory}` : ''}</td>
                 <td style={{ padding: '0.75rem' }}>{p._count.variants}</td>
                 <td style={{ padding: '0.75rem' }}>{p.isActive ? 'Active' : 'Inactive'}</td>
-                <td style={{ padding: '0.75rem', display: 'flex', gap: '0.5rem' }}>
-                  <Link to={`/products/${p.id}`}>View / Labels</Link>
+                <td style={{ padding: '0.75rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  <Link to={`/products/${p.id}`}>Labels</Link>
                   {currentUser.role === 'ADMIN' && (
-                    <button onClick={() => toggleStatus(p.id, p.isActive)}>
-                      {p.isActive ? 'Deactivate' : 'Activate'}
-                    </button>
+                    <>
+                      <Link to={`/products/${p.id}/edit`}>Edit</Link>
+                      <button onClick={() => toggleStatus(p.id, p.isActive)}>
+                        {p.isActive ? 'Deactivate' : 'Activate'}
+                      </button>
+                      <button onClick={() => handleDelete(p.id)} style={{ color: 'red' }}>Delete</button>
+                    </>
                   )}
                 </td>
               </tr>
