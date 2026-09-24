@@ -58,14 +58,22 @@ export default function POS() {
     setHeldCarts(heldCarts.filter(hc => hc.id !== heldId));
     setShowHeldModal(false);
   };
-const [settings, setSettings] = useState(null);
+  const [settings, setSettings] = useState(null);
+  const [offers, setOffers] = useState([]);
+  const [heldCarts, setHeldCarts] = useState(() => {
+    try {
+      const parsed = JSON.parse(localStorage.getItem("heldCarts") || "[]");
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      console.error("Failed to parse heldCarts from local storage", e);
+      return [];
+    }
+  });
+  const [showHeldModal, setShowHeldModal] = useState(false);
+
   useEffect(() => {
     localStorage.setItem('heldCarts', JSON.stringify(heldCarts));
   }, [heldCarts]);
-
-  const [offers, setOffers] = useState([]);
-  const [heldCarts, setHeldCarts] = useState(() => JSON.parse(localStorage.getItem("heldCarts") || "[]"));
-  const [showHeldModal, setShowHeldModal] = useState(false);
   const [shift, setShift] = useState(null);
   const [showShiftModal, setShowShiftModal] = useState(false);
   const [openingFloat, setOpeningFloat] = useState('');
@@ -73,9 +81,7 @@ const [settings, setSettings] = useState(null);
 
   useEffect(() => {
     api.get('/settings').then(res => setSettings(res.data.data)).catch(console.error);
-    localStorage.setItem("heldCarts", JSON.stringify(heldCarts));
-
-        api.get('/offers?active=true').then(res => setOffers(res.data.data)).catch(console.error);
+    api.get('/offers?active=true').then(res => setOffers(res.data.data)).catch(console.error);
     api.get('/register/status').then(res => setShift(res.data.data)).catch(console.error);
   }, []);
 

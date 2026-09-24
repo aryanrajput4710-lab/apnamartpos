@@ -1,5 +1,5 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { ProtectedRoute, RoleRoute } from './components/ProtectedRoute';
 
 import Login from './pages/Login';
@@ -21,6 +21,14 @@ import Reports from './pages/Reports';
 import Settings from './pages/Settings';
 import AuditLogs from './pages/AuditLogs';
 
+const RootRedirect = () => {
+  const { currentUser } = useAuth();
+  if (currentUser?.role === 'ADMIN') {
+    return <Dashboard />;
+  }
+  return <Navigate to="/pos" replace />;
+};
+
 function App() {
   return (
     <BrowserRouter>
@@ -32,6 +40,7 @@ function App() {
           {/* Protected Routes */}
           <Route element={<ProtectedRoute />}>
             <Route element={<AppLayout />}>
+              <Route path="/" element={<RootRedirect />} />
               <Route path="/pos" element={<POS />} />
               <Route path="/receipt/:id" element={<ReceiptView />} />
               <Route path="/customers" element={<Customers />} />
@@ -46,7 +55,6 @@ function App() {
               
               {/* Admin Only Routes */}
               <Route element={<RoleRoute allowedRoles={['ADMIN']} />}>
-                <Route path="/" element={<Dashboard />} />
                 <Route path="/reports" element={<Reports />} />
                 <Route path="/products/new" element={<ProductForm />} />
                 <Route path="/inventory/history" element={<InventoryHistory />} />
