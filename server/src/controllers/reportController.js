@@ -100,7 +100,7 @@ const getDashboardSummary = async (req, res) => {
       }),
       // 4. Low Stock
       prisma.productVariant.findMany({
-        where: { stock: { lte: prisma.productVariant.fields.lowStockThreshold } },
+        where: { stock: { lte: 1 } },
         include: { product: true },
         take: 10
       }),
