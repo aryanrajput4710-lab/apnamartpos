@@ -19,7 +19,19 @@ export default function Orders() {
   const [returnItems, setReturnItems] = useState({});
   const [returnProcessing, setReturnProcessing] = useState(false);
 
-    const openReturnModal = async (orderId) => {
+  
+  const handleDeleteOrder = async (id) => {
+    if (!window.confirm('WARNING: Are you sure you want to completely delete this order? This will permanently erase the order, delete payments, reverse returns, and put stock back into inventory! This action CANNOT BE UNDONE.')) return;
+    try {
+      await api.delete('/orders/' + id);
+      alert('Order deleted successfully');
+      fetchOrders();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Error deleting order');
+    }
+  };
+
+  const openReturnModal = async (orderId) => {
     try {
       const res = await api.get('/orders/' + orderId);
       const order = res.data.data;
@@ -200,12 +212,19 @@ export default function Orders() {
                     </td>
                     <td style={{ padding: '1rem', color: '#6b7280' }}>{o.user?.name}</td>
                     <td style={{ padding: '1rem', display: 'flex', gap: '0.5rem' }}>
-                      <Link to={`/receipt/${o.id}`} style={{ padding: '0.25rem 0.5rem', background: '#e5e7eb', borderRadius: '4px', textDecoration: 'none', color: 'black' }}>View / Print</Link>
-                      {(o.status === 'COMPLETED' || o.status === 'PARTIAL_RETURN') && (
-                        <button onClick={() => openReturnModal(o.id)} style={{ padding: '0.25rem 0.5rem', background: '#ef4444', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                          <RotateCcw size={14}/> Return
-                        </button>
-                      )}
+                      
+                        <Link to={`/receipt/${o.id}`} style={{ padding: '0.25rem 0.5rem', background: '#e5e7eb', borderRadius: '4px', textDecoration: 'none', color: 'black' }}>View / Print</Link>
+                        {(o.status === 'COMPLETED' || o.status === 'PARTIAL_RETURN') && (
+                          <button onClick={() => openReturnModal(o.id)} style={{ padding: '0.25rem 0.5rem', background: '#ef4444', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                            <RotateCcw size={14}/> Return
+                          </button>
+                        )}
+                        {currentUser?.role === 'ADMIN' && (
+                          <button onClick={() => handleDeleteOrder(o.id)} style={{ padding: '0.25rem 0.5rem', background: '#000', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+                            Delete
+                          </button>
+                        )}
+
                     </td>
                   </tr>
                 ))}

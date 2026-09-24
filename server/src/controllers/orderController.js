@@ -190,7 +190,70 @@ const returnOrderItems = async (req, res) => {
   }
 };
 
+
+const deleteOrder = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const order = await prisma.order.findUnique({
+      where: { id },
+      include: { items: true, payments: true, returns: true }
+    });
+
+    if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
+
+    await prisma.$transaction(async (tx) => {
+      // 1. Restore Stock for items that haven't been returned yet
+      for (const item of order.items) {
+        const remainingToRestore = item.quantity - item.returnedQty;
+        if (remainingToRestore > 0) {
+          await tx.productVariant.update({
+            where: { id: item.variantId },
+            data: { stock: { increment: remainingToRestore } }
+          });
+        }
+      }
+
+      // 2. Delete Inventory Transactions
+      await tx.inventoryTransaction.deleteMany({
+        where: { referenceType: 'ORDER', referenceId: order.id }
+      });
+      // Also delete inventory transactions for returns linked to this order
+      for (const ret of order.returns) {
+        await tx.inventoryTransaction.deleteMany({
+          where: { referenceType: 'RETURN', referenceId: ret.id }
+        });
+      }
+
+      // 3. Delete Return Records
+      await tx.returnRecord.deleteMany({ where: { orderId: order.id } });
+
+      // 4. Delete Payments
+      await tx.payment.deleteMany({ where: { orderId: order.id } });
+
+      // 5. Delete Order Items
+      await tx.orderItem.deleteMany({ where: { orderId: order.id } });
+
+      // 6. Delete Audit Logs
+      await tx.auditLog.deleteMany({ where: { entityType: 'ORDER', entityId: order.id } });
+
+      // 7. Deduct from Customer if applicable
+      if (order.customerId) {
+        await tx.$queryRaw`UPDATE "Customer" SET "totalOrders" = GREATEST("totalOrders" - 1, 0), "totalSpent" = GREATEST("totalSpent" - ${order.total}, 0) WHERE id = ${order.customerId}`;
+      }
+
+      // 8. Delete the Order
+      await tx.order.delete({ where: { id: order.id } });
+    });
+
+    res.json({ success: true, message: 'Order and associated records completely deleted' });
+  } catch (error) {
+    console.error('Delete order error:', error);
+    res.status(500).json({ success: false, message: 'Failed to delete order' });
+  }
+};
+
 module.exports = {
+  deleteOrder,
   getOrders,
   getOrderById,
   returnOrderItems
