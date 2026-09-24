@@ -175,7 +175,8 @@ const getDashboardSummary = async (req, res) => {
     const discounts = parseFloat(orderAgg._sum.discount || 0);
     const tax = 0;
     const aov = ordersCount > 0 ? (revenue / ordersCount) : 0;
-    const itemsSold = itemsAgg._sum.quantity || 0;\n    const profit = profitAgg && profitAgg[0] ? parseFloat(profitAgg[0].profit || 0) : 0;
+    const itemsSold = itemsAgg._sum.quantity || 0;
+    const profit = profitAgg && profitAgg[0] ? parseFloat(profitAgg[0].profit || 0) : 0;
 
     const paymentSummary = { CASH: { amount: 0, orders: 0 }, QR: { amount: 0, orders: 0 } };
     payments.forEach(p => {
