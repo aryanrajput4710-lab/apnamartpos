@@ -111,8 +111,7 @@ const getDashboardSummary = async (req, res) => {
         by: ['variantId', 'productNameSnapshot', 'skuSnapshot', 'sizeSnapshot', 'colorSnapshot'],
         where: { order: successfulOrderWhere },
         _sum: { quantity: true, total: true },
-        orderBy: { _sum: { quantity: 'desc' } },
-        take: 5
+        orderBy: { _sum: { quantity: 'desc' } }
       }),
       // 6a. Customers Stats (Total)
       prisma.customer.count(),

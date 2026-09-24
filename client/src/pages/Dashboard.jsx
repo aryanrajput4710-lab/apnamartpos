@@ -40,6 +40,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [range, setRange] = useState('Today');
   const [showAllCategories, setShowAllCategories] = useState(false);
+  const [showAllProducts, setShowAllProducts] = useState(false);
 
   const fetchDashboard = async () => {
     setLoading(true);
@@ -163,8 +164,18 @@ export default function Dashboard() {
       <div className="mobile-stack" style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
         {/* Top Products */}
         <div style={{ flex: '1 1 100%', background: 'white', padding: '1.5rem', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-          <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.1rem' }}>Top Selling Products</h3>
-          {topProducts.length === 0 ? (
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <h3 style={{ margin: 0, fontSize: '1.1rem' }}>Top Selling Products</h3>
+            {topProducts && topProducts.length > 5 && (
+              <button 
+                onClick={() => setShowAllProducts(!showAllProducts)}
+                style={{ background: 'none', border: 'none', color: '#3b82f6', cursor: 'pointer', fontWeight: '500' }}
+              >
+                {showAllProducts ? 'Show Less' : 'View All'}
+              </button>
+            )}
+          </div>
+          {(!topProducts || topProducts.length === 0) ? (
             <p style={{ color: '#6b7280' }}>No products sold in this period.</p>
           ) : (
             <div className="table-responsive"><table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -176,7 +187,7 @@ export default function Dashboard() {
                 </tr>
               </thead>
               <tbody>
-                {topProducts.map((tp, idx) => (
+                {(showAllProducts ? topProducts : topProducts.slice(0, 5)).map((tp, idx) => (
                   <tr key={idx} style={{ borderBottom: '1px solid #f3f4f6' }}>
                     <td style={{ padding: '0.75rem 0' }}>
                       <div style={{ fontWeight: '500' }}>{tp.productNameSnapshot}</div>
