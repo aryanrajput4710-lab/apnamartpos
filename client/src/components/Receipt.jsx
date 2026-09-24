@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import './Receipt.css';
 
@@ -69,21 +69,19 @@ export default function Receipt({ order }) {
         {order.items?.map((item, idx) => (
           <div key={idx} className="receipt-item-row">
             <div className="receipt-item-main">
-              <span className="col-item">{item.productNameSnapshot}</span>
+              <span className="col-item">{idx + 1}. {item.productNameSnapshot}</span>
               <span className="col-qty">{item.quantity}</span>
               <span className="col-price">Rs. {parseFloat(item.unitPrice).toFixed(0)}</span>
               <span className="col-disc">Rs. {parseFloat(item.discount).toFixed(0)}</span>
               <span className="col-sub">Rs. {parseFloat(item.total).toFixed(0)}</span>
             </div>
-            <div className="receipt-item-details">
-              {item.sizeSnapshot && ('Size: ' + item.sizeSnapshot)}
-              {item.sizeSnapshot && item.colorSnapshot && ' | '}
-              {item.colorSnapshot && ('Color: ' + item.colorSnapshot)}
-              <br />
-              SKU: {item.skuSnapshot}
-              <br />
-              Barcode: {item.barcodeSnapshot}
-            </div>
+            {(item.sizeSnapshot || item.colorSnapshot) && (
+              <div className="receipt-item-details">
+                {item.sizeSnapshot && ('Size: ' + item.sizeSnapshot)}
+                {item.sizeSnapshot && item.colorSnapshot && ' | '}
+                {item.colorSnapshot && ('Color: ' + item.colorSnapshot)}
+              </div>
+            )}
           </div>
         ))}
       </div>
