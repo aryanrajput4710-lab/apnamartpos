@@ -236,9 +236,7 @@ export default function POS() {
         discount: finalDiscount,
         total: Math.max(0, subtotal - finalDiscount)
       };
-  };
-
-  const totals = calculateTotals();
+  }, [cart, extraDiscount]);
 
   // Customer Management
   const searchCustomer = async () => {
