@@ -110,6 +110,10 @@ export default function Inventory() {
             <h4>Out of Stock</h4>
             <p>{summary.outOfStockCount}</p>
           </div>
+          <div style={{ flex: 1, padding: '1rem', background: '#e0e7ff', borderRadius: '8px' }}>
+            <h4>Asset Value</h4>
+            <p>Rs. {summary.assetValue || 0}</p>
+          </div>
           <div style={{ flex: 1, padding: '1rem', background: '#dcfce3', borderRadius: '8px' }}>
             <h4>Potential Value</h4>
             <p>Rs. {summary.potentialValue}</p>

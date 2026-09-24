@@ -259,12 +259,14 @@ const getDashboardSummary = async (req, res) => {
 
     let totalUnits = 0;
     let potentialValue = 0;
+    let assetValue = 0;
     let lowStockCount = 0;
     let outOfStockCount = 0;
 
     for (const v of variants) {
       totalUnits += v.stock;
-      potentialValue += v.stock * parseFloat(v.sellingPrice);
+      potentialValue += v.stock * parseFloat(v.sellingPrice || 0);
+      assetValue += v.stock * parseFloat(v.costPrice || 0);
       if (v.stock === 0) outOfStockCount++;
       else if (v.stock <= v.lowStockThreshold) lowStockCount++;
     }
@@ -276,6 +278,7 @@ const getDashboardSummary = async (req, res) => {
         totalVariants: variants.length,
         totalUnits,
         potentialValue,
+        assetValue,
         lowStockCount,
         outOfStockCount
       }
