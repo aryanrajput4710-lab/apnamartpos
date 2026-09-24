@@ -23,6 +23,7 @@ const registerRoutes = require('./routes/registerRoutes');
 const integrityRoutes = require('./routes/integrityRoutes');
 
 const helmet = require('helmet');
+const compression = require('compression');
 const { apiLimiter } = require('./middleware/rateLimiter');
 
 // Important: set credentials to true for cookies over CORS
@@ -40,6 +41,7 @@ app.use(cors({
 }));
 
 app.use(helmet());
+app.use(compression());
 app.use('/api', apiLimiter);
 app.use(express.json({ limit: '10mb' })); // Request body limit
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
