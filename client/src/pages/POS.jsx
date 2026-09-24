@@ -66,12 +66,17 @@ const [settings, setSettings] = useState(null);
   const [offers, setOffers] = useState([]);
   const [heldCarts, setHeldCarts] = useState(() => JSON.parse(localStorage.getItem("heldCarts") || "[]"));
   const [showHeldModal, setShowHeldModal] = useState(false);
+  const [shift, setShift] = useState(null);
+  const [showShiftModal, setShowShiftModal] = useState(false);
+  const [openingFloat, setOpeningFloat] = useState('');
+  const [actualCash, setActualCash] = useState('');
 
   useEffect(() => {
     api.get('/settings').then(res => setSettings(res.data.data)).catch(console.error);
     localStorage.setItem("heldCarts", JSON.stringify(heldCarts));
 
-    api.get('/offers?active=true').then(res => setOffers(res.data.data)).catch(console.error);
+        api.get('/offers?active=true').then(res => setOffers(res.data.data)).catch(console.error);
+    api.get('/register/status').then(res => setShift(res.data.data)).catch(console.error);
   }, []);
 
   // Focus scanner on mount and on clicks outside
@@ -173,6 +178,31 @@ const [settings, setSettings] = useState(null);
     setCart(prev => prev.filter(item => item.id !== id));
   };
 
+  
+  const openRegister = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await api.post('/register/open', { openingFloat });
+      setShift({ ...res.data.data, expectedCash: parseFloat(openingFloat), totalSalesCash: 0, totalSalesUPI: 0 });
+    } catch (err) { alert('Failed to open register'); }
+  };
+
+  const closeRegister = async (e) => {
+    e.preventDefault();
+    try {
+      await api.post(`/register/close/${shift.id}`, { 
+        actualCash, 
+        totalUPI: shift.totalSalesUPI, 
+        expectedCash: shift.expectedCash 
+      });
+      alert('Register closed successfully. End of shift.');
+      setShift(null);
+      setShowShiftModal(false);
+      setActualCash('');
+      setOpeningFloat('');
+    } catch (err) { alert('Failed to close register'); }
+  };
+
   const clearCart = () => {
     if (cart.length > 0 && window.confirm('Clear all items from this sale?')) {
       setCart([]);
@@ -250,6 +280,10 @@ const [settings, setSettings] = useState(null);
   };
 
   const handleCheckout = async () => {
+    if (!shift) {
+      alert("Please open the register first!");
+      return;
+    }
     setIsProcessing(true);
     try {
       const payload = {
@@ -285,7 +319,14 @@ const [settings, setSettings] = useState(null);
     <div style={{ display: 'flex', height: 'calc(100vh - 64px)', background: '#f3f4f6', margin: '-2rem', overflow: 'hidden' }}>
       
       {/* Left Pane: Scanner & Search */}
-      <div style={{ flex: '1', display: 'flex', flexDirection: 'column', padding: '1rem', borderRight: '1px solid #e5e7eb' }}>
+        <div style={{ flex: '1', display: 'flex', flexDirection: 'column', padding: '1rem', borderRight: '1px solid #e5e7eb' }}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+            {shift ? (
+              <button onClick={() => setShowShiftModal(true)} style={{ padding: '0.5rem 1rem', background: '#ecfdf5', color: '#059669', border: '1px solid #10b981', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>Register: OPEN</button>
+            ) : (
+              <button onClick={() => setShowShiftModal(true)} style={{ padding: '0.5rem 1rem', background: '#fef2f2', color: '#dc2626', border: '1px solid #ef4444', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer' }}>Register: CLOSED (Click to Open)</button>
+            )}
+          </div>
         <form onSubmit={handleScanSubmit} style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
           <button type="button" onClick={() => setShowCamera(true)} style={{ padding: '0 1rem', background: '#e5e7eb', color: '#374151', border: 'none', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Camera size={20} />
@@ -635,6 +676,82 @@ const [settings, setSettings] = useState(null);
               <Receipt order={orderSuccess} />
             </div>
 
+          </div>
+        </div>
+      )}
+
+      
+      {/* Held Carts Modal */}
+      {showHeldModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'flex-start', paddingTop: '5vh', zIndex: 60 }}>
+          <div style={{ background: 'white', padding: '2rem', borderRadius: '8px', width: '100%', maxWidth: '500px', maxHeight: '90vh', overflowY: 'auto', position: 'relative' }}>
+            <button onClick={() => setShowHeldModal(false)} style={{ position: 'absolute', right: '1rem', top: '1rem', background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.5rem' }}>X</button>
+            <h3 style={{ marginTop: 0 }}>Held Carts</h3>
+            {heldCarts.length === 0 ? (
+              <p>No held carts.</p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {heldCarts.map(hc => (
+                  <div key={hc.id} style={{ border: '1px solid #d1d5db', borderRadius: '8px', padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <div style={{ fontWeight: 'bold' }}>Time: {hc.time}</div>
+                      <div style={{ color: '#4b5563', fontSize: '0.9rem' }}>Items: {hc.cart.length} | Customer: {hc.customer ? hc.customer.phone : 'Guest'}</div>
+                    </div>
+                    <button onClick={() => handleRestoreCart(hc.id)} style={{ padding: '0.5rem 1rem', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>Resume</button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Shift Start Overlay */}
+      {!shift && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 100 }}>
+          <div style={{ background: 'white', padding: '2rem', borderRadius: '8px', width: '100%', maxWidth: '400px', textAlign: 'center' }}>
+            <h2 style={{ marginTop: 0, color: '#dc2626' }}>Register Closed</h2>
+            <p style={{ color: '#4b5563', marginBottom: '1.5rem' }}>You must open the register to start billing.</p>
+            <form onSubmit={openRegister}>
+              <div style={{ textAlign: 'left', marginBottom: '1rem' }}>
+                <label>Opening Cash (Rs.)</label>
+                <input type="number" required value={openingFloat} onChange={e => setOpeningFloat(e.target.value)} style={{ width: '100%', padding: '0.75rem', marginTop: '0.5rem', border: '1px solid #d1d5db', borderRadius: '4px' }} placeholder="e.g. 500" />
+              </div>
+              <button type="submit" style={{ width: '100%', padding: '1rem', background: '#16a34a', color: 'white', border: 'none', borderRadius: '4px', fontWeight: 'bold', fontSize: '1.1rem', cursor: 'pointer' }}>Open Register</button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Shift Close Modal */}
+      {showShiftModal && shift && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 60 }}>
+          <div style={{ background: 'white', padding: '2rem', borderRadius: '8px', width: '100%', maxWidth: '400px', position: 'relative' }}>
+            <button onClick={() => setShowShiftModal(false)} style={{ position: 'absolute', right: '1rem', top: '1rem', background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.5rem' }}>X</button>
+            <h3 style={{ marginTop: 0, color: '#059669' }}>Current Shift Status</h3>
+            
+            <div style={{ background: '#f3f4f6', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                <span>Opening Float:</span> <strong>Rs. {shift.openingFloat}</strong>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                <span>Cash Sales:</span> <strong>Rs. {shift.totalSalesCash}</strong>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                <span>UPI Sales:</span> <strong>Rs. {shift.totalSalesUPI}</strong>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #d1d5db', fontSize: '1.1rem' }}>
+                <span>Expected Cash in Drawer:</span> <strong style={{ color: '#16a34a' }}>Rs. {shift.expectedCash}</strong>
+              </div>
+            </div>
+
+            <form onSubmit={closeRegister}>
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ fontWeight: 'bold' }}>Counted Cash (Actual)</label>
+                <input type="number" required value={actualCash} onChange={e => setActualCash(e.target.value)} style={{ width: '100%', padding: '0.75rem', marginTop: '0.5rem', border: '1px solid #d1d5db', borderRadius: '4px', fontSize: '1.1rem' }} placeholder="e.g. 1500" />
+              </div>
+              <button type="submit" style={{ width: '100%', padding: '1rem', background: '#dc2626', color: 'white', border: 'none', borderRadius: '4px', fontWeight: 'bold', fontSize: '1.1rem', cursor: 'pointer' }}>Close Shift (Z-Report)</button>
+            </form>
           </div>
         </div>
       )}
