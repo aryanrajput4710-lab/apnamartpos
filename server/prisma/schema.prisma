@@ -39,6 +39,7 @@ model Product {
   name        String
   description String?
   category    String?
+  subcategory String?
   brand       String?
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())

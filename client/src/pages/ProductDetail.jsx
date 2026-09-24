@@ -30,7 +30,7 @@ export default function ProductDetail() {
       <div className="no-print" style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between' }}>
         <div>
           <h2>{product.name}</h2>
-          <p>Category: {product.category}</p>
+          <p>Category: {product.category}{product.subcategory ? ` > ${product.subcategory}` : ''}</p>
         </div>
         <button onClick={handlePrint} style={{ padding: '0.75rem 1.5rem', background: '#2563eb', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
           Print Labels

@@ -2,10 +2,27 @@
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 
+
+const CATEGORY_TREE = {
+  "Clothing": ["Sarees", "T-shirts", "Kurta Sets", "Shirts", "Baby Set", "Tops", "Leggings", "Dress", "Trousers", "Kurtis", "Jeans", "Shorts", "Sweatshirts", "Baby Shorts", "Innerwear"],
+  "Toys": [],
+  "Footwear": ["Slipper", "Shoes", "Socks", "Sandals"],
+  "Bags": [],
+  "Accessories": ["Watch", "Belt", "Ladies Purse", "Mens Purse", "Chain", "Earrings", "Others"],
+  "Gift Items": [],
+  "Grocery": [],
+  "Plastic Item": [],
+  "Cookware": [],
+  "Kitchen & Home Appliances": [],
+  "Stationery": [],
+  "Glass Set": [],
+  "Crockery": []
+};
+
 export default function ProductForm() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    name: '', description: '', category: '', brand: ''
+    name: '', description: '', category: '', subcategory: '', brand: ''
   });
   const [variants, setVariants] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -48,8 +65,20 @@ export default function ProductForm() {
         <div style={{ display: 'flex', gap: '1rem' }}>
           <div style={{ flex: 1 }}>
             <label>Category (Optional)</label><br/>
-            <input style={{ width: '100%' }} value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })} />
+            <select style={{ width: '100%', padding: '0.75rem', borderRadius: '4px', border: '1px solid #ccc' }} value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value, subcategory: '' })}>
+              <option value="">-- Select Category --</option>
+              {Object.keys(CATEGORY_TREE).map(cat => <option key={cat} value={cat}>{cat}</option>)}
+            </select>
           </div>
+          {formData.category && CATEGORY_TREE[formData.category] && CATEGORY_TREE[formData.category].length > 0 && (
+            <div style={{ flex: 1 }}>
+              <label>Subcategory</label><br/>
+              <select style={{ width: '100%', padding: '0.75rem', borderRadius: '4px', border: '1px solid #ccc' }} value={formData.subcategory} onChange={e => setFormData({ ...formData, subcategory: e.target.value })}>
+                <option value="">-- Select Subcategory --</option>
+                {CATEGORY_TREE[formData.category].map(sub => <option key={sub} value={sub}>{sub}</option>)}
+              </select>
+            </div>
+          )}
           <div style={{ flex: 1 }}>
             <label>Brand (Optional)</label><br/>
             <input style={{ width: '100%' }} value={formData.brand} onChange={e => setFormData({ ...formData, brand: e.target.value })} />

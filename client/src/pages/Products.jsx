@@ -67,7 +67,7 @@ export default function Products() {
             {products.map(p => (
               <tr key={p.id} style={{ borderBottom: '1px solid #e5e7eb' }}>
                 <td style={{ padding: '0.75rem' }}>{p.name}</td>
-                <td style={{ padding: '0.75rem' }}>{p.category}</td>
+                <td style={{ padding: '0.75rem' }}>{p.category}{p.subcategory ? ` > ${p.subcategory}` : ''}</td>
                 <td style={{ padding: '0.75rem' }}>{p._count.variants}</td>
                 <td style={{ padding: '0.75rem' }}>{p.isActive ? 'Active' : 'Inactive'}</td>
                 <td style={{ padding: '0.75rem', display: 'flex', gap: '0.5rem' }}>

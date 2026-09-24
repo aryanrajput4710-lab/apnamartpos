@@ -18,7 +18,7 @@ const generateUniqueBarcode = () => {
 
 const createProduct = async (req, res) => {
   try {
-    const { name, description, category, brand, variants } = req.body;
+    const { name, description, category, subcategory, brand, variants } = req.body;
 
     if (!name) {
       return res.status(400).json({ success: false, message: 'Product name is required' });
@@ -28,6 +28,7 @@ const createProduct = async (req, res) => {
       name: name.trim(),
       description: description || null,
       category: category || null,
+      subcategory: subcategory || null,
       brand: brand || null,
     };
 
@@ -96,7 +97,7 @@ const createProduct = async (req, res) => {
 
 const getProducts = async (req, res) => {
   try {
-    const { search, category, page = 1, limit = 50 } = req.query;
+    const { search, category, subcategory, page = 1, limit = 50 } = req.query;
     const skip = (page - 1) * limit;
 
     const where = {};
@@ -109,6 +110,9 @@ const getProducts = async (req, res) => {
     }
     if (category) {
       where.category = category;
+    }
+    if (subcategory) {
+      where.subcategory = subcategory;
     }
 
     const [products, total] = await Promise.all([
@@ -149,10 +153,10 @@ const getProductById = async (req, res) => {
 
 const updateProduct = async (req, res) => {
   try {
-    const { name, description, category, brand } = req.body;
+    const { name, description, category, subcategory, brand } = req.body;
     const product = await prisma.product.update({
       where: { id: req.params.id },
-      data: { name, description, category, brand }
+      data: { name, description, category, subcategory, brand }
     });
     res.status(200).json({ success: true, data: product });
   } catch (error) {
@@ -277,6 +281,7 @@ const importCatalog = async (req, res) => {
             name: p.name,
             description: p.description || null,
             category: p.category || null,
+            subcategory: p.subcategory || null,
             brand: p.brand || null,
             isActive: p.isActive !== undefined ? p.isActive : true,
             variants: {
