@@ -86,9 +86,7 @@ export default function POS() {
     api.get('/register/status').then(res => setShift(res.data.data)).catch(console.error);
   }, []);
 
-  // Removed hacky auto-focus logic in favor of global useBarcodeScanner
-  useBarcodeScanner(handleScanRequest);
-
+  
   const handleCameraScan = (code) => {
     setShowCamera(false);
     setScanInput(code);
