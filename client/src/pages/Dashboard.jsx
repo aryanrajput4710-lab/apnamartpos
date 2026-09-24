@@ -39,6 +39,7 @@ export default function Dashboard() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [range, setRange] = useState('Today');
+  const [showAllCategories, setShowAllCategories] = useState(false);
 
   const fetchDashboard = async () => {
     setLoading(true);
@@ -194,7 +195,17 @@ export default function Dashboard() {
 
         {/* Top Categories */}
         <div style={{ flex: '1 1 100%', background: 'white', padding: '1.5rem', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-          <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.1rem' }}>Top Selling Categories</h3>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <h3 style={{ margin: 0, fontSize: '1.1rem' }}>Top Selling Categories</h3>
+            {topCategories && topCategories.length > 5 && (
+              <button 
+                onClick={() => setShowAllCategories(!showAllCategories)}
+                style={{ background: 'none', border: 'none', color: '#3b82f6', cursor: 'pointer', fontWeight: '500' }}
+              >
+                {showAllCategories ? 'Show Less' : 'View All'}
+              </button>
+            )}
+          </div>
           {(!topCategories || topCategories.length === 0) ? (
             <p style={{ color: '#6b7280' }}>No categories sold in this period.</p>
           ) : (
@@ -207,7 +218,7 @@ export default function Dashboard() {
                 </tr>
               </thead>
               <tbody>
-                {topCategories.map((tc, idx) => (
+                {(showAllCategories ? topCategories : topCategories.slice(0, 5)).map((tc, idx) => (
                   <tr key={idx} style={{ borderBottom: '1px solid #f3f4f6' }}>
                     <td style={{ padding: '0.75rem 0', fontWeight: '500' }}>{tc.category}</td>
                     <td style={{ padding: '0.75rem 0', textAlign: 'right' }}>{tc.quantity}</td>

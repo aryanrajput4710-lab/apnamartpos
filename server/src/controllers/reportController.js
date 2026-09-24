@@ -185,7 +185,6 @@ const getDashboardSummary = async (req, res) => {
           AND o."createdAt" <= ${end}
         GROUP BY p.category
         ORDER BY quantity DESC
-        LIMIT 5
       `
     ]);
 
