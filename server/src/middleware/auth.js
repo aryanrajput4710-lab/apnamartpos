@@ -1,20 +1,48 @@
 const { PrismaClient } = require('@prisma/client');
-const { verifyToken } = require('../utils/jwt');
+const { verifyToken, verifyRefreshToken, generateToken } = require('../utils/jwt');
 
 const prisma = new PrismaClient();
 
 const requireAuth = async (req, res, next) => {
   try {
-    const token = req.cookies.token;
-
-    if (!token) {
-      return res.status(401).json({ success: false, message: 'Not authenticated' });
+    let token = req.cookies.token;
+    let decoded;
+    
+    // Check access token
+    if (token) {
+      try {
+        decoded = verifyToken(token);
+      } catch (err) {
+        // Token might be expired, we'll try refresh token below
+        decoded = null;
+      }
     }
 
-    const decoded = verifyToken(token);
-    
-    if (!decoded || !decoded.id) {
-      return res.status(401).json({ success: false, message: 'Not authenticated' });
+    // If no valid access token, try refresh token
+    if (!decoded) {
+      const refreshToken = req.cookies.refreshToken;
+      if (!refreshToken) {
+        return res.status(401).json({ success: false, message: 'Not authenticated' });
+      }
+
+      try {
+        const refreshDecoded = verifyRefreshToken(refreshToken);
+        if (!refreshDecoded || !refreshDecoded.id) throw new Error('Invalid refresh token');
+
+        // Generate new access token
+        const newToken = generateToken(refreshDecoded.id);
+        const isProd = process.env.NODE_ENV === 'production';
+        res.cookie('token', newToken, {
+          httpOnly: true,
+          secure: isProd,
+          sameSite: isProd ? 'none' : 'lax',
+          maxAge: 15 * 60 * 1000 
+        });
+        
+        decoded = refreshDecoded;
+      } catch (refreshErr) {
+        return res.status(401).json({ success: false, message: 'Session expired. Please log in again.' });
+      }
     }
 
     const user = await prisma.user.findUnique({

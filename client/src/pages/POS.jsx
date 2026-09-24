@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { ShoppingCart, User, Search, Trash2, Plus, Minus, X, Camera } from 'lucide-react';
@@ -218,7 +218,7 @@ export default function POS() {
   };
 
   // Calculations
-  const calculateTotals = () => {
+  const totals = useMemo(() => {
     let subtotal = 0;
     let totalDiscount = 0;
     

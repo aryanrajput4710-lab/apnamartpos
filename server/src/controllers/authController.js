@@ -1,6 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const { comparePassword } = require('../utils/password');
-const { generateToken } = require('../utils/jwt');
+const { generateToken, generateRefreshToken } = require('../utils/jwt');
 
 const prisma = new PrismaClient();
 
@@ -31,13 +31,24 @@ const login = async (req, res) => {
     }
 
     const token = generateToken(user.id);
+    const refreshToken = generateRefreshToken(user.id);
 
     const isProd = process.env.NODE_ENV === 'production';
+    
+    // Access token - 15 mins
     res.cookie('token', token, {
       httpOnly: true,
       secure: isProd,
       sameSite: isProd ? 'none' : 'lax',
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+      maxAge: 15 * 60 * 1000 
+    });
+
+    // Refresh token - 7 days
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: isProd ? 'none' : 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000
     });
 
     res.status(200).json({
@@ -59,11 +70,13 @@ const login = async (req, res) => {
 
 const logout = (req, res) => {
   const isProd = process.env.NODE_ENV === 'production';
-  res.clearCookie('token', {
+  const cookieOptions = {
     httpOnly: true,
     secure: isProd,
     sameSite: isProd ? 'none' : 'lax'
-  });
+  };
+  res.clearCookie('token', cookieOptions);
+  res.clearCookie('refreshToken', cookieOptions);
   res.status(200).json({ success: true, message: 'Logged out successfully' });
 };
 
