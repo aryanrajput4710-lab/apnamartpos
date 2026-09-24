@@ -5,6 +5,8 @@ import { ShoppingCart, User, Search, Trash2, Plus, Minus, X, Camera } from 'luci
 import CameraScanner from '../components/CameraScanner';
 import { useBarcodeScanner } from '../hooks/useBarcodeScanner';
 import Receipt from '../components/Receipt';
+import ZReportReceipt from '../components/ZReportReceipt';
+import { playBeep } from '../utils/audio';
 
 export default function POS() {
   const { currentUser } = useAuth();
@@ -33,6 +35,35 @@ export default function POS() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(null);
   
+  // Keyboard Shortcuts
+  useEffect(() => {
+    const handleHotkeys = (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+        if (e.key === 'Escape') e.target.blur();
+        return;
+      }
+      if (e.key === 'F1') {
+        e.preventDefault();
+        if (cart.length > 0) {
+          setCheckoutStep('CUSTOMER');
+          setShowCheckoutModal(true);
+        }
+      }
+      if (e.key === 'F2') {
+        e.preventDefault();
+        handleHoldCart();
+      }
+      if (e.key === 'Escape') {
+        setShowCheckoutModal(false);
+        setShowCustomerModal(false);
+        setShowHeldModal(false);
+        setOrderSuccess(null);
+      }
+    };
+    window.addEventListener('keydown', handleHotkeys);
+    return () => window.removeEventListener('keydown', handleHotkeys);
+  }, [cart]);
+
   const handleHoldCart = () => {
     if (cart.length === 0) return;
     const holdData = {
@@ -79,6 +110,7 @@ export default function POS() {
   const [showShiftModal, setShowShiftModal] = useState(false);
   const [openingFloat, setOpeningFloat] = useState('');
   const [actualCash, setActualCash] = useState('');
+  const [closedShiftReport, setClosedShiftReport] = useState(null);
 
   useEffect(() => {
     api.get('/settings').then(res => setSettings(res.data.data)).catch(console.error);
@@ -136,6 +168,7 @@ export default function POS() {
   };
 
   const addToCart = (variant) => {
+    playBeep();
     setCart(prev => {
       const existing = prev.find(item => item.id === variant.id);
       if (existing) {
@@ -191,6 +224,7 @@ export default function POS() {
         expectedCash: shift.expectedCash 
       });
       alert('Register closed successfully. End of shift.');
+      setClosedShiftReport({ ...shift, actualCash });
       setShift(null);
       setShowShiftModal(false);
       setActualCash('');
@@ -755,6 +789,29 @@ export default function POS() {
 
       {/* Camera Scanner Modal */}
       {showCamera && <CameraScanner onScan={handleCameraScan} onClose={() => setShowCamera(false)} />}
+
+
+      {/* Z-Report Modal */}
+      {closedShiftReport && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 100, overflowY: 'auto', padding: '2rem' }}>
+          <div className="mobile-col" style={{ background: 'white', padding: '2rem', borderRadius: '8px', display: 'flex', gap: '2rem', maxWidth: '800px', width: '100%', alignItems: 'flex-start' }}>
+            <div style={{ flex: 1, textAlign: 'center' }}>
+              <h2>SHIFT CLOSED</h2>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <button onClick={() => window.print()} style={{ width: '100%', padding: '1rem', background: '#1f2937', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '1.1rem', cursor: 'pointer' }}>
+                  Print Z-Report
+                </button>
+                <button onClick={() => setClosedShiftReport(null)} style={{ width: '100%', padding: '1rem', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '1.1rem', cursor: 'pointer' }}>
+                  Done
+                </button>
+              </div>
+            </div>
+            <div style={{ flex: 1, borderLeft: '1px solid #e5e7eb', paddingLeft: '2rem' }} className="print-area">
+              <ZReportReceipt shift={closedShiftReport} />
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
