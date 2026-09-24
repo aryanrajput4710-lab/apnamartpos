@@ -198,12 +198,12 @@ export default function Reports() {
                   <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
                     <td style={{ padding: '1rem' }}>CASH</td>
                     <td style={{ padding: '1rem', textAlign: 'right' }}>{data.paymentSummary.CASH.orders}</td>
-                    <td style={{ padding: '1rem', textAlign: 'right', fontWeight: 'bold' }}>â‚¹{data.paymentSummary.CASH.amount.toFixed(2)}</td>
+                    <td style={{ padding: '1rem', textAlign: 'right', fontWeight: 'bold' }}>Rs. {data.paymentSummary.CASH.amount.toFixed(2)}</td>
                   </tr>
                   <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
                     <td style={{ padding: '1rem' }}>QR</td>
                     <td style={{ padding: '1rem', textAlign: 'right' }}>{data.paymentSummary.QR.orders}</td>
-                    <td style={{ padding: '1rem', textAlign: 'right', fontWeight: 'bold' }}>â‚¹{data.paymentSummary.QR.amount.toFixed(2)}</td>
+                    <td style={{ padding: '1rem', textAlign: 'right', fontWeight: 'bold' }}>Rs. {data.paymentSummary.QR.amount.toFixed(2)}</td>
                   </tr>
                 </tbody>
               </table></div>

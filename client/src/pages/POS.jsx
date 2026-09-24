@@ -621,11 +621,11 @@ export default function POS() {
                   <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.1rem', marginBottom: '0.5rem' }}>
                     <span>Subtotal</span>
-                    <span>₹{totals.subtotal.toFixed(2)}</span>
+                    <span>Rs. {totals.subtotal.toFixed(2)}</span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.1rem', marginBottom: '0.5rem', color: '#16a34a' }}>
                     <span>Discount</span>
-                    <span>- ₹{totals.discount.toFixed(2)}</span>
+                    <span>- Rs. {totals.discount.toFixed(2)}</span>
                   </div>
                                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', fontSize: '1.1rem', marginBottom: '0.5rem', color: '#16a34a' }}>
                       <span>Extra Discount</span>
@@ -635,7 +635,7 @@ export default function POS() {
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.5rem', fontWeight: 'bold', marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #e5e7eb' }}>
                     <span>Total to Pay</span>
-                    <span>₹{totals.total.toFixed(2)}</span>
+                    <span>Rs. {totals.total.toFixed(2)}</span>
                   </div>
                 </div>
 

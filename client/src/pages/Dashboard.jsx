@@ -14,7 +14,7 @@ const SimpleBarChart = ({ data }) => {
         const barHeight = (d.revenue / maxRevenue) * (height - 30);
         return (
           <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, minWidth: '40px' }}>
-            <div style={{ fontSize: '10px', color: '#6b7280', marginBottom: '4px' }}>₹{d.revenue}</div>
+            <div style={{ fontSize: '10px', color: '#6b7280', marginBottom: '4px' }}>Rs. {d.revenue}</div>
             <div 
               style={{ 
                 width: '100%', 
@@ -23,7 +23,7 @@ const SimpleBarChart = ({ data }) => {
                 borderRadius: '4px 4px 0 0',
                 transition: 'height 0.3s'
               }} 
-              title={`${d.date}: ₹${d.revenue} (${d.orders} orders)`}
+              title={`${d.date}: Rs. ${d.revenue} (${d.orders} orders)`}
             />
             <div style={{ fontSize: '10px', color: '#6b7280', marginTop: '4px', whiteSpace: 'nowrap' }}>
               {d.date.split('-').slice(1).join('/')}
@@ -96,13 +96,13 @@ export default function Dashboard() {
 
         {/* Top Cards */}
         <div className="mobile-stack" style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-          <StatCard title="Net Sales" value={`₹${parseFloat(summary.revenue).toFixed(2)}`} icon={<IndianRupee size={24} />} color="#10b981" />
-          <StatCard title="Gross Profit" value={`₹${parseFloat(summary.profit || 0).toFixed(2)}`} icon={<TrendingUp size={24} />} color="#059669" />
+          <StatCard title="Net Sales" value={`Rs. ${parseFloat(summary.revenue).toFixed(2)}`} icon={<IndianRupee size={24} />} color="#10b981" />
+          <StatCard title="Gross Profit" value={`Rs. ${parseFloat(summary.profit || 0).toFixed(2)}`} icon={<TrendingUp size={24} />} color="#059669" />
           <StatCard title="Orders" value={summary.orders} icon={<ShoppingCart size={24} />} color="#3b82f6" />
         </div>
         <div className="mobile-stack" style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
           <StatCard title="Items Sold" value={summary.itemsSold} icon={<ShoppingBag size={24} />} color="#f59e0b" />
-          <StatCard title="Avg Order Value" value={`₹${parseFloat(summary.aov).toFixed(2)}`} icon={<TrendingUp size={24} />} color="#8b5cf6" />
+          <StatCard title="Avg Order Value" value={`Rs. ${parseFloat(summary.aov).toFixed(2)}`} icon={<TrendingUp size={24} />} color="#8b5cf6" />
         </div>
 
       <div className="mobile-stack" style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
@@ -122,7 +122,7 @@ export default function Dashboard() {
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                   <span>Cash ({cashPct}%)</span>
-                  <strong>₹{paymentSummary.CASH.amount.toFixed(2)}</strong>
+                  <strong>Rs. {paymentSummary.CASH.amount.toFixed(2)}</strong>
                 </div>
                 <div style={{ width: '100%', background: '#e5e7eb', height: '8px', borderRadius: '4px', marginBottom: '1rem' }}>
                   <div style={{ width: `${cashPct}%`, background: '#10b981', height: '100%', borderRadius: '4px' }} />
@@ -130,7 +130,7 @@ export default function Dashboard() {
                 
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                   <span>QR ({qrPct}%)</span>
-                  <strong>₹{paymentSummary.QR.amount.toFixed(2)}</strong>
+                  <strong>Rs. {paymentSummary.QR.amount.toFixed(2)}</strong>
                 </div>
                 <div style={{ width: '100%', background: '#e5e7eb', height: '8px', borderRadius: '4px' }}>
                   <div style={{ width: `${qrPct}%`, background: '#3b82f6', height: '100%', borderRadius: '4px' }} />
@@ -184,7 +184,7 @@ export default function Dashboard() {
                       </div>
                     </td>
                     <td style={{ padding: '0.75rem 0', textAlign: 'right' }}>{tp._sum.quantity}</td>
-                    <td style={{ padding: '0.75rem 0', textAlign: 'right', fontWeight: '500' }}>₹{parseFloat(tp._sum.total).toFixed(2)}</td>
+                    <td style={{ padding: '0.75rem 0', textAlign: 'right', fontWeight: '500' }}>Rs. {parseFloat(tp._sum.total).toFixed(2)}</td>
                   </tr>
                 ))}
               </tbody>

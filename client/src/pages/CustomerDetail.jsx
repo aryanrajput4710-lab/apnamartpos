@@ -64,7 +64,7 @@ export default function CustomerDetail() {
           </div>
           <div style={{ background: '#f0fdf4', padding: '1rem', borderRadius: '8px', minWidth: '150px' }}>
             <p style={{ margin: '0 0 0.5rem 0', color: '#16a34a', fontSize: '0.875rem' }}>Total Spent</p>
-            <p style={{ margin: 0, fontSize: '1.5rem', fontWeight: 'bold', color: '#15803d' }}>₹{parseFloat(customer.totalSpent).toFixed(2)}</p>
+            <p style={{ margin: 0, fontSize: '1.5rem', fontWeight: 'bold', color: '#15803d' }}>Rs. {parseFloat(customer.totalSpent).toFixed(2)}</p>
           </div>
           <div style={{ background: '#f3f4f6', padding: '1rem', borderRadius: '8px', minWidth: '150px' }}>
             <p style={{ margin: '0 0 0.5rem 0', color: '#6b7280', fontSize: '0.875rem' }}>Last Purchase</p>
@@ -103,7 +103,7 @@ export default function CustomerDetail() {
                   <tr key={o.id} style={{ borderBottom: '1px solid #e5e7eb' }}>
                     <td style={{ padding: '1rem', fontWeight: '500' }}>{o.orderNumber || o.id.split('-')[0].toUpperCase()}</td>
                     <td style={{ padding: '1rem' }}>{new Date(o.createdAt).toLocaleDateString()}</td>
-                    <td style={{ padding: '1rem', fontWeight: 'bold' }}>₹{parseFloat(o.total).toFixed(2)}</td>
+                    <td style={{ padding: '1rem', fontWeight: 'bold' }}>Rs. {parseFloat(o.total).toFixed(2)}</td>
                     <td style={{ padding: '1rem' }}>{o.payments?.[0]?.method || 'N/A'}</td>
                     <td style={{ padding: '1rem' }}>
                       <span style={{ padding: '0.25rem 0.5rem', background: o.status === 'COMPLETED' ? '#dcfce3' : '#fee2e2', color: o.status === 'COMPLETED' ? '#16a34a' : '#dc2626', borderRadius: '999px', fontSize: '0.75rem', fontWeight: 'bold' }}>

@@ -81,7 +81,7 @@ export default function Customers() {
                     <td style={{ padding: '1rem', fontWeight: '500' }}>{c.name}</td>
                     <td style={{ padding: '1rem', color: '#4b5563' }}>{c.phone}</td>
                     <td style={{ padding: '1rem' }}>{c.totalOrders}</td>
-                    <td style={{ padding: '1rem', fontWeight: 'bold' }}>₹{parseFloat(c.totalSpent).toFixed(2)}</td>
+                    <td style={{ padding: '1rem', fontWeight: 'bold' }}>Rs. {parseFloat(c.totalSpent).toFixed(2)}</td>
                     <td style={{ padding: '1rem', color: '#6b7280' }}>
                       {c.orders?.length > 0 ? new Date(c.orders[0].createdAt).toLocaleDateString() : 'No purchases yet'}
                     </td>
