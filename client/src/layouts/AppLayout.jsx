@@ -130,21 +130,22 @@ export default function AppLayout() {
                   display: 'flex',
                   alignItems: 'center',
                   padding: '0.7rem 1.25rem',
-                  color: active ? '#ffffff' : '#cbd5e1',
+                  color: '#ffffff',
                   backgroundColor: active ? '#2563eb' : 'transparent',
                   textDecoration: 'none',
                   gap: '0.875rem',
-                  fontWeight: active ? '600' : '400',
-                  fontSize: '0.9rem',
-                  borderLeft: active ? '4px solid #60a5fa' : '4px solid transparent',
-                  transition: 'background-color 0.15s, color 0.15s',
+                  fontWeight: active ? '700' : '500',
+                  fontSize: '0.95rem',
+                  borderLeft: active ? '4px solid #93c5fd' : '4px solid transparent',
+                  transition: 'background-color 0.15s',
                   marginBottom: '2px',
+                  opacity: active ? 1 : 0.9,
                 }}
-                onMouseEnter={e => { if (!active) { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.07)'; e.currentTarget.style.color = '#ffffff'; } }}
-                onMouseLeave={e => { if (!active) { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#cbd5e1'; } }}
+                onMouseEnter={e => { if (!active) { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.12)'; e.currentTarget.style.opacity = '1'; } }}
+                onMouseLeave={e => { if (!active) { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.opacity = '0.9'; } }}
               >
-                <Icon size={18} color={active ? '#ffffff' : '#94a3b8'} strokeWidth={active ? 2.5 : 2} />
-                <span style={{ color: active ? '#ffffff' : '#cbd5e1' }}>{item.name}</span>
+                <Icon size={19} color={active ? '#ffffff' : '#e2e8f0'} strokeWidth={active ? 2.5 : 2} />
+                <span style={{ color: '#ffffff' }}>{item.name}</span>
               </Link>
             );
           })}
