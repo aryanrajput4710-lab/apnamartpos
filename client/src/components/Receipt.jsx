@@ -75,11 +75,13 @@ export default function Receipt({ order }) {
               <span className="col-disc">Rs. {parseFloat(item.discount).toFixed(0)}</span>
               <span className="col-sub">Rs. {parseFloat(item.total).toFixed(0)}</span>
             </div>
-            {(item.sizeSnapshot || item.colorSnapshot) && (
+            {(item.sizeSnapshot?.trim() || item.colorSnapshot?.trim() || item.netQuantitySnapshot?.trim()) && (
               <div className="receipt-item-details">
-                {item.sizeSnapshot && ('Size: ' + item.sizeSnapshot)}
-                {item.sizeSnapshot && item.colorSnapshot && ' | '}
-                {item.colorSnapshot && ('Color: ' + item.colorSnapshot)}
+                {item.sizeSnapshot?.trim() && ('Size: ' + item.sizeSnapshot.trim())}
+                {item.sizeSnapshot?.trim() && item.colorSnapshot?.trim() && ' | '}
+                {item.colorSnapshot?.trim() && ('Color: ' + item.colorSnapshot.trim())}
+                {(item.sizeSnapshot?.trim() || item.colorSnapshot?.trim()) && item.netQuantitySnapshot?.trim() && ' | '}
+                {item.netQuantitySnapshot?.trim() && ('Net Quantity: ' + item.netQuantitySnapshot.trim())}
               </div>
             )}
           </div>

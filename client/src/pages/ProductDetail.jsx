@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import api from '../services/api';
@@ -45,9 +45,10 @@ export default function ProductDetail() {
               </div>
               <div className="label-info-wrapper">
                 <div className="label-product-name">{product.name}</div>
-                <div className="label-info-line">Brand: {product.brand || ' '}</div>
-                  <div className="label-info-line">Size: {variant.size || ' '}</div>
-                <div className="label-info-line">Color: {variant.color || ' '}</div>
+                {product.brand?.trim() && <div className="label-info-line">Brand: {product.brand.trim()}</div>}
+                {variant.size?.trim() && <div className="label-info-line">Size: {variant.size.trim()}</div>}
+                {variant.color?.trim() && <div className="label-info-line">Color: {variant.color.trim()}</div>}
+                {variant.netQuantity?.trim() && <div className="label-info-line">Net Quantity: {variant.netQuantity.trim()}</div>}
                 {/* Ingredient is COMPLETELY REMOVED per specs */}
               </div>
             </div>

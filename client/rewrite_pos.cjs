@@ -1,356 +1,22 @@
-import { useState, useRef, useEffect, useMemo } from 'react';
-import api from '../services/api';
-import { Link, useOutletContext } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { ShoppingCart, User, Search, Trash2, Plus, Minus, X, Camera, Menu, LayoutDashboard, Package, Users, FileText, TrendingUp, UserPlus, Settings, LogOut, ChevronRight } from 'lucide-react';
-import CameraScanner from '../components/CameraScanner';
-import { useBarcodeScanner } from '../hooks/useBarcodeScanner';
-import Receipt from '../components/Receipt';
-import ZReportReceipt from '../components/ZReportReceipt';
-import { playBeep } from '../utils/audio';
+const fs = require('fs');
 
-export default function POS() {
-  const { currentUser } = useAuth();
-  
-  // Cart State
-  const [cart, setCart] = useState([]);
-  const [extraDiscount, setExtraDiscount] = useState('');
-  
-  // Scanner / Search State
-  const [scanInput, setScanInput] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const [showCamera, setShowCamera] = useState(false);
-  const scanInputRef = useRef(null);
+const content = fs.readFileSync('src/pages/POS.jsx', 'utf-8');
+const splitPoint = 'useBarcodeScanner(handleScanRequest);';
+const returnIndex = content.indexOf(splitPoint);
 
-  // Customer State
-  const [customerPhone, setCustomerPhone] = useState('');
-  const [customer, setCustomer] = useState(null);
-  const [showCustomerModal, setShowCustomerModal] = useState(false);
-  const [newCustomer, setNewCustomer] = useState({ name: '', email: '', address: '' });
+if (returnIndex === -1) {
+    console.error("Could not find split point");
+    process.exit(1);
+}
 
-  // Checkout State
-  const [showCheckoutModal, setShowCheckoutModal] = useState(false);
-  const [checkoutStep, setCheckoutStep] = useState('CUSTOMER');
-  const [paymentMethod, setPaymentMethod] = useState('CASH');
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [orderSuccess, setOrderSuccess] = useState(null);
-  
-  // Keyboard Shortcuts
-  useEffect(() => {
-    const handleHotkeys = (e) => {
-      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
-        if (e.key === 'Escape') e.target.blur();
-        return;
-      }
-      if (e.key === 'F1') {
-        e.preventDefault();
-        if (cart.length > 0) {
-          setCheckoutStep('CUSTOMER');
-          setShowCheckoutModal(true);
-        }
-      }
-      if (e.key === 'F2') {
-        e.preventDefault();
-        handleHoldCart();
-      }
-      if (e.key === 'Escape') {
-        setShowCheckoutModal(false);
-        setShowCustomerModal(false);
-        setShowHeldModal(false);
-        setOrderSuccess(null);
-      }
-    };
-    window.addEventListener('keydown', handleHotkeys);
-    return () => window.removeEventListener('keydown', handleHotkeys);
-  }, [cart]);
+// Extract everything up to and including the split point
+let logic = content.substring(0, returnIndex + splitPoint.length) + '\n';
 
-  const handleHoldCart = () => {
-    if (cart.length === 0) return;
-    const holdData = {
-      id: Date.now(),
-      cart,
-      customer,
-      extraDiscount,
-      time: new Date().toLocaleTimeString()
-    };
-    setHeldCarts([...heldCarts, holdData]);
-    setCart([]);
-    setCustomer(null);
-    setExtraDiscount('');
-  };
-
-  const handleRestoreCart = (heldId) => {
-    const target = heldCarts.find(hc => hc.id === heldId);
-    if (!target) return;
-    // If current cart is not empty, maybe alert?
-    if (cart.length > 0 && !confirm("Current cart will be replaced. Continue?")) return;
-    setCart(target.cart);
-    setCustomer(target.customer);
-    setExtraDiscount(target.extraDiscount);
-    setHeldCarts(heldCarts.filter(hc => hc.id !== heldId));
-    setShowHeldModal(false);
-  };
-  const [settings, setSettings] = useState(null);
-  const [offers, setOffers] = useState([]);
-  const [heldCarts, setHeldCarts] = useState(() => {
-    try {
-      const parsed = JSON.parse(localStorage.getItem("heldCarts") || "[]");
-      return Array.isArray(parsed) ? parsed : [];
-    } catch (e) {
-      console.error("Failed to parse heldCarts from local storage", e);
-      return [];
-    }
-  });
-  const [showHeldModal, setShowHeldModal] = useState(false);
-
-  useEffect(() => {
-    localStorage.setItem('heldCarts', JSON.stringify(heldCarts));
-  }, [heldCarts]);
-  const [shift, setShift] = useState(null);
-  const [showShiftModal, setShowShiftModal] = useState(false);
-  const [openingFloat, setOpeningFloat] = useState('');
-  const [actualCash, setActualCash] = useState('');
-  const [closedShiftReport, setClosedShiftReport] = useState(null);
-
-  useEffect(() => {
-    api.get('/settings').then(res => setSettings(res.data.data)).catch(console.error);
-    api.get('/offers?active=true').then(res => setOffers(res.data.data)).catch(console.error);
-    api.get('/register/status').then(res => setShift(res.data.data)).catch(console.error);
-  }, []);
-
-  
-  const handleCameraScan = (code) => {
-    setShowCamera(false);
-    setScanInput(code);
-    // Programmatically trigger the search with the scanned code
-    handleScanRequest(code);
-  };
-
-  const handleScanRequest = async (rawCode) => {
-    if (!rawCode.trim()) return;
-    try {
-      let code = rawCode.trim();
-
-      const res = await api.get(`/pos/scan/${code}`);
-      const variant = res.data.data;
-      
-      if (variant.stock <= 0) {
-        alert('Product is out of stock!');
-      } else {
-        addToCart(variant);
-      }
-      setScanInput('');
-      setSearchResults([]);
-    } catch (err) {
-      if (err.response?.status === 404) {
-        searchProducts(rawCode);
-      } else {
-        alert(err.response?.data?.message || 'Error scanning product');
-      }
-    }
-  };
-
-  const handleScanSubmit = async (e) => {
-    e.preventDefault();
-    handleScanRequest(scanInput);
-  };
-
-  const searchProducts = async (query) => {
-    setIsSearching(true);
-    try {
-      const res = await api.get(`/pos/search?q=${query}`);
-      setSearchResults(res.data.data);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setIsSearching(false);
-    }
-  };
-
-  const addToCart = (variant) => {
-    playBeep();
-    setCart(prev => {
-      const existing = prev.find(item => item.id === variant.id);
-      if (existing) {
-        if (existing.quantity >= variant.stock) {
-          alert(`Only ${variant.stock} available in stock.`);
-          return prev;
-        }
-        return prev.map(item => 
-          item.id === variant.id ? { ...item, quantity: item.quantity + 1 } : item
-        );
-      }
-      return [...prev, { ...variant, quantity: 1 }];
-    });
-    setSearchResults([]);
-    setScanInput('');
-    scanInputRef.current?.focus();
-  };
-
-  const updateQuantity = (id, delta) => {
-    setCart(prev => prev.map(item => {
-      if (item.id === id) {
-        const newQty = item.quantity + delta;
-        if (newQty <= 0) return item; // Handled by remove
-        if (newQty > item.stock) {
-          alert(`Only ${item.stock} available in stock.`);
-          return item;
-        }
-        return { ...item, quantity: newQty };
-      }
-      return item;
-    }));
-  };
-
-  const removeFromCart = (id) => {
-    setCart(prev => prev.filter(item => item.id !== id));
-  };
-
-  
-  const openRegister = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await api.post('/register/open', { openingFloat });
-      setShift({ ...res.data.data, expectedCash: parseFloat(openingFloat), totalSalesCash: 0, totalSalesUPI: 0 });
-    } catch (err) { alert('Failed to open register'); }
-  };
-
-  const closeRegister = async (e) => {
-    e.preventDefault();
-    try {
-      await api.post(`/register/close/${shift.id}`, { 
-        actualCash, 
-        totalUPI: shift.totalSalesUPI, 
-        expectedCash: shift.expectedCash 
-      });
-      alert('Register closed successfully. End of shift.');
-      setClosedShiftReport({ ...shift, actualCash });
-      setShift(null);
-      setShowShiftModal(false);
-      setActualCash('');
-      setOpeningFloat('');
-    } catch (err) { alert('Failed to close register'); }
-  };
-
-  const clearCart = () => {
-    if (cart.length > 0 && window.confirm('Clear all items from this sale?')) {
-      setCart([]);
-      setCustomer(null);
-      setExtraDiscount("");
-    }
-  };
-
-  // Calculations
-  const totals = useMemo(() => {
-    let subtotal = 0;
-    let totalDiscount = 0;
-    
-    cart.forEach(item => {
-      const price = parseFloat(item.sellingPrice);
-      const qty = item.quantity;
-      const lineTotal = price * qty;
-      
-      let itemDiscount = 0;
-      if (item.discountType === 'FIXED') {
-        itemDiscount = parseFloat(item.discountValue) * qty;
-      } else if (item.discountType === 'PERCENTAGE') {
-        itemDiscount = lineTotal * (parseFloat(item.discountValue) / 100);
-      }
-
-      subtotal += lineTotal;
-      totalDiscount += itemDiscount;
-    });
-
-    const manualDiscount = parseFloat(extraDiscount) || 0;
-      const finalDiscount = totalDiscount + manualDiscount;
-      return {
-        subtotal,
-        discount: finalDiscount,
-        total: Math.max(0, subtotal - finalDiscount)
-      };
-  /* FORCE UPDATE */
-  }, [cart, extraDiscount]);
-
-  // Customer Management
-  const searchCustomer = async () => {
-    if (!customerPhone) return;
-    try {
-      const res = await api.get(`/customers/search?q=${customerPhone}`);
-      const found = res.data.data;
-      if (found.length > 0) {
-        setCustomer(found[0]); // Take exact/closest match
-      } else {
-        setShowCustomerModal(true);
-        setNewCustomer(prev => ({ ...prev, phone: customerPhone }));
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const createCustomer = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await api.post('/customers', newCustomer);
-      setCustomer(res.data.data);
-      setShowCustomerModal(false);
-    } catch (err) {
-      alert(err.response?.data?.message || 'Error creating customer');
-    }
-  };
-
-  const [idempotencyKey, setIdempotencyKey] = useState('');
-
-  const openCheckout = () => {
-    setIdempotencyKey(crypto.randomUUID());
-    setCheckoutStep('CUSTOMER');
-    setShowCheckoutModal(true);
-  };
-
-  const handleCheckout = async () => {
-    if (!shift) {
-      alert("Please open the register first!");
-      return;
-    }
-    setIsProcessing(true);
-    try {
-      const payload = {
-        items: cart.map(item => ({ variantId: item.id, quantity: item.quantity })),
-        customerId: customer?.id || null,
-        customerPhone: customerPhone || null,
-        customerName: newCustomer.name || null,
-        paymentMethod,
-        extraDiscount: parseFloat(extraDiscount) || 0,
-        idempotencyKey
-      };
-      
-      const res = await api.post('/pos/checkout', payload);
-      setOrderSuccess(res.data.data);
-      setCart([]);
-      setCustomer(null);
-      setCustomerPhone('');
-        setExtraDiscount('');
-    } catch (err) {
-      alert(err.response?.data?.message || 'Checkout failed');
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  const closeSuccessModal = () => {
-    setOrderSuccess(null);
-    setShowCheckoutModal(false);
-    scanInputRef.current?.focus();
-  };
-
-  // Global Hardware Barcode Scanner Listener
-  useBarcodeScanner(handleScanRequest);
-
+const injection = `
   const [quickProducts, setQuickProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const { setDrawerOpen } = useOutletContext();
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   useEffect(() => {
@@ -375,9 +41,57 @@ export default function POS() {
   const displayedQuickProducts = selectedCategory === 'All' 
     ? quickProducts 
     : quickProducts.filter(p => p.product?.category === selectedCategory);
-  return (
-    <div style={{ display: 'flex', height: '100%', background: '#f8fafc', overflow: 'hidden', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+`;
+
+const lucideImports = "ShoppingCart, User, Search, Trash2, Plus, Minus, X, Camera, Menu, LayoutDashboard, Package, Users, FileText, TrendingUp, UserPlus, Settings, LogOut, ChevronRight";
+logic = logic.replace(/import \{.*?\} from 'lucide-react';/, `import { ${lucideImports} } from 'lucide-react';`);
+
+if (!logic.includes("Link")) {
+    logic = logic.replace("import { useAuth }", "import { Link } from 'react-router-dom';\nimport { useAuth }");
+}
+
+const newReturn = `  return (
+    <div style={{ display: 'flex', height: '100vh', background: '#f8fafc', overflow: 'hidden', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
       
+      {/* DRAWER OVERLAY */}
+      {drawerOpen && (
+        <div 
+          onClick={() => setDrawerOpen(false)}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 40 }}
+        />
+      )}
+
+      {/* DRAWER */}
+      <div style={{
+        position: 'fixed', top: 0, bottom: 0, left: 0, width: '260px',
+        background: '#1e293b', color: 'white', zIndex: 50,
+        transform: drawerOpen ? 'translateX(0)' : 'translateX(-100%)',
+        transition: 'transform 0.3s ease',
+        boxShadow: drawerOpen ? '4px 0 15px rgba(0,0,0,0.2)' : 'none',
+        display: 'flex', flexDirection: 'column'
+      }}>
+        <div style={{ padding: '1.5rem', borderBottom: '1px solid #334155', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <img src="/apna-mart-logo.jpg" alt="Logo" style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover' }} />
+            <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 'bold' }}>Apna Mart</h2>
+          </div>
+          <button onClick={() => setDrawerOpen(false)} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}>
+            <X size={24} />
+          </button>
+        </div>
+        <nav style={{ flex: 1, padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', overflowY: 'auto' }}>
+          <Link to="/" style={{ color: '#cbd5e1', textDecoration: 'none', padding: '0.75rem 1rem', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '0.75rem' }}><LayoutDashboard size={20}/> Dashboard</Link>
+          <Link to="/pos" style={{ background: '#3b82f6', color: 'white', textDecoration: 'none', padding: '0.75rem 1rem', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '0.75rem', fontWeight: '600' }}><ShoppingCart size={20}/> POS</Link>
+          <Link to="/products" style={{ color: '#cbd5e1', textDecoration: 'none', padding: '0.75rem 1rem', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '0.75rem' }}><Package size={20}/> Products</Link>
+          <Link to="/inventory" style={{ color: '#cbd5e1', textDecoration: 'none', padding: '0.75rem 1rem', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '0.75rem' }}><Package size={20}/> Inventory</Link>
+          <Link to="/customers" style={{ color: '#cbd5e1', textDecoration: 'none', padding: '0.75rem 1rem', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '0.75rem' }}><Users size={20}/> Customers</Link>
+          <Link to="/orders" style={{ color: '#cbd5e1', textDecoration: 'none', padding: '0.75rem 1rem', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '0.75rem' }}><FileText size={20}/> Orders</Link>
+          <Link to="/reports" style={{ color: '#cbd5e1', textDecoration: 'none', padding: '0.75rem 1rem', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '0.75rem' }}><TrendingUp size={20}/> Reports</Link>
+          <Link to="/users" style={{ color: '#cbd5e1', textDecoration: 'none', padding: '0.75rem 1rem', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '0.75rem' }}><UserPlus size={20}/> Users</Link>
+          <Link to="/settings" style={{ color: '#cbd5e1', textDecoration: 'none', padding: '0.75rem 1rem', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '0.75rem' }}><Settings size={20}/> Settings</Link>
+        </nav>
+      </div>
+
       {/* MAIN LAYOUT */}
       <div style={{ flex: 1, display: 'flex', flexDirection: isMobile ? 'column' : 'row', height: '100%', overflow: 'hidden' }}>
         
@@ -447,7 +161,7 @@ export default function POS() {
                       }}
                     >
                       <h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b', fontSize: '1rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{v.product.name}</h4>
-                      <p style={{ margin: '0', fontSize: '0.8rem', color: '#64748b' }}>{v.size?.trim() ? `Size: ${v.size}` : ''} {v.color?.trim() ? `Color: ${v.color}` : ''}</p>
+                      <p style={{ margin: '0', fontSize: '0.8rem', color: '#64748b' }}>{v.size ? \`Size: \${v.size}\` : ''} {v.color ? \`Color: \${v.color}\` : ''}</p>
                       <p style={{ margin: '0.25rem 0', fontSize: '0.75rem', color: '#94a3b8' }}>SKU: {v.sku}</p>
                       <div style={{ marginTop: 'auto', paddingTop: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div>
@@ -501,7 +215,7 @@ export default function POS() {
                       }}
                     >
                       <h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b', fontSize: '1rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{v.product?.name}</h4>
-                      <p style={{ margin: '0', fontSize: '0.8rem', color: '#64748b' }}>{v.size?.trim() ? `Size: ${v.size}` : ''} {v.color?.trim() ? `Color: ${v.color}` : ''}</p>
+                      <p style={{ margin: '0', fontSize: '0.8rem', color: '#64748b' }}>{v.size ? \`Size: \${v.size}\` : ''} {v.color ? \`Color: \${v.color}\` : ''}</p>
                       <div style={{ marginTop: 'auto', paddingTop: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div style={{ fontWeight: 'bold', color: '#0f172a', fontSize: '1.1rem' }}>₹{v.sellingPrice}</div>
                         <div style={{ background: '#f1f5f9', padding: '0.375rem', borderRadius: '6px', color: '#3b82f6' }}>
@@ -823,3 +537,6 @@ export default function POS() {
     </div>
   );
 }
+`;
+
+fs.writeFileSync('src/pages/POS.jsx', logic + injection + newReturn, 'utf-8');

@@ -72,7 +72,9 @@ export default function Orders() {
         <head><title>Replacement Label</title></head>
         <body style="font-family: monospace; text-align: center; padding: 20px;">
           <h2> + item.productNameSnapshot + </h2>
-          <p>Size:  + (item.sizeSnapshot || ' ') +  | Color:  + (item.colorSnapshot || ' ') + </p>
+          ` + (item.sizeSnapshot?.trim() ? `<p>Size: ${item.sizeSnapshot.trim()}</p>` : '') + `
+            ` + (item.colorSnapshot?.trim() ? `<p>Color: ${item.colorSnapshot.trim()}</p>` : '') + `
+            ` + (item.netQuantitySnapshot?.trim() ? `<p>Net Quantity: ${item.netQuantitySnapshot.trim()}</p>` : '') + `
           <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data= + item.barcodeSnapshot + " />
           <p><strong>Rs.  + item.unitPrice + </strong></p>
           <script>window.print(); window.close();</script>

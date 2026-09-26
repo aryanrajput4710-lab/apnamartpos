@@ -39,10 +39,9 @@ export default function AppLayout() {
           <img src="/apna-mart-logo.jpg" alt="Apna Mart" style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #374151' }} />
           <div>
             <h1 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 'bold', color: 'white' }}>Apna Mart</h1>
-            
           </div>
         </div>
-        <button className="show-on-mobile" onClick={() => setDrawerOpen(false)} style={{ background: 'transparent', border: 'none', color: 'white', cursor: 'pointer', padding: '0.5rem' }}>
+        <button onClick={() => setDrawerOpen(false)} style={{ background: 'transparent', border: 'none', color: 'white', cursor: 'pointer', padding: '0.5rem' }}>
           <X size={24} />
         </button>
       </div>
@@ -50,6 +49,7 @@ export default function AppLayout() {
       <nav style={{ flex: 1, padding: '1rem 0', overflowY: 'auto' }}>
         {navItems.map((item) => {
           if (!item.roles.includes(currentUser.role)) return null;
+          const isActive = location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));
           return (
             <Link
               key={item.name}
@@ -58,9 +58,12 @@ export default function AppLayout() {
                 display: 'flex',
                 alignItems: 'center',
                 padding: '0.75rem 1.5rem',
-                color: '#d1d5db',
+                color: isActive ? 'white' : '#d1d5db',
+                backgroundColor: isActive ? '#3b82f6' : 'transparent',
                 textDecoration: 'none',
-                gap: '0.75rem'
+                gap: '0.75rem',
+                fontWeight: isActive ? '600' : 'normal',
+                borderLeft: isActive ? '4px solid white' : '4px solid transparent'
               }}
             >
               {item.icon}
@@ -95,61 +98,84 @@ export default function AppLayout() {
     </>
   );
 
+  const isPOS = location.pathname === '/pos';
+
   return (
-    <div style={{ display: 'flex', height: '100vh', backgroundColor: '#f9fafb' }}>
+    <div style={{ display: 'flex', height: '100vh', backgroundColor: '#f9fafb', overflow: 'hidden' }}>
       
-      {/* Desktop Permanent Sidebar */}
-      <div className="hide-on-mobile" style={{ width: '250px', backgroundColor: '#1f2937', color: 'white', display: 'flex', flexDirection: 'column' }}>
-        <SidebarContent />
-      </div>
-
-      {/* Mobile Drawer Overlay & Sidebar */}
+      {/* Global Drawer Overlay */}
       {drawerOpen && (
-        <div className="drawer-backdrop show-on-mobile" onClick={() => setDrawerOpen(false)}></div>
+        <div 
+          onClick={() => setDrawerOpen(false)}
+          style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0, 0, 0, 0.5)', zIndex: 40 }}
+        ></div>
       )}
-      <div className={`mobile-drawer show-on-mobile ${drawerOpen ? 'open' : ''}`}>
+
+      {/* Global Sidebar Drawer */}
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        bottom: 0,
+        left: 0,
+        width: '280px',
+        backgroundColor: '#1f2937',
+        color: 'white',
+        zIndex: 50,
+        transform: drawerOpen ? 'translateX(0)' : 'translateX(-100%)',
+        transition: 'transform 0.3s ease-in-out',
+        display: 'flex',
+        flexDirection: 'column',
+        boxShadow: drawerOpen ? '4px 0 15px rgba(0,0,0,0.2)' : 'none'
+      }}>
         <SidebarContent />
       </div>
 
-      {/* Main Content */}
-      <div style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
+      {/* Main Content Area */}
+      <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', width: '100%' }}>
         
-        {/* Header */}
-        <header style={{ 
-          backgroundColor: 'white', 
-          padding: '1rem', 
-          boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '1rem'
-        }}>
-          <button 
-            className="show-on-mobile"
-            onClick={() => setDrawerOpen(true)}
-            style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: '0.5rem', display: 'flex', alignItems: 'center' }}
-          >
-            <Menu size={24} />
-          </button>
-          
-          <h2 style={{ margin: 0, fontSize: '1.25rem', flex: 1, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-
-            <span className="show-on-mobile" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        {/* Global Header (Only show if NOT pos, because POS has its own specialized header within its component, OR show for all but simplify POS) 
+            Wait, user said: "POS page should use the same global drawer... The POS workspace should remain full-width when the drawer is closed."
+            And "Create/use one consistent header across all authenticated pages."
+            But POS has "Register Open" pill, search bar, etc. 
+            Actually, I can just hide the global header for POS and let POS implement the hamburger button, OR let POS use the global header.
+            I will hide this standard global header on POS, and POS will render its own top bar but with the hamburger button triggering the global drawer.
+            Wait, `drawerOpen` state is inside `AppLayout`. How can POS trigger it?
+            We can pass `setDrawerOpen` via React Context, or Outlet context! 
+        */}
+        
+        {!isPOS && (
+          <header style={{ 
+            backgroundColor: 'white', 
+            padding: '1rem 1.5rem', 
+            boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '1.25rem',
+            zIndex: 10
+          }}>
+            <button 
+              onClick={() => setDrawerOpen(true)}
+              style={{ background: 'white', border: '1px solid #e2e8f0', cursor: 'pointer', padding: '0.5rem', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}
+            >
+              <Menu size={24} color="#334155" />
+            </button>
+            
+            <h2 style={{ margin: 0, fontSize: '1.25rem', flex: 1, display: 'flex', alignItems: 'center', gap: '0.75rem', fontWeight: 'bold' }}>
               <img src="/apna-mart-logo.jpg" alt="Logo" style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }} />
               Apna Mart
-            </span>
-          </h2>
+            </h2>
 
-          <div className="show-on-mobile" style={{ fontSize: '0.875rem', color: '#6b7280' }}>
-            {currentUser.name}
-          </div>
-        </header>
+            <div style={{ fontSize: '0.875rem', color: '#6b7280', fontWeight: '500' }}>
+              {currentUser.name}
+            </div>
+          </header>
+        )}
 
-        <main className="mobile-p-4" style={{ padding: '2rem', flex: 1 }}>
-          <Outlet />
+        {/* Page Content */}
+        <main className={!isPOS ? "mobile-p-4" : ""} style={{ flex: 1, overflow: isPOS ? 'hidden' : 'auto', padding: isPOS ? 0 : '2rem' }}>
+          <Outlet context={{ setDrawerOpen }} />
         </main>
       </div>
     </div>
   );
 }
-
-
