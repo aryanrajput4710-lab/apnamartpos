@@ -26,8 +26,8 @@ export default function Products() {
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
-  const [stockFilter, setStockFilter] = useState('');
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState('');
   const [activeMenuId, setActiveMenuId] = useState(null);
   const [expandedProductId, setExpandedProductId] = useState(null);
   const { currentUser } = useAuth();
@@ -37,11 +37,14 @@ export default function Products() {
   }, [search]);
 
   const fetchProducts = async () => {
+    setLoading(true);
+    setFetchError('');
     try {
       const res = await api.get(`/products?search=${encodeURIComponent(search)}`);
       setProducts(res.data.data || []);
     } catch (err) {
       console.error(err);
+      setFetchError(err.response?.data?.message || 'Failed to load products');
     } finally {
       setLoading(false);
     }
@@ -314,6 +317,18 @@ export default function Products() {
       {loading ? (
         <div style={{ textAlign: 'center', padding: '3rem', color: '#64748b', background: 'white', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
           Loading products...
+        </div>
+      ) : fetchError ? (
+        <div style={{ textAlign: 'center', padding: '3rem 1.5rem', background: 'white', borderRadius: '12px', border: '1px solid #fee2e2' }}>
+          <AlertTriangle size={36} color="#dc2626" style={{ margin: '0 auto 0.75rem' }} />
+          <h3 style={{ fontSize: '1.15rem', color: '#991b1b', margin: '0 0 0.5rem 0' }}>Failed to load products</h3>
+          <p style={{ color: '#7f1d1d', margin: '0 0 1.25rem 0' }}>{fetchError}</p>
+          <button
+            onClick={fetchProducts}
+            style={{ padding: '0.6rem 1.25rem', background: '#dc2626', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '500' }}
+          >
+            Retry
+          </button>
         </div>
       ) : filteredProducts.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '4rem 1.5rem', background: 'white', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
