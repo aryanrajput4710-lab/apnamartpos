@@ -411,14 +411,14 @@ export default function POS() {
               <Camera size={24} />
             </button>
             <div style={{ flex: 1, position: 'relative' }}>
-              <Search size={22} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+              <Search size={20} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', pointerEvents: 'none', zIndex: 1 }} />
               <input
                 ref={scanInputRef}
                 type="text"
                 value={scanInput}
                 onChange={(e) => setScanInput(e.target.value)}
                 placeholder="Scan barcode or search product..."
-                style={{ width: '100%', padding: '1rem 1rem 1rem 3rem', fontSize: '1.1rem', borderRadius: '12px', border: '1px solid #cbd5e1', outline: 'none', boxShadow: '0 2px 4px rgba(0,0,0,0.02)', transition: 'border-color 0.2s' }}
+                style={{ width: '100%', paddingTop: '1rem', paddingBottom: '1rem', paddingLeft: '2.75rem', paddingRight: '1rem', fontSize: '1.1rem', borderRadius: '12px', border: '1px solid #cbd5e1', outline: 'none', boxShadow: '0 2px 4px rgba(0,0,0,0.02)', transition: 'border-color 0.2s', boxSizing: 'border-box', background: 'white' }}
                 onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
                 onBlur={(e) => e.target.style.borderColor = '#cbd5e1'}
               />
