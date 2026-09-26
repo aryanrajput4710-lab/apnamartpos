@@ -32,7 +32,7 @@ export default function Dashboard() {
         api.get('/orders')
       ]);
       setData(dashRes.data.data);
-      if (ordersRes.data.success) {
+      if (ordersRes.data.success && Array.isArray(ordersRes.data.data)) {
         setRecentOrders(ordersRes.data.data.slice(0, 5));
       }
     } catch (err) {
@@ -113,7 +113,15 @@ export default function Dashboard() {
     );
   }
 
-  const { summary, paymentSummary, lowStock, topProducts, topCategories, customerStats, chart } = data;
+  const { 
+    summary = {}, 
+    paymentSummary = { CASH: { amount: 0 }, QR: { amount: 0 } }, 
+    lowStock = [], 
+    topProducts = [], 
+    topCategories = [], 
+    customerStats = { new: 0, returning: 0, total: 0 }, 
+    chart = [] 
+  } = data;
 
   // --- Computed Metrics ---
   const totalPayment = paymentSummary.CASH.amount + paymentSummary.QR.amount;
@@ -125,7 +133,7 @@ export default function Dashboard() {
     { name: 'QR / UPI', value: paymentSummary.QR.amount, color: '#3b82f6' }
   ].filter(d => d.value > 0);
 
-  const top5Categories = topCategories.slice(0, 5).map(c => ({
+  const top5Categories = (topCategories || []).slice(0, 5).map(c => ({
     name: c.category,
     revenue: parseFloat(c.total)
   }));
@@ -151,7 +159,7 @@ export default function Dashboard() {
     const [catSearch, setCatSearch] = useState('');
     const [catSort, setCatSort] = useState('total');
 
-    let filteredCats = topCategories.filter(c => c.category.toLowerCase().includes(catSearch.toLowerCase()));
+    let filteredCats = (topCategories || []).filter(c => c.category.toLowerCase().includes(catSearch.toLowerCase()));
     if (catSort === 'total') filteredCats.sort((a, b) => b.total - a.total);
     if (catSort === 'quantity') filteredCats.sort((a, b) => b.quantity - a.quantity);
     if (catSort === 'name') filteredCats.sort((a, b) => a.category.localeCompare(b.category));
@@ -233,7 +241,7 @@ export default function Dashboard() {
     const [prodSearch, setProdSearch] = useState('');
     const [prodSort, setProdSort] = useState('total');
 
-    let filteredProds = topProducts.filter(p => p.productNameSnapshot.toLowerCase().includes(prodSearch.toLowerCase()) || p.skuSnapshot.toLowerCase().includes(prodSearch.toLowerCase()));
+    let filteredProds = (topProducts || []).filter(p => p.productNameSnapshot.toLowerCase().includes(prodSearch.toLowerCase()) || p.skuSnapshot.toLowerCase().includes(prodSearch.toLowerCase()));
     
     if (prodSort === 'total') filteredProds.sort((a, b) => b._sum.total - a._sum.total);
     if (prodSort === 'quantity') filteredProds.sort((a, b) => b._sum.quantity - a._sum.quantity);
@@ -435,7 +443,7 @@ export default function Dashboard() {
                     axisLine={false} 
                     tickLine={false} 
                     tick={{ fill: '#6b7280', fontSize: 12 }}
-                    tickFormatter={(val) => val.split('-').slice(1).join('/')}
+                    tickFormatter={(val) => val ? val.split('-').slice(1).join('/') : ''}
                     dy={10}
                   />
                   <YAxis 
@@ -619,7 +627,7 @@ export default function Dashboard() {
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              {topProducts.slice(0, 5).map((tp, idx) => (
+              {(topProducts || []).slice(0, 5).map((tp, idx) => (
                 <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 0', borderBottom: idx < 4 ? '1px solid #f3f4f6' : 'none' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: idx === 0 ? '#fef08a' : idx === 1 ? '#e5e7eb' : idx === 2 ? '#fed7aa' : '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: '700', color: idx < 3 ? '#111827' : '#6b7280' }}>
@@ -657,7 +665,7 @@ export default function Dashboard() {
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              {lowStock.slice(0, 5).map((ls) => (
+              {(lowStock || []).slice(0, 5).map((ls) => (
                 <div key={ls.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem', background: '#fffbeb', borderRadius: '8px', border: '1px solid #fef3c7' }}>
                   <div>
                     <div style={{ fontWeight: '600', color: '#9a3412', fontSize: '0.875rem' }}>{ls.product.name}</div>
@@ -704,7 +712,7 @@ export default function Dashboard() {
                   {recentOrders.map((order) => (
                     <tr key={order.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
                       <td style={{ padding: '1rem 0.5rem', fontWeight: '500', color: '#111827', fontSize: '0.875rem' }}>
-                        #{order.id.slice(-6).toUpperCase()}
+                        #{order.id ? order.id.slice(-6).toUpperCase() : 'N/A'}
                       </td>
                       <td style={{ padding: '1rem 0.5rem', fontSize: '0.875rem', color: '#4b5563' }}>
                         {order.customer ? order.customer.name : 'Walk-in Customer'}
