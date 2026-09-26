@@ -10,6 +10,7 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
   BarChart, Bar, Cell, PieChart, Pie, Label, Sector
 } from 'recharts';
+import CountUp from 'react-countup';
 
 export default function Dashboard() {
   const [data, setData] = useState(null);
