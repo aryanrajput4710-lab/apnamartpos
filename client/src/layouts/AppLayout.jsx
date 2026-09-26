@@ -117,7 +117,7 @@ export default function AppLayout() {
         </div>
 
         {/* Nav Items */}
-        <nav style={{ flex: 1, paddingTop: '0.5rem', paddingBottom: '0.5rem', overflowY: 'auto' }}>
+        <nav style={{ flex: 1, paddingTop: '0.5rem', paddingBottom: '0.5rem', overflowY: 'auto', backgroundColor: '#1e293b' }}>
           {navItems.map((item) => {
             if (!item.roles.includes(currentUser.role)) return null;
             const active = isActiveRoute(item.path);
