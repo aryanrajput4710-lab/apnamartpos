@@ -105,7 +105,10 @@ const getDashboardSummary = async (req, res) => {
       profitAgg,
       returnAgg,
       recentReturns,
-      topCategoriesAgg
+      topCategoriesAgg,
+      prevOrderAgg,
+      prevItemsAgg,
+      prevProfitAgg
     ] = await Promise.all([
       // 1. Summary Cards (Revenue, Orders, Tax, Discount)
       prisma.order.aggregate({
