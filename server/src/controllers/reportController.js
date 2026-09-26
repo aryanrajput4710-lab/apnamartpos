@@ -1,5 +1,5 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+
+const prisma = require('../utils/prisma');
 
 // Helper to get date bounds in IST (Asia/Kolkata)
 const getDateBounds = (range, customFrom, customTo) => {

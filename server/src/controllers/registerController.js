@@ -1,5 +1,5 @@
-﻿const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+
+const prisma = require('../utils/prisma');
 
 // Open Register
 exports.openRegister = async (req, res) => {

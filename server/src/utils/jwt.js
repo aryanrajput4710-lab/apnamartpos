@@ -2,13 +2,13 @@ const jwt = require('jsonwebtoken');
 
 const generateToken = (userId) => {
   return jwt.sign({ id: userId }, process.env.JWT_SECRET || 'fallback_secret_for_dev_only', {
-    expiresIn: '15m'
+    expiresIn: process.env.JWT_EXPIRES_IN || '15m'
   });
 };
 
 const generateRefreshToken = (userId) => {
   return jwt.sign({ id: userId }, process.env.JWT_REFRESH_SECRET || 'fallback_refresh_secret', {
-    expiresIn: '7d'
+    expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d'
   });
 };
 

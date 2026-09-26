@@ -1,5 +1,5 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+
+const prisma = require('../utils/prisma');
 const { exec } = require('child_process');
 const path = require('path');
 const fs = require('fs');

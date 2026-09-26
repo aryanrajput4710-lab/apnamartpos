@@ -1,9 +1,9 @@
 const express = require('express');
 const cors = require('cors');
-const { PrismaClient } = require('@prisma/client');
+
 
 const app = express();
-const prisma = new PrismaClient();
+const prisma = require('./utils/prisma');
 const cookieParser = require('cookie-parser');
 
 const authRoutes = require('./routes/authRoutes');
@@ -31,7 +31,7 @@ const allowedOrigins = process.env.CLIENT_URL ? process.env.CLIENT_URL.split(','
 app.use(cors({
   origin: (origin, callback) => {
     // Strict CORS: must have an origin and it must be in the allowed list
-    if (origin && allowedOrigins.includes(origin)) {
+    if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
@@ -100,6 +100,17 @@ app.get('/api/health/db', async (req, res) => {
   } catch (error) {
     res.status(500).json({ status: 'error', database: 'disconnected' });
   }
+});
+
+
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error('Unhandled Error:', err.stack);
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || 'Internal Server Error',
+    ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+  });
 });
 
 module.exports = app;

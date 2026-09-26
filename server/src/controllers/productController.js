@@ -1,7 +1,7 @@
-const { PrismaClient } = require('@prisma/client');
+
 const crypto = require('crypto');
 
-const prisma = new PrismaClient();
+const prisma = require('../utils/prisma');
 
 const generateUniqueSku = (productName, color, size) => {
   const shortName = productName.substring(0, 3).toUpperCase();
