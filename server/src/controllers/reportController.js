@@ -238,12 +238,12 @@ const getDashboardSummary = async (req, res) => {
     ]);
 
     // Format results
-    const revenue = parseFloat(orderAgg._sum.total || 0);
+    const revenue = parseFloat((orderAgg._sum && orderAgg._sum.total) || 0);
     const ordersCount = orderAgg._count.id || 0;
-    const discounts = parseFloat(orderAgg._sum.discount || 0);
+    const discounts = parseFloat((orderAgg._sum && orderAgg._sum.discount) || 0);
     const tax = 0;
     const aov = ordersCount > 0 ? (revenue / ordersCount) : 0;
-    const itemsSold = itemsAgg._sum.quantity || 0;
+    const itemsSold = (itemsAgg._sum && itemsAgg._sum.quantity) || 0;
     const profit = profitAgg && profitAgg[0] ? parseFloat(profitAgg[0].profit || 0) : 0;
 
     const prevRevenue = parseFloat((prevOrderAgg && prevOrderAgg._sum && prevOrderAgg._sum.total) || 0);
@@ -270,7 +270,7 @@ const getDashboardSummary = async (req, res) => {
       total: Number(c.total || 0)
     }));
 
-    const formattedTopProducts = topItemsAgg.map(tp => ({
+    const formattedTopProducts = (topItemsAgg || []).map(tp => ({
       ...tp,
       _sum: {
         quantity: tp._sum.quantity,
@@ -290,14 +290,14 @@ const getDashboardSummary = async (req, res) => {
     }
 
     const formattedChart = chartData.map(d => ({
-      date: d.date.toISOString().split('T')[0],
+      date: (d.date instanceof Date ? d.date.toISOString() : String(d.date)).split('T')[0],
       revenue: parseFloat(d.revenue || 0),
       orders: Number(d.orders || 0)
     }));
 
     const returnsSummary = {
-      quantity: returnAgg._sum.quantity || 0,
-      refundAmount: parseFloat(returnAgg._sum.refundAmount || 0)
+      quantity: (returnAgg._sum && returnAgg._sum.quantity) || 0,
+      refundAmount: parseFloat((returnAgg._sum && returnAgg._sum.refundAmount) || 0)
     };
 
     res.status(200).json({
