@@ -28,6 +28,7 @@ export default function Products() {
   const [statusFilter, setStatusFilter] = useState('');
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState('');
+  const [stockFilter, setStockFilter] = useState('');
   const [activeMenuId, setActiveMenuId] = useState(null);
   const [expandedProductId, setExpandedProductId] = useState(null);
   const { currentUser } = useAuth();
