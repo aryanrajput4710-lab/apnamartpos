@@ -12,6 +12,8 @@ import {
 } from 'recharts';
 import CountUp from 'react-countup';
 
+const CountUpComp = CountUp.default || CountUp;
+
 export default function Dashboard() {
   const [data, setData] = useState(null);
   const [recentOrders, setRecentOrders] = useState([]);
@@ -448,7 +450,7 @@ export default function Dashboard() {
             <p style={{ margin: 0, color: theme.textSec, fontSize: '0.875rem', fontWeight: '500' }}>Net Sales</p>
             <div style={{ background: '#eff6ff', color: '#2563eb', padding: '0.5rem', borderRadius: '8px' }}><IndianRupee size={20} /></div>
           </div>
-          <h3 style={{ margin: 0, fontSize: '1.75rem', fontWeight: '700', color: theme.text }}><CountUp start={0} end={summary.revenue} duration={1.5} separator="," prefix="₹" decimals={2} /></h3>
+          <h3 style={{ margin: 0, fontSize: '1.75rem', fontWeight: '700', color: theme.text }}><CountUpComp start={0} end={summary.revenue} duration={1.5} separator="," prefix="₹" decimals={2} /></h3>
           {getGrowthIndicator(summary.revenue, summary.prevRevenue)}
         </Card>
         
@@ -457,7 +459,7 @@ export default function Dashboard() {
             <p style={{ margin: 0, color: theme.textSec, fontSize: '0.875rem', fontWeight: '500' }}>Gross Profit</p>
             <div style={{ background: '#dcfce7', color: '#16a34a', padding: '0.5rem', borderRadius: '8px' }}><TrendingUp size={20} /></div>
           </div>
-          <h3 style={{ margin: 0, fontSize: '1.75rem', fontWeight: '700', color: theme.text }}><CountUp start={0} end={summary.profit || 0} duration={1.5} separator="," prefix="₹" decimals={2} /></h3>
+          <h3 style={{ margin: 0, fontSize: '1.75rem', fontWeight: '700', color: theme.text }}><CountUpComp start={0} end={summary.profit || 0} duration={1.5} separator="," prefix="₹" decimals={2} /></h3>
           {getGrowthIndicator(summary.profit || 0, summary.prevProfit)}
         </Card>
 
@@ -466,7 +468,7 @@ export default function Dashboard() {
             <p style={{ margin: 0, color: theme.textSec, fontSize: '0.875rem', fontWeight: '500' }}>Orders</p>
             <div style={{ background: '#ffedd5', color: '#ea580c', padding: '0.5rem', borderRadius: '8px' }}><ShoppingCart size={20} /></div>
           </div>
-          <h3 style={{ margin: 0, fontSize: '1.75rem', fontWeight: '700', color: theme.text }}><CountUp start={0} end={summary.orders} duration={1.5} separator="," /></h3>
+          <h3 style={{ margin: 0, fontSize: '1.75rem', fontWeight: '700', color: theme.text }}><CountUpComp start={0} end={summary.orders} duration={1.5} separator="," /></h3>
           {getGrowthIndicator(summary.orders, summary.prevOrders)}
         </Card>
 
@@ -475,7 +477,7 @@ export default function Dashboard() {
             <p style={{ margin: 0, color: theme.textSec, fontSize: '0.875rem', fontWeight: '500' }}>Items Sold</p>
             <div style={{ background: '#f3e8ff', color: '#9333ea', padding: '0.5rem', borderRadius: '8px' }}><ShoppingBag size={20} /></div>
           </div>
-          <h3 style={{ margin: 0, fontSize: '1.75rem', fontWeight: '700', color: theme.text }}><CountUp start={0} end={summary.itemsSold} duration={1.5} separator="," /></h3>
+          <h3 style={{ margin: 0, fontSize: '1.75rem', fontWeight: '700', color: theme.text }}><CountUpComp start={0} end={summary.itemsSold} duration={1.5} separator="," /></h3>
           {getGrowthIndicator(summary.itemsSold, summary.prevItemsSold)}
         </Card>
 
@@ -484,7 +486,7 @@ export default function Dashboard() {
             <p style={{ margin: 0, color: theme.textSec, fontSize: '0.875rem', fontWeight: '500' }}>Average Order Value</p>
             <div style={{ background: '#fce7f3', color: '#db2777', padding: '0.5rem', borderRadius: '8px' }}><CreditCard size={20} /></div>
           </div>
-          <h3 style={{ margin: 0, fontSize: '1.75rem', fontWeight: '700', color: theme.text }}><CountUp start={0} end={summary.aov} duration={1.5} separator="," prefix="₹" decimals={2} /></h3>
+          <h3 style={{ margin: 0, fontSize: '1.75rem', fontWeight: '700', color: theme.text }}><CountUpComp start={0} end={summary.aov} duration={1.5} separator="," prefix="₹" decimals={2} /></h3>
           {getGrowthIndicator(summary.aov, summary.prevAov)}
         </Card>
       </div>
