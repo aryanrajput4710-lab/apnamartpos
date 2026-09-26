@@ -52,10 +52,11 @@ function App() {
 
             {/* Protected Routes */}
             <Route element={<ProtectedRoute />}>
+              <Route path="/pos" element={<POS />} />
+              <Route path="/receipt/:id" element={<ReceiptView />} />
+              
               <Route element={<AppLayout />}>
                 <Route path="/" element={<RootRedirect />} />
-                <Route path="/pos" element={<POS />} />
-                <Route path="/receipt/:id" element={<ReceiptView />} />
                 <Route path="/customers" element={<Customers />} />
                 <Route path="/customers/:id" element={<CustomerDetail />} />
                 <Route path="/orders" element={<Orders />} />
