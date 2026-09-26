@@ -4,7 +4,7 @@ import api from '../services/api';
 import { 
   IndianRupee, ShoppingBag, ShoppingCart, TrendingUp, AlertTriangle, 
   Bell, User, CheckCircle2, Search, Plus, Barcode, 
-  Package, Users, Clock, Box, ArrowRight, CreditCard, ChevronRight
+  Package, Users, Clock, Box, ArrowRight, CreditCard, ChevronRight, Moon, Sun
 } from 'lucide-react';
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
