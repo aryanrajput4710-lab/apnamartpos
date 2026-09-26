@@ -42,13 +42,20 @@ export default function Dashboard() {
     setLoading(true);
     setError('');
     try {
-      const [dashRes, ordersRes] = await Promise.all([
+      const [dashRes, ordersRes] = await Promise.allSettled([
         api.get(`/reports/dashboard?range=${encodeURIComponent(range)}`),
         api.get('/orders')
       ]);
-      setData(dashRes.data.data);
-      if (ordersRes.data.success && Array.isArray(ordersRes.data.data)) {
-        setRecentOrders(ordersRes.data.data.slice(0, 5));
+
+      if (dashRes.status === 'fulfilled' && dashRes.value.data?.data) {
+        setData(dashRes.value.data.data);
+      } else if (dashRes.status === 'rejected') {
+        console.error('Dashboard data fetch failed:', dashRes.reason);
+        setError(dashRes.reason?.response?.data?.message || 'Error loading dashboard data.');
+      }
+
+      if (ordersRes.status === 'fulfilled' && ordersRes.value.data?.success && Array.isArray(ordersRes.value.data?.data)) {
+        setRecentOrders(ordersRes.value.data.data.slice(0, 5));
       }
     } catch (err) {
       console.error(err);
