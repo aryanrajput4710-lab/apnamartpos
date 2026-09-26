@@ -54,9 +54,9 @@ const createProduct = async (req, res) => {
               barcode: generateUniqueBarcode(),
               color: v.color || null,
               size: v.size || null,
+              netQuantity: v.netQuantity || null,
               costPrice: v.costPrice || 0,
-              costPrice: v.costPrice || 0,
-                  mrp: v.mrp,
+              mrp: v.mrp,
               sellingPrice: v.sellingPrice,
               discountType: v.discountType || 'NONE',
               discountValue: v.discountValue || 0,
@@ -122,7 +122,10 @@ const getProducts = async (req, res) => {
         where,
         skip: parseInt(skip),
         take: parseInt(limit),
-        include: { _count: { select: { variants: true } } },
+        include: { 
+          _count: { select: { variants: true } },
+          variants: true
+        },
         orderBy: { createdAt: 'desc' }
       }),
       prisma.product.count({ where })
@@ -182,7 +185,7 @@ const toggleProductStatus = async (req, res) => {
 const createVariant = async (req, res) => {
   try {
     const { productId } = req.params;
-    const { color, size, costPrice, mrp, sellingPrice, discountType, discountValue, stock, lowStockThreshold, sku } = req.body;
+    const { color, size, netQuantity, costPrice, mrp, sellingPrice, discountType, discountValue, stock, lowStockThreshold, sku } = req.body;
 
     if (costPrice === undefined || costPrice === null || costPrice === '' || !mrp || !sellingPrice) {
       return res.status(400).json({ success: false, message: 'Cost Price, MRP, and selling price are required' });
@@ -204,6 +207,7 @@ const createVariant = async (req, res) => {
           barcode: generateUniqueBarcode(),
           color: color || null,
           size: size || null,
+          netQuantity: netQuantity || null,
           costPrice: costPrice || 0,
           mrp,
           sellingPrice,
@@ -365,7 +369,7 @@ module.exports.deleteProduct = deleteProduct;
 const updateVariant = async (req, res) => {
   try {
     const { variantId } = req.params;
-    const { color, size, costPrice, mrp, sellingPrice, discountType, discountValue, lowStockThreshold, sku } = req.body;
+    const { color, size, netQuantity, costPrice, mrp, sellingPrice, discountType, discountValue, lowStockThreshold, sku } = req.body;
     
     const variant = await prisma.productVariant.update({
       where: { id: variantId },
@@ -373,6 +377,7 @@ const updateVariant = async (req, res) => {
         sku: sku || undefined,
         color,
         size,
+        netQuantity,
         costPrice,
         mrp,
         sellingPrice,

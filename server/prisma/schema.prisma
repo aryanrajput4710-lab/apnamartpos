@@ -60,6 +60,7 @@ model ProductVariant {
   barcode           String       @unique
   color             String?
   size              String?
+  netQuantity       String?
   costPrice         Decimal      @default(0)
   mrp               Decimal
   sellingPrice      Decimal
@@ -179,6 +180,7 @@ model OrderItem {
   barcodeSnapshot     String
   sizeSnapshot        String?
   colorSnapshot       String?
+  netQuantitySnapshot String?
   returns             ReturnRecord[]
 
   createdAt DateTime @default(now())

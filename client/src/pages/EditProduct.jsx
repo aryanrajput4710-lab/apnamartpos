@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
+import { ArrowLeft, Plus, Trash2, Check, Save, Barcode, Hash } from 'lucide-react';
 import api from '../services/api';
-
 
 const CATEGORY_TREE = {
   "Clothing": ["Sarees", "T-shirts", "Kurta Sets", "Shirts", "Baby Set", "Tops", "Leggings", "Dress", "Trousers", "Kurtis", "Jeans", "Shorts", "Sweatshirts", "Baby Shorts", "Innerwear"],
@@ -29,22 +29,32 @@ export default function EditProduct() {
   });
   const [variants, setVariants] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
 
   useEffect(() => {
     if (id) {
       api.get(`/products/${id}`).then(res => {
         const p = res.data.data;
-        setFormData({ name: p.name, description: p.description || '', category: p.category || '', subcategory: p.subcategory || '', brand: p.brand || '' });
+        setFormData({ 
+          name: p.name || '', 
+          description: p.description || '', 
+          category: p.category || '', 
+          subcategory: p.subcategory || '', 
+          brand: p.brand || '' 
+        });
         setVariants(p.variants || []);
       }).catch(err => {
+        console.error(err);
         alert('Failed to load product');
         navigate('/products');
+      }).finally(() => {
+        setFetching(false);
       });
     }
   }, [id, navigate]);
 
   const addVariant = () => {
-    setVariants([...variants, { size: '', color: '', costPrice: '', mrp: '', sellingPrice: '', stock: 0 }]);
+    setVariants([...variants, { size: '', color: '', netQuantity: '', costPrice: '', mrp: '', sellingPrice: '', stock: 0 }]);
   };
 
   const updateVariant = (index, field, value) => {
@@ -54,6 +64,10 @@ export default function EditProduct() {
   };
 
   const removeVariant = (index) => {
+    if (variants.length === 1) {
+      alert('A product must have at least one variant.');
+      return;
+    }
     setVariants(variants.filter((_, i) => i !== index));
   };
 
@@ -78,63 +92,438 @@ export default function EditProduct() {
     }
   };
 
+  if (fetching) {
+    return (
+      <div style={{ textAlign: 'center', padding: '4rem', color: '#64748b' }}>
+        Loading product details...
+      </div>
+    );
+  }
+
   return (
-    <div>
-      <h3>Edit Product</h3>
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '600px' }}>
-        <div>
-          <label>Product Name*</label><br/>
-          <input required style={{ width: '100%' }} value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
-        </div>
-        <div style={{ display: 'flex', gap: '1rem' }}>
-          <div style={{ flex: 1 }}>
-            <label>Category (Optional)</label><br/>
-            <select style={{ width: '100%', padding: '0.75rem', borderRadius: '4px', border: '1px solid #ccc' }} value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value, subcategory: '' })}>
-              <option value="">-- Select Category --</option>
-              {Object.keys(CATEGORY_TREE).map(cat => <option key={cat} value={cat}>{cat}</option>)}
-            </select>
-          </div>
-          {formData.category && CATEGORY_TREE[formData.category] && CATEGORY_TREE[formData.category].length > 0 && (
-            <div style={{ flex: 1 }}>
-              <label>Subcategory</label><br/>
-              <select style={{ width: '100%', padding: '0.75rem', borderRadius: '4px', border: '1px solid #ccc' }} value={formData.subcategory} onChange={e => setFormData({ ...formData, subcategory: e.target.value })}>
-                <option value="">-- Select Subcategory --</option>
-                {CATEGORY_TREE[formData.category].map(sub => <option key={sub} value={sub}>{sub}</option>)}
-              </select>
+    <div style={{ maxWidth: '900px', margin: '0 auto', paddingBottom: '5rem' }}>
+      
+      {/* PAGE HEADER */}
+      <div style={{ marginBottom: '1.5rem' }}>
+        <Link 
+          to="/products" 
+          style={{ 
+            display: 'inline-flex', 
+            alignItems: 'center', 
+            gap: '0.375rem', 
+            color: '#64748b', 
+            textDecoration: 'none', 
+            fontSize: '0.9rem', 
+            fontWeight: '500', 
+            marginBottom: '0.75rem' 
+          }}
+        >
+          <ArrowLeft size={16} />
+          Back to Products
+        </Link>
+        <h1 style={{ fontSize: '1.75rem', fontWeight: '700', color: '#0f172a', margin: '0 0 0.25rem 0' }}>Edit Product</h1>
+        <p style={{ color: '#64748b', fontSize: '0.95rem', margin: 0 }}>
+          Update product details, variants, pricing, stock and barcode configuration.
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit}>
+        
+        {/* BASIC INFORMATION CARD */}
+        <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '1.5rem', marginBottom: '1.5rem', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
+          <h2 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#0f172a', marginTop: 0, marginBottom: '1.25rem' }}>Basic Information</h2>
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            
+            {/* Product Name */}
+            <div>
+              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '600', color: '#334155', marginBottom: '0.375rem' }}>
+                Product Name <span style={{ color: '#ef4444' }}>*</span>
+              </label>
+              <input 
+                required 
+                type="text"
+                placeholder="e.g. Cotton T-Shirt, Face Wash, Basmati Rice"
+                value={formData.name} 
+                onChange={e => setFormData({ ...formData, name: e.target.value })} 
+                style={{ 
+                  width: '100%', 
+                  height: '44px', 
+                  padding: '0 12px', 
+                  borderRadius: '8px', 
+                  border: '1px solid #cbd5e1', 
+                  fontSize: '0.95rem',
+                  outline: 'none',
+                  boxSizing: 'border-box'
+                }}
+              />
             </div>
-          )}
-          <div style={{ flex: 1 }}>
-            <label>Brand (Optional)</label><br/>
-            <input style={{ width: '100%' }} value={formData.brand} onChange={e => setFormData({ ...formData, brand: e.target.value })} />
-          </div>
-        </div>
-        
-        <hr />
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <h4>Variants</h4>
-          <button type="button" onClick={addVariant}>+ Add Variant</button>
-        </div>
-        
-        {variants.map((v, i) => (
-          <div key={i} style={{ border: '1px solid #ccc', padding: '1rem', borderRadius: '4px', position: 'relative' }}>
-            <button type="button" onClick={() => removeVariant(i)} style={{ position: 'absolute', right: '0.5rem', top: '0.5rem', color: 'red' }}>X</button>
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              <div><label>Size (Optional)</label><br/><input value={v.size} onChange={e => updateVariant(i, 'size', e.target.value)} /></div>
-              <div><label>Color (Optional)</label><br/><input value={v.color} onChange={e => updateVariant(i, 'color', e.target.value)} /></div>
-              <div><label>Cost Price*</label><br/><input type="number" required value={v.costPrice} onChange={e => updateVariant(i, 'costPrice', parseFloat(e.target.value))} /></div>
-                <div><label>MRP*</label><br/><input type="number" required value={v.mrp} onChange={e => updateVariant(i, 'mrp', parseFloat(e.target.value))} /></div>
-              <div><label>Selling Price*</label><br/><input type="number" required value={v.sellingPrice} onChange={e => updateVariant(i, 'sellingPrice', parseFloat(e.target.value))} /></div>
-              <div><label>Initial Stock</label><br/><input type="number" value={v.stock} onChange={e => updateVariant(i, 'stock', parseInt(e.target.value))} /></div>
+
+            {/* Category, Subcategory, Brand Grid */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+              
+              {/* Category */}
+              <div>
+                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '600', color: '#334155', marginBottom: '0.375rem' }}>
+                  Category <span style={{ color: '#94a3b8', fontWeight: '400' }}>(Optional)</span>
+                </label>
+                <select 
+                  value={formData.category} 
+                  onChange={e => setFormData({ ...formData, category: e.target.value, subcategory: '' })}
+                  style={{ 
+                    width: '100%', 
+                    height: '44px', 
+                    padding: '0 12px', 
+                    borderRadius: '8px', 
+                    border: '1px solid #cbd5e1', 
+                    fontSize: '0.95rem',
+                    background: 'white',
+                    outline: 'none',
+                    boxSizing: 'border-box'
+                  }}
+                >
+                  <option value="">-- Select Category --</option>
+                  {Object.keys(CATEGORY_TREE).map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Subcategory */}
+              {formData.category && CATEGORY_TREE[formData.category] && CATEGORY_TREE[formData.category].length > 0 && (
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '600', color: '#334155', marginBottom: '0.375rem' }}>
+                    Subcategory <span style={{ color: '#94a3b8', fontWeight: '400' }}>(Optional)</span>
+                  </label>
+                  <select 
+                    value={formData.subcategory} 
+                    onChange={e => setFormData({ ...formData, subcategory: e.target.value })}
+                    style={{ 
+                      width: '100%', 
+                      height: '44px', 
+                      padding: '0 12px', 
+                      borderRadius: '8px', 
+                      border: '1px solid #cbd5e1', 
+                      fontSize: '0.95rem',
+                      background: 'white',
+                      outline: 'none',
+                      boxSizing: 'border-box'
+                    }}
+                  >
+                    <option value="">-- Select Subcategory --</option>
+                    {CATEGORY_TREE[formData.category].map(sub => (
+                      <option key={sub} value={sub}>{sub}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {/* Brand */}
+              <div>
+                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '600', color: '#334155', marginBottom: '0.375rem' }}>
+                  Brand <span style={{ color: '#94a3b8', fontWeight: '400' }}>(Optional)</span>
+                </label>
+                <input 
+                  type="text"
+                  placeholder="e.g. Nike, Nivea, Fortune"
+                  value={formData.brand} 
+                  onChange={e => setFormData({ ...formData, brand: e.target.value })} 
+                  style={{ 
+                    width: '100%', 
+                    height: '44px', 
+                    padding: '0 12px', 
+                    borderRadius: '8px', 
+                    border: '1px solid #cbd5e1', 
+                    fontSize: '0.95rem',
+                    outline: 'none',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+
             </div>
+
           </div>
-        ))}
-        
-        <button type="submit" disabled={loading} style={{ background: '#2563eb', color: 'white', padding: '0.75rem', marginTop: '1rem', border: 'none', borderRadius: '4px' }}>
-          {loading ? 'Saving...' : 'Update Product'}
-        </button>
+        </div>
+
+        {/* VARIANTS CARD */}
+        <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '1.5rem', marginBottom: '2rem', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.25rem' }}>
+            <div>
+              <h2 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#0f172a', margin: '0 0 0.25rem 0' }}>Variants</h2>
+              <p style={{ color: '#64748b', fontSize: '0.875rem', margin: 0 }}>
+                Configure size, color, quantity, pricing and stock information for each variant.
+              </p>
+            </div>
+            <button 
+              type="button" 
+              onClick={addVariant}
+              style={{ 
+                display: 'inline-flex', 
+                alignItems: 'center', 
+                gap: '0.375rem', 
+                padding: '0.5rem 1rem', 
+                background: '#eff6ff', 
+                color: '#2563eb', 
+                border: '1px solid #bfdbfe', 
+                borderRadius: '8px', 
+                fontWeight: '600',
+                fontSize: '0.875rem',
+                cursor: 'pointer'
+              }}
+            >
+              <Plus size={16} />
+              Add Variant
+            </button>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            {variants.map((v, i) => {
+              const mrpNum = parseFloat(v.mrp) || 0;
+              const spNum = parseFloat(v.sellingPrice) || 0;
+              const savings = mrpNum > spNum ? (mrpNum - spNum).toFixed(2) : 0;
+
+              return (
+                <div 
+                  key={v.id || i} 
+                  style={{ 
+                    background: '#f8fafc', 
+                    border: '1px solid #cbd5e1', 
+                    borderRadius: '12px', 
+                    padding: '1.25rem', 
+                    position: 'relative' 
+                  }}
+                >
+                  
+                  {/* Variant Card Header */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.75rem' }}>
+                    <div style={{ fontWeight: '700', color: '#0f172a', fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                      <span style={{ width: '22px', height: '22px', borderRadius: '50%', background: '#2563eb', color: 'white', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem' }}>
+                        {i + 1}
+                      </span>
+                      Variant {i + 1}
+
+                      {v.sku && (
+                        <span style={{ fontSize: '0.75rem', fontWeight: '500', color: '#64748b', background: '#e2e8f0', padding: '2px 8px', borderRadius: '4px', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                          <Hash size={12} />
+                          {v.sku}
+                        </span>
+                      )}
+
+                      {v.barcode && (
+                        <span style={{ fontSize: '0.75rem', fontWeight: '500', color: '#1e40af', background: '#dbeafe', padding: '2px 8px', borderRadius: '4px', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                          <Barcode size={12} />
+                          {v.barcode}
+                        </span>
+                      )}
+                    </div>
+
+                    {variants.length > 1 && (
+                      <button 
+                        type="button" 
+                        onClick={() => removeVariant(i)}
+                        title="Remove Variant"
+                        style={{ 
+                          background: '#fee2e2', 
+                          color: '#dc2626', 
+                          border: 'none', 
+                          borderRadius: '6px', 
+                          padding: '0.35rem 0.65rem',
+                          fontSize: '0.8rem',
+                          fontWeight: '600',
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '0.375rem'
+                        }}
+                      >
+                        <Trash2 size={14} />
+                        Remove
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Variant Fields Grid */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem' }}>
+                    
+                    {/* Size */}
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '600', color: '#475569', marginBottom: '0.25rem' }}>
+                        Size <span style={{ color: '#94a3b8', fontWeight: '400' }}>(Optional)</span>
+                      </label>
+                      <input 
+                        type="text" 
+                        placeholder="e.g. S, M, L, XL"
+                        value={v.size || ''} 
+                        onChange={e => updateVariant(i, 'size', e.target.value)} 
+                        style={{ width: '100%', height: '40px', padding: '0 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.9rem', outline: 'none', boxSizing: 'border-box', background: 'white' }}
+                      />
+                      <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Leave blank if N/A</span>
+                    </div>
+
+                    {/* Color */}
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '600', color: '#475569', marginBottom: '0.25rem' }}>
+                        Color <span style={{ color: '#94a3b8', fontWeight: '400' }}>(Optional)</span>
+                      </label>
+                      <input 
+                        type="text" 
+                        placeholder="e.g. Black, Blue"
+                        value={v.color || ''} 
+                        onChange={e => updateVariant(i, 'color', e.target.value)} 
+                        style={{ width: '100%', height: '40px', padding: '0 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.9rem', outline: 'none', boxSizing: 'border-box', background: 'white' }}
+                      />
+                      <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Leave blank if N/A</span>
+                    </div>
+
+                    {/* Net Quantity */}
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '600', color: '#475569', marginBottom: '0.25rem' }}>
+                        Net Quantity <span style={{ color: '#94a3b8', fontWeight: '400' }}>(Optional)</span>
+                      </label>
+                      <input 
+                        type="text" 
+                        placeholder="e.g. 500 ml, 1 kg, 10 pcs"
+                        value={v.netQuantity || ''} 
+                        onChange={e => updateVariant(i, 'netQuantity', e.target.value)} 
+                        style={{ width: '100%', height: '40px', padding: '0 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.9rem', outline: 'none', boxSizing: 'border-box', background: 'white' }}
+                      />
+                      <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>e.g. 100 g / 500 ml / 1 L</span>
+                    </div>
+
+                    {/* Cost Price */}
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '600', color: '#475569', marginBottom: '0.25rem' }}>
+                        Cost Price <span style={{ color: '#ef4444' }}>*</span>
+                      </label>
+                      <input 
+                        type="number" 
+                        step="0.01"
+                        required 
+                        placeholder="₹ 0.00"
+                        value={v.costPrice !== undefined ? v.costPrice : ''} 
+                        onChange={e => updateVariant(i, 'costPrice', e.target.value)} 
+                        style={{ width: '100%', height: '40px', padding: '0 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.9rem', outline: 'none', boxSizing: 'border-box', background: 'white' }}
+                      />
+                    </div>
+
+                    {/* MRP */}
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '600', color: '#475569', marginBottom: '0.25rem' }}>
+                        MRP <span style={{ color: '#ef4444' }}>*</span>
+                      </label>
+                      <input 
+                        type="number" 
+                        step="0.01"
+                        required 
+                        placeholder="₹ 0.00"
+                        value={v.mrp !== undefined ? v.mrp : ''} 
+                        onChange={e => updateVariant(i, 'mrp', e.target.value)} 
+                        style={{ width: '100%', height: '40px', padding: '0 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.9rem', outline: 'none', boxSizing: 'border-box', background: 'white' }}
+                      />
+                    </div>
+
+                    {/* Selling Price */}
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '600', color: '#475569', marginBottom: '0.25rem' }}>
+                        Selling Price <span style={{ color: '#ef4444' }}>*</span>
+                      </label>
+                      <input 
+                        type="number" 
+                        step="0.01"
+                        required 
+                        placeholder="₹ 0.00"
+                        value={v.sellingPrice !== undefined ? v.sellingPrice : ''} 
+                        onChange={e => updateVariant(i, 'sellingPrice', e.target.value)} 
+                        style={{ width: '100%', height: '40px', padding: '0 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.9rem', outline: 'none', boxSizing: 'border-box', background: 'white' }}
+                      />
+                    </div>
+
+                    {/* Stock */}
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '600', color: '#475569', marginBottom: '0.25rem' }}>
+                        Stock Quantity
+                      </label>
+                      <input 
+                        type="number" 
+                        value={v.stock !== undefined ? v.stock : 0} 
+                        onChange={e => updateVariant(i, 'stock', parseInt(e.target.value) || 0)} 
+                        style={{ width: '100%', height: '40px', padding: '0 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.9rem', outline: 'none', boxSizing: 'border-box', background: 'white' }}
+                      />
+                      <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Units in inventory</span>
+                    </div>
+
+                  </div>
+
+                  {/* Price Savings Badge */}
+                  {savings > 0 && (
+                    <div style={{ marginTop: '0.75rem', display: 'inline-flex', alignItems: 'center', gap: '0.375rem', background: '#dcfce7', color: '#15803d', padding: '0.25rem 0.65rem', borderRadius: '6px', fontSize: '0.8rem', fontWeight: '600' }}>
+                      <Check size={14} />
+                      Save ₹{savings} on MRP
+                    </div>
+                  )}
+
+                </div>
+              );
+            })}
+          </div>
+
+        </div>
+
+        {/* BOTTOM FORM ACTIONS */}
+        <div style={{ 
+          position: 'sticky', 
+          bottom: '1rem', 
+          background: 'white', 
+          border: '1px solid #e2e8f0', 
+          borderRadius: '12px', 
+          padding: '1rem 1.5rem', 
+          display: 'flex', 
+          justify: 'space-between', 
+          alignItems: 'center', 
+          boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+          zIndex: 5
+        }}>
+          <Link 
+            to="/products"
+            style={{ 
+              padding: '0.65rem 1.25rem', 
+              background: '#f8fafc', 
+              border: '1px solid #cbd5e1', 
+              color: '#334155', 
+              borderRadius: '8px', 
+              textDecoration: 'none',
+              fontWeight: '600',
+              fontSize: '0.9rem'
+            }}
+          >
+            Cancel
+          </Link>
+
+          <button 
+            type="submit" 
+            disabled={loading}
+            style={{ 
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              padding: '0.65rem 1.5rem', 
+              background: '#2563eb', 
+              color: 'white', 
+              border: 'none', 
+              borderRadius: '8px',
+              fontWeight: '600',
+              fontSize: '0.95rem',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              boxShadow: '0 2px 4px rgba(37,99,235,0.2)'
+            }}
+          >
+            <Save size={18} />
+            {loading ? 'Updating...' : 'Update Product'}
+          </button>
+        </div>
+
       </form>
     </div>
   );
 }
-
-
