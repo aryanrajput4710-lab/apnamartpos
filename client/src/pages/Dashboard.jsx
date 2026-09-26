@@ -47,10 +47,6 @@ export default function Dashboard() {
     fetchDashboard();
   }, [range]);
 
-  // Generate Greeting
-  const hour = new Date().getHours();
-  const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
-
   // --- UI Helpers ---
   const formatCurrency = (val) => {
     return '₹' + parseFloat(val || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -329,15 +325,7 @@ export default function Dashboard() {
   return (
     <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', background: '#fafafa', minHeight: '100vh' }}>
       {/* 1. HEADER */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-        <div>
-          <h1 style={{ margin: '0 0 0.25rem', fontSize: '1.5rem', fontWeight: '700', color: '#111827' }}>
-            {greeting}, Store Admin 👋
-          </h1>
-          <p style={{ margin: 0, color: '#6b7280', fontSize: '0.875rem' }}>
-            Here's what's happening with your store today.
-          </p>
-        </div>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#dcfce7', color: '#166534', padding: '0.5rem 0.75rem', borderRadius: '999px', fontSize: '0.875rem', fontWeight: '500' }}>
             <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#16a34a' }} />
