@@ -27,16 +27,16 @@ export default function AppLayout() {
   }, []);
 
   const navItems = [
-    { name: 'Dashboard', path: '/', icon: <LayoutDashboard size={20} />, roles: ['ADMIN'] },
-    { name: 'POS', path: '/pos', icon: <ShoppingCart size={20} />, roles: ['ADMIN', 'CASHIER'] },
-    { name: 'Products', path: '/products', icon: <Package size={20} />, roles: ['ADMIN', 'CASHIER'] },
-    { name: 'Inventory', path: '/inventory', icon: <Package size={20} />, roles: ['ADMIN', 'CASHIER'] },
-    { name: 'Customers', path: '/customers', icon: <Users size={20} />, roles: ['ADMIN', 'CASHIER'] },
-    { name: 'Orders', path: '/orders', icon: <FileText size={20} />, roles: ['ADMIN', 'CASHIER'] },
-    { name: 'Reports', path: '/reports', icon: <TrendingUp size={20} />, roles: ['ADMIN'] },
-    { name: 'Users', path: '/users', icon: <UserPlus size={20} />, roles: ['ADMIN'] },
-    { name: 'Settings', path: '/settings', icon: <Settings size={20} />, roles: ['ADMIN'] },
-    { name: 'Audit Logs', path: '/audit-logs', icon: <FileText size={20} />, roles: ['ADMIN'] },
+    { name: 'Dashboard', path: '/', icon: LayoutDashboard, roles: ['ADMIN'] },
+    { name: 'POS', path: '/pos', icon: ShoppingCart, roles: ['ADMIN', 'CASHIER'] },
+    { name: 'Products', path: '/products', icon: Package, roles: ['ADMIN', 'CASHIER'] },
+    { name: 'Inventory', path: '/inventory', icon: Package, roles: ['ADMIN', 'CASHIER'] },
+    { name: 'Customers', path: '/customers', icon: Users, roles: ['ADMIN', 'CASHIER'] },
+    { name: 'Orders', path: '/orders', icon: FileText, roles: ['ADMIN', 'CASHIER'] },
+    { name: 'Reports', path: '/reports', icon: TrendingUp, roles: ['ADMIN'] },
+    { name: 'Users', path: '/users', icon: UserPlus, roles: ['ADMIN'] },
+    { name: 'Settings', path: '/settings', icon: Settings, roles: ['ADMIN'] },
+    { name: 'Audit Logs', path: '/audit-logs', icon: FileText, roles: ['ADMIN'] },
   ];
 
   const isActiveRoute = (path) => {
@@ -45,79 +45,7 @@ export default function AppLayout() {
   };
 
   const currentPageName = navItems.find(item => isActiveRoute(item.path))?.name || 'Apna Mart';
-
   const isPOS = location.pathname === '/pos';
-
-  const DrawerContent = () => (
-    <>
-      <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid #374151', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <img src="/apna-mart-logo.jpg" alt="Apna Mart" style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #374151' }} />
-          <h1 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 'bold', color: 'white' }}>Apna Mart</h1>
-        </div>
-        <button
-          onClick={() => setDrawerOpen(false)}
-          style={{ background: 'transparent', border: 'none', color: '#9ca3af', cursor: 'pointer', padding: '0.25rem', display: 'flex', alignItems: 'center' }}
-          aria-label="Close menu"
-        >
-          <X size={22} />
-        </button>
-      </div>
-
-      <nav style={{ flex: 1, paddingTop: '0.75rem', overflowY: 'auto' }}>
-        {navItems.map((item) => {
-          if (!item.roles.includes(currentUser.role)) return null;
-          const active = isActiveRoute(item.path);
-          return (
-            <Link
-              key={item.name}
-              to={item.path}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                padding: '0.7rem 1.5rem',
-                color: active ? 'white' : '#d1d5db',
-                backgroundColor: active ? '#2563eb' : 'transparent',
-                textDecoration: 'none',
-                gap: '0.75rem',
-                fontWeight: active ? '600' : '400',
-                fontSize: '0.9375rem',
-                borderLeft: active ? '3px solid white' : '3px solid transparent',
-                transition: 'background 0.15s',
-              }}
-            >
-              {item.icon}
-              <span>{item.name}</span>
-            </Link>
-          );
-        })}
-      </nav>
-
-      <div style={{ padding: '1.25rem 1.5rem', borderTop: '1px solid #374151' }}>
-        <div style={{ marginBottom: '0.75rem' }}>
-          <div style={{ fontWeight: '600', color: 'white', fontSize: '0.9rem' }}>{currentUser.name}</div>
-          <div style={{ fontSize: '0.75rem', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{currentUser.role}</div>
-        </div>
-        <button
-          onClick={handleLogout}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            backgroundColor: 'transparent',
-            color: '#fca5a5',
-            border: 'none',
-            cursor: 'pointer',
-            padding: '0',
-            fontSize: '0.875rem',
-          }}
-        >
-          <LogOut size={16} />
-          Logout
-        </button>
-      </div>
-    </>
-  );
 
   return (
     <div style={{ display: 'flex', height: '100vh', backgroundColor: '#f9fafb', overflow: 'hidden' }}>
@@ -126,7 +54,7 @@ export default function AppLayout() {
       {drawerOpen && (
         <div
           onClick={() => setDrawerOpen(false)}
-          style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.45)', zIndex: 40 }}
+          style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 40 }}
           aria-hidden="true"
         />
       )}
@@ -139,17 +67,119 @@ export default function AppLayout() {
           position: 'fixed',
           top: 0, bottom: 0, left: 0,
           width: '272px',
-          backgroundColor: '#1f2937',
-          color: 'white',
+          backgroundColor: '#111827',
           zIndex: 50,
           transform: drawerOpen ? 'translateX(0)' : 'translateX(-100%)',
           transition: 'transform 0.28s cubic-bezier(0.4, 0, 0.2, 1)',
           display: 'flex',
           flexDirection: 'column',
-          boxShadow: drawerOpen ? '4px 0 20px rgba(0,0,0,0.25)' : 'none',
+          boxShadow: '4px 0 24px rgba(0,0,0,0.35)',
+          overflowY: 'hidden',
         }}
       >
-        <DrawerContent />
+        {/* Drawer Header */}
+        <div style={{
+          padding: '1.25rem 1.25rem',
+          borderBottom: '1px solid rgba(255,255,255,0.1)',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexShrink: 0,
+          backgroundColor: '#0f172a',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <img
+              src="/apna-mart-logo.jpg"
+              alt="Apna Mart"
+              style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(255,255,255,0.2)' }}
+            />
+            <span style={{ fontSize: '1.0625rem', fontWeight: '700', color: '#ffffff', letterSpacing: '-0.01em' }}>
+              Apna Mart
+            </span>
+          </div>
+          <button
+            onClick={() => setDrawerOpen(false)}
+            aria-label="Close menu"
+            style={{
+              background: 'rgba(255,255,255,0.08)',
+              border: '1px solid rgba(255,255,255,0.12)',
+              color: '#e2e8f0',
+              cursor: 'pointer',
+              padding: '0.375rem',
+              borderRadius: '6px',
+              display: 'flex',
+              alignItems: 'center',
+              lineHeight: 1,
+            }}
+          >
+            <X size={18} color="#e2e8f0" />
+          </button>
+        </div>
+
+        {/* Nav Items */}
+        <nav style={{ flex: 1, paddingTop: '0.5rem', paddingBottom: '0.5rem', overflowY: 'auto' }}>
+          {navItems.map((item) => {
+            if (!item.roles.includes(currentUser.role)) return null;
+            const active = isActiveRoute(item.path);
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.name}
+                to={item.path}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: '0.7rem 1.25rem',
+                  color: active ? '#ffffff' : '#cbd5e1',
+                  backgroundColor: active ? '#2563eb' : 'transparent',
+                  textDecoration: 'none',
+                  gap: '0.875rem',
+                  fontWeight: active ? '600' : '400',
+                  fontSize: '0.9rem',
+                  borderLeft: active ? '4px solid #60a5fa' : '4px solid transparent',
+                  transition: 'background-color 0.15s, color 0.15s',
+                  marginBottom: '2px',
+                }}
+                onMouseEnter={e => { if (!active) { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.07)'; e.currentTarget.style.color = '#ffffff'; } }}
+                onMouseLeave={e => { if (!active) { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#cbd5e1'; } }}
+              >
+                <Icon size={18} color={active ? '#ffffff' : '#94a3b8'} strokeWidth={active ? 2.5 : 2} />
+                <span style={{ color: active ? '#ffffff' : '#cbd5e1' }}>{item.name}</span>
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* Drawer Footer */}
+        <div style={{
+          padding: '1rem 1.25rem',
+          borderTop: '1px solid rgba(255,255,255,0.1)',
+          flexShrink: 0,
+          backgroundColor: '#0f172a',
+        }}>
+          <div style={{ marginBottom: '0.75rem' }}>
+            <div style={{ fontWeight: '600', color: '#f1f5f9', fontSize: '0.875rem' }}>{currentUser.name}</div>
+            <div style={{ fontSize: '0.7rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.07em', marginTop: '2px' }}>{currentUser.role}</div>
+          </div>
+          <button
+            onClick={handleLogout}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              backgroundColor: 'transparent',
+              color: '#f87171',
+              border: 'none',
+              cursor: 'pointer',
+              padding: '0',
+              fontSize: '0.875rem',
+              fontWeight: '500',
+            }}
+          >
+            <LogOut size={15} color="#f87171" />
+            <span style={{ color: '#f87171' }}>Logout</span>
+          </button>
+        </div>
       </div>
 
       {/* Main Content Column */}
@@ -166,6 +196,7 @@ export default function AppLayout() {
             gap: '1rem',
             flexShrink: 0,
             zIndex: 10,
+            borderBottom: '1px solid #f1f5f9',
           }}>
             <button
               onClick={() => setDrawerOpen(true)}
