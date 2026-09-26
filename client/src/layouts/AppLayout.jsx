@@ -132,7 +132,7 @@ export default function AppLayout() {
           </button>
           
           <h2 style={{ margin: 0, fontSize: '1.25rem', flex: 1, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <span className="hide-on-mobile">Welcome, {currentUser.name}</span>
+
             <span className="show-on-mobile" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <img src="/apna-mart-logo.jpg" alt="Logo" style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }} />
               Apna Mart
