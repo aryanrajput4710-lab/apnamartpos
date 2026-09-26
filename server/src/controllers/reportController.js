@@ -216,6 +216,24 @@ const getDashboardSummary = async (req, res) => {
           AND o."createdAt" <= ${end}
         GROUP BY p.category
         ORDER BY quantity DESC
+      `,
+      // PREV SUMMARY
+      prisma.order.aggregate({
+        where: prevOrderWhere,
+        _sum: { total: true },
+        _count: { id: true }
+      }),
+      prisma.orderItem.aggregate({
+        where: { order: prevOrderWhere },
+        _sum: { quantity: true }
+      }),
+      prisma.$queryRaw`
+        SELECT SUM("total" - ("unitCostPrice" * "quantity")) as profit
+        FROM "OrderItem"
+        WHERE "orderId" IN (
+          SELECT id FROM "Order" 
+          WHERE "status" = 'COMPLETED' AND "createdAt" >= ${pStart} AND "createdAt" <= ${pEnd}
+        )
       `
     ]);
 
@@ -227,6 +245,12 @@ const getDashboardSummary = async (req, res) => {
     const aov = ordersCount > 0 ? (revenue / ordersCount) : 0;
     const itemsSold = itemsAgg._sum.quantity || 0;
     const profit = profitAgg && profitAgg[0] ? parseFloat(profitAgg[0].profit || 0) : 0;
+
+    const prevRevenue = parseFloat((prevOrderAgg && prevOrderAgg._sum && prevOrderAgg._sum.total) || 0);
+    const prevOrdersCount = (prevOrderAgg && prevOrderAgg._count && prevOrderAgg._count.id) || 0;
+    const prevAov = prevOrdersCount > 0 ? (prevRevenue / prevOrdersCount) : 0;
+    const prevItemsSold = (prevItemsAgg && prevItemsAgg._sum && prevItemsAgg._sum.quantity) || 0;
+    const prevProfit = (prevProfitAgg && prevProfitAgg[0]) ? parseFloat(prevProfitAgg[0].profit || 0) : 0;
 
     const paymentSummary = { CASH: { amount: 0, orders: 0 }, QR: { amount: 0, orders: 0 } };
     payments.forEach(p => {
