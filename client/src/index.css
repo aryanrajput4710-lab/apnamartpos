@@ -35,9 +35,9 @@ body { margin: 0; font-family: system-ui, sans-serif; background-color: #f9fafb;
     min-width: unset !important;
   }
   
-  /* Ensure inputs are touch friendly */
-  input, select, button {
-    min-height: 44px !important;
+  /* Ensure buttons are touch friendly */
+  button {
+    min-height: 44px;
   }
   
   .hide-on-mobile { display: none !important; }
