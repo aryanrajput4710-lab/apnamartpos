@@ -1,6 +1,9 @@
 const express = require('express');
 const cors = require('cors');
 
+// Fix for Prisma BigInt serialization in express res.json
+BigInt.prototype.toJSON = function() { return Number(this); };
+
 
 const app = express();
 const prisma = require('./utils/prisma');

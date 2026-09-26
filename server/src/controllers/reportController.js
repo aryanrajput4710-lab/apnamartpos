@@ -1,4 +1,6 @@
 
+BigInt.prototype.toJSON = function() { return Number(this); };
+
 const prisma = require('../utils/prisma');
 
 // Helper to get date bounds in IST (Asia/Kolkata)
