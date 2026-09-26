@@ -19,6 +19,18 @@ export default function Dashboard() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
+  const [isDarkMode, setIsDarkMode] = useState(localStorage.getItem('theme') === 'dark');
+
+  useEffect(() => {
+    localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+  }, [isDarkMode]);
+
+  const theme = isDarkMode ? {
+    bg: '#111827', card: '#1f2937', text: '#f9fafb', textSec: '#9ca3af', border: '#374151', borderDark: '#4b5563', hover: '#374151'
+  } : {
+    bg: '#fafafa', card: '#ffffff', text: '#111827', textSec: '#6b7280', border: '#f3f4f6', borderDark: '#d1d5db', hover: '#f9fafb'
+  };
+
   // Modals / Full views state
   const [viewAllCategories, setViewAllCategories] = useState(false);
   const [viewAllProducts, setViewAllProducts] = useState(false);
