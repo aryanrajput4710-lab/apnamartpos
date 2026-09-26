@@ -51,6 +51,26 @@ const getDateBounds = (range, customFrom, customTo) => {
   return { start, end };
 };
 
+
+const getPrevBounds = (start, end, range) => {
+  const diff = end.getTime() - start.getTime();
+  if (range === 'Today' || range === 'Yesterday') {
+    return { pStart: new Date(start.getTime() - 86400000), pEnd: new Date(end.getTime() - 86400000) };
+  } else if (range === 'Last 7 Days') {
+    return { pStart: new Date(start.getTime() - 7 * 86400000), pEnd: new Date(end.getTime() - 7 * 86400000) };
+  } else if (range === 'Last 30 Days') {
+    return { pStart: new Date(start.getTime() - 30 * 86400000), pEnd: new Date(end.getTime() - 30 * 86400000) };
+  } else if (range === 'This Month') {
+    const pStart = new Date(start);
+    pStart.setMonth(pStart.getMonth() - 1);
+    const pEnd = new Date(start);
+    pEnd.setMilliseconds(-1);
+    return { pStart, pEnd };
+  } else {
+    return { pStart: new Date(start.getTime() - diff - 1), pEnd: new Date(end.getTime() - diff - 1) };
+  }
+};
+
 const getDashboardSummary = async (req, res) => {
   try {
     const { range, customFrom, customTo } = req.query;
@@ -62,7 +82,16 @@ const getDashboardSummary = async (req, res) => {
       payments: { some: { status: 'COMPLETED' } }
     };
 
+    
+    const { pStart, pEnd } = getPrevBounds(start, end, range);
+    const prevOrderWhere = {
+      createdAt: { gte: pStart, lte: pEnd },
+      status: 'COMPLETED',
+      payments: { some: { status: 'COMPLETED' } }
+    };
+
     // Execute all independent queries concurrently
+
     const [
       orderAgg,
       itemsAgg,
@@ -247,7 +276,7 @@ const getDashboardSummary = async (req, res) => {
     res.status(200).json({
       success: true,
       data: {
-        summary: { revenue, profit, orders: ordersCount, itemsSold, aov, tax, discounts },
+        summary: { revenue, profit, orders: ordersCount, itemsSold, aov, tax, discounts, prevRevenue, prevProfit, prevOrders: prevOrdersCount, prevItemsSold, prevAov },
         returns: { summary: returnsSummary, recent: recentReturns },
         paymentSummary,
         lowStock: lowStockVariants,

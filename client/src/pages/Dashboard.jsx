@@ -45,9 +45,35 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchDashboard();
+
+    // Setup WebSocket
+    let socket;
+    import('socket.io-client').then(module => {
+      const io = module.default;
+      socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000');
+      socket.on('dashboard_update', () => {
+        fetchDashboard();
+      });
+    });
+
+    return () => {
+      if (socket) socket.disconnect();
+    };
   }, [range]);
 
   // --- UI Helpers ---
+  const getGrowthIndicator = (current, previous) => {
+    if (previous === undefined || previous === null || previous === 0) return null;
+    const pct = ((current - previous) / previous) * 100;
+    const color = pct >= 0 ? '#16a34a' : '#ef4444';
+    const icon = pct >= 0 ? '↑' : '↓';
+    return (
+      <div style={{ color, fontSize: '0.75rem', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '0.25rem', marginTop: '0.5rem' }}>
+        <span>{icon} {Math.abs(pct).toFixed(1)}%</span>
+        <span style={{ color: '#6b7280', fontWeight: '400' }}>vs last period</span>
+      </div>
+    );
+  };
   const formatCurrency = (val) => {
     return '₹' + parseFloat(val || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   };
@@ -369,6 +395,7 @@ export default function Dashboard() {
             <div style={{ background: '#eff6ff', color: '#2563eb', padding: '0.5rem', borderRadius: '8px' }}><IndianRupee size={20} /></div>
           </div>
           <h3 style={{ margin: 0, fontSize: '1.75rem', fontWeight: '700', color: '#111827' }}>{formatCurrency(summary.revenue)}</h3>
+          {getGrowthIndicator(summary.revenue, summary.prevRevenue)}
         </Card>
         
         <Card>
@@ -377,6 +404,7 @@ export default function Dashboard() {
             <div style={{ background: '#dcfce7', color: '#16a34a', padding: '0.5rem', borderRadius: '8px' }}><TrendingUp size={20} /></div>
           </div>
           <h3 style={{ margin: 0, fontSize: '1.75rem', fontWeight: '700', color: '#111827' }}>{formatCurrency(summary.profit || 0)}</h3>
+          {getGrowthIndicator(summary.profit || 0, summary.prevProfit)}
         </Card>
 
         <Card>
@@ -385,6 +413,7 @@ export default function Dashboard() {
             <div style={{ background: '#ffedd5', color: '#ea580c', padding: '0.5rem', borderRadius: '8px' }}><ShoppingCart size={20} /></div>
           </div>
           <h3 style={{ margin: 0, fontSize: '1.75rem', fontWeight: '700', color: '#111827' }}>{summary.orders}</h3>
+          {getGrowthIndicator(summary.orders, summary.prevOrders)}
         </Card>
 
         <Card>
@@ -393,6 +422,7 @@ export default function Dashboard() {
             <div style={{ background: '#f3e8ff', color: '#9333ea', padding: '0.5rem', borderRadius: '8px' }}><ShoppingBag size={20} /></div>
           </div>
           <h3 style={{ margin: 0, fontSize: '1.75rem', fontWeight: '700', color: '#111827' }}>{summary.itemsSold}</h3>
+          {getGrowthIndicator(summary.itemsSold, summary.prevItemsSold)}
         </Card>
 
         <Card>
@@ -401,6 +431,7 @@ export default function Dashboard() {
             <div style={{ background: '#fce7f3', color: '#db2777', padding: '0.5rem', borderRadius: '8px' }}><CreditCard size={20} /></div>
           </div>
           <h3 style={{ margin: 0, fontSize: '1.75rem', fontWeight: '700', color: '#111827' }}>{formatCurrency(summary.aov)}</h3>
+          {getGrowthIndicator(summary.aov, summary.prevAov)}
         </Card>
       </div>
 

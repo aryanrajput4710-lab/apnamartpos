@@ -233,7 +233,10 @@ const checkout = async (req, res) => {
 
       return newOrder;
     });
-
+    const io = req.app.get('io');
+    if (io) {
+      io.emit('dashboard_update');
+    }
     res.status(200).json({ success: true, data: order });
   } catch (error) {
     console.error('Checkout error:', error);

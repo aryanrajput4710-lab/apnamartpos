@@ -9,6 +9,20 @@ const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server is running on port ${PORT}`);
 });
 
+const { Server } = require('socket.io');
+const io = new Server(server, {
+  cors: {
+    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    methods: ['GET', 'POST'],
+    credentials: true
+  }
+});
+app.set('io', io);
+
+io.on('connection', (socket) => {
+  console.log('Dashboard client connected via Socket.io');
+});
+
 // Graceful Shutdown
 const shutdown = async (signal) => {
   console.log(`\n${signal} received. Shutting down gracefully...`);
