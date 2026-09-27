@@ -420,17 +420,15 @@ export default function ProductForm() {
 
         {/* BOTTOM FORM ACTIONS */}
         <div style={{ 
-          position: 'sticky', 
-          bottom: '1rem', 
+          marginTop: '1.5rem',
           background: 'white', 
           border: '1px solid #e2e8f0', 
           borderRadius: '12px', 
           padding: '1rem 1.5rem', 
           display: 'flex', 
-          justify: 'space-between', 
+          justifyContent: 'space-between', 
           alignItems: 'center', 
-          boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-          zIndex: 5
+          boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
         }}>
           <Link 
             to="/products"
