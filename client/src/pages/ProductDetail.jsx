@@ -89,11 +89,11 @@ export default function ProductDetail() {
                   <Barcode 
                     value={variant.barcode || variant.sku || '000000'} 
                     format="CODE128" 
-                    width={1.6} 
-                    height={40} 
+                    width={2} 
+                    height={45} 
                     displayValue={true} 
                     fontSize={13} 
-                    margin={0} 
+                    margin={10} 
                     background="#ffffff"
                     lineColor="#000000"
                   />
