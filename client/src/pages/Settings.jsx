@@ -1,5 +1,6 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import api from '../services/api';
+import Papa from 'papaparse';
 
 export default function Settings() {
   const [settings, setSettings] = useState({
@@ -153,7 +154,7 @@ export default function Settings() {
         </div>
         <div style={{ background: 'white', padding: '1rem', borderRadius: '8px' }}>
           <h2>Catalog Management</h2>
-          <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+          <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem', flexWrap: 'wrap' }}>
             <button onClick={async () => {
               try {
                 const res = await api.get('/products/catalog/export');
@@ -164,10 +165,10 @@ export default function Settings() {
                 a.download = 'catalog.json';
                 a.click();
               } catch (e) { alert('Export failed'); }
-            }} style={{ padding: '0.75rem', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '4px' }}>Export Catalog</button>
+            }} style={{ padding: '0.75rem', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Export Catalog (JSON)</button>
             
             <label style={{ padding: '0.75rem', background: '#eab308', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
-              Import Catalog
+              Import Catalog (JSON)
               <input type="file" style={{ display: 'none' }} accept="application/json" onChange={async (e) => {
                 const file = e.target.files[0];
                 if (!file) return;
@@ -184,6 +185,85 @@ export default function Settings() {
                   }
                 };
                 reader.readAsText(file);
+              }} />
+            </label>
+
+            <button onClick={() => {
+              const headers = "Product Name,Description,Category,Subcategory,Brand,Product Active,Variant SKU,Variant Barcode,Color,Size,MRP,Selling Price,Discount Type,Discount Value,Low Stock Threshold,Variant Active\n";
+              const sampleRow = "Sample T-Shirt,A nice cotton t-shirt,Apparel,T-Shirts,Generic,true,TSHIRT-BLK-M,1234567890123,Black,M,999,799,NONE,0,5,true\n";
+              const blob = new Blob([headers + sampleRow], { type: 'text/csv' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = 'products_import_template.csv';
+              a.click();
+            }} style={{ padding: '0.75rem', background: '#10b981', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Download CSV Template</button>
+
+            <label style={{ padding: '0.75rem', background: '#8b5cf6', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+              Import CSV
+              <input type="file" style={{ display: 'none' }} accept=".csv" onChange={(e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                Papa.parse(file, {
+                  header: true,
+                  skipEmptyLines: true,
+                  complete: async (results) => {
+                    try {
+                      const productMap = new Map();
+                      
+                      for (const row of results.data) {
+                        const pName = row['Product Name'];
+                        if (!pName) continue;
+                        
+                        if (!productMap.has(pName)) {
+                          productMap.set(pName, {
+                            name: pName,
+                            description: row['Description'] || null,
+                            category: row['Category'] || null,
+                            subcategory: row['Subcategory'] || null,
+                            brand: row['Brand'] || null,
+                            isActive: String(row['Product Active']).toLowerCase() !== 'false',
+                            variants: []
+                          });
+                        }
+                        
+                        const product = productMap.get(pName);
+                        
+                        if (row['Variant SKU'] && row['Variant Barcode']) {
+                          product.variants.push({
+                            sku: row['Variant SKU'],
+                            barcode: row['Variant Barcode'],
+                            color: row['Color'] || null,
+                            size: row['Size'] || null,
+                            mrp: Number(row['MRP']) || 0,
+                            sellingPrice: Number(row['Selling Price']) || 0,
+                            discountType: row['Discount Type'] || 'NONE',
+                            discountValue: Number(row['Discount Value']) || 0,
+                            lowStockThreshold: Number(row['Low Stock Threshold']) || 5,
+                            isActive: String(row['Variant Active']).toLowerCase() !== 'false'
+                          });
+                        }
+                      }
+                      
+                      const productsToImport = Array.from(productMap.values());
+                      
+                      if (productsToImport.length === 0) {
+                        return alert('No valid products found in CSV. Please check the template.');
+                      }
+                      
+                      if (confirm(`Found ${productsToImport.length} products (with ${results.data.length} total variants). Import now?`)) {
+                        await api.post('/products/catalog/import', { products: productsToImport });
+                        alert('CSV Import successful!');
+                      }
+                    } catch (err) {
+                      alert('CSV Import failed: ' + (err.response?.data?.message || err.message));
+                    }
+                  },
+                  error: (err) => {
+                    alert('Error parsing CSV: ' + err.message);
+                  }
+                });
               }} />
             </label>
           </div>
