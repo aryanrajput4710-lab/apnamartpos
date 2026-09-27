@@ -9,7 +9,7 @@ const CATEGORY_TREE = {
   "Footwear": ["Slipper", "Shoes", "Socks", "Sandals"],
   "Bags": [],
   "Accessories": ["Watch", "Belt", "Ladies Purse", "Mens Purse", "Chain", "Earrings", "Others"],
-  "Gift Items": [],
+  "Gift Items": ["Birthday Items"],
   "Grocery": [],
   "Plastic Item": [],
   "Cookware": [],
