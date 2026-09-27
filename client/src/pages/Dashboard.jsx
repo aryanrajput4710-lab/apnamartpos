@@ -561,8 +561,8 @@ export default function Dashboard() {
               <ShoppingCart size={20} />
               New Sale
             </button>
-            <button onClick={() => navigate('/pos')} style={{ width: '100%', padding: '1rem', background: theme.border, color: theme.text, border: '1px solid #e5e7eb', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontWeight: '600', fontSize: '1rem', cursor: 'pointer', transition: 'background 0.2s' }} onMouseOver={e => e.currentTarget.style.background = theme.border} onMouseOut={e => e.currentTarget.style.background = theme.border}>
-              <Search size={20} style={{ flexShrink: 0 }} />
+            <button onClick={() => navigate('/pos')} style={{ width: '100%', padding: '1rem', background: theme.border, color: theme.text, border: '1px solid #e5e7eb', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '600', fontSize: '1rem', cursor: 'pointer', transition: 'background 0.2s' }} onMouseOver={e => e.currentTarget.style.background = theme.border} onMouseOut={e => e.currentTarget.style.background = theme.border}>
+              <Search size={20} style={{ flexShrink: 0, marginRight: '8px' }} />
               <span>Scan Barcode</span>
             </button>
             <div style={{ height: '1px', background: theme.border, margin: '0.5rem 0' }} />
