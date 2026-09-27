@@ -15,9 +15,9 @@
 /* 2-inch Label specific styles (2in = ~192px) */
 .label-container {
   width: 2in;
-  min-height: 2in; /* Approximate square ratio for compact layout */
+  /* Removed min-height to allow dynamic sizing based on content! */
   background-color: white;
-  border: 1px solid #000; /* Very thin black border */
+  border: 1px solid #000;
   display: flex;
   flex-direction: column;
   color: black;
@@ -26,79 +26,73 @@
   overflow: hidden;
   page-break-inside: avoid;
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  margin-bottom: 20px; /* Spacer for preview */
 }
 
 .label-content {
   display: flex;
   flex-direction: column;
-  height: 100%;
   width: 100%;
-}
-
-.label-header {
-  text-align: left;
-  margin-bottom: 4px;
 }
 
 .label-title {
-  font-weight: bold;
-  font-size: 11pt;
+  font-weight: 800; /* Bolder */
+  font-size: 13pt; /* Large text for readability */
   line-height: 1.1;
   text-transform: uppercase;
-  margin-bottom: 2px;
+  margin-bottom: 5px;
   word-wrap: break-word;
+  max-height: 2.5em; /* allow up to 2 lines approx */
+  overflow: hidden;
 }
 
-.label-brand {
-  font-size: 8pt;
-  font-weight: 600;
-  margin-bottom: 1px;
+.label-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px 8px; /* Row and column gap */
+  font-size: 8.5pt;
+  margin-bottom: 6px;
+  line-height: 1.2;
 }
 
-.label-optional {
-  font-size: 8pt;
-  margin-bottom: 2px;
-}
-
-.label-divider {
-  width: 100%;
-  border-top: 1px dashed #000;
-  margin: 4px 0;
+.label-detail-item {
+  white-space: nowrap;
 }
 
 .label-pricing {
-  text-align: left;
-  margin-bottom: 4px;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 6px;
+  margin-top: 2px;
 }
 
 .label-mrp {
-  font-size: 8pt;
+  font-size: 9pt;
   line-height: 1.2;
+  margin-bottom: 1px;
 }
 
 .label-sale {
-  font-size: 10pt;
+  font-size: 13pt; /* Much larger and prominent */
   font-weight: bold;
-  line-height: 1.2;
+  line-height: 1.1;
 }
 
 .label-barcode-section {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   margin-top: auto;
-  padding-top: 2px;
+  width: 100%;
+  overflow: hidden;
+  padding-top: 5px;
 }
 
 .label-barcode-section svg {
+  max-width: 100%;
+  height: auto;
   display: block;
-}
-
-.label-barcode-number {
-  font-size: 7pt;
-  margin-top: 2px;
-  text-align: center;
-  letter-spacing: 1px;
 }
 
 /* Print specific styles */
@@ -130,7 +124,7 @@
     margin: 0;
     padding: 0;
     display: block;
-    gap: 0; /* Remove gap in print */
+    gap: 0;
   }
   
   .label-container {
@@ -138,7 +132,7 @@
     margin: 0;
     padding: 0.1in;
     box-shadow: none !important;
-    border: 1px solid #000 !important;
+    border: none !important; /* Let the physical paper edge act as the border */
     page-break-after: always;
     page-break-inside: avoid;
     break-inside: avoid;
@@ -148,4 +142,3 @@
     display: none !important;
   }
 }
-
