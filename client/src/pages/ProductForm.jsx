@@ -18,7 +18,8 @@ const CATEGORY_TREE = {
   "Glass Set": [],
   "Crockery": [],
   "Beauty & Fashion": [],
-  "Puja Items": []
+  "Puja Items": [],
+  "Other Items": []
 };
 
 export default function ProductForm() {
