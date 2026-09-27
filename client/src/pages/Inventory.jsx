@@ -2,6 +2,29 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { 
+  Package, 
+  Layers, 
+  Archive, 
+  AlertTriangle, 
+  XCircle, 
+  DollarSign, 
+  TrendingUp, 
+  Search, 
+  History 
+} from 'lucide-react';
+
+const SummaryCard = ({ title, value, icon: Icon, color, bgColor }) => (
+  <div style={{ padding: '1.25rem', background: 'white', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 2px rgba(0,0,0,0.05)', display: 'flex', flexDirection: 'column', gap: '0.75rem', flex: '1 1 180px', minWidth: '160px' }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <span style={{ fontSize: '0.875rem', color: '#6b7280', fontWeight: 500 }}>{title}</span>
+      <div style={{ background: bgColor, color: color, padding: '0.5rem', borderRadius: '8px', display: 'flex' }}>
+        <Icon size={18} />
+      </div>
+    </div>
+    <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#111827' }}>{value}</div>
+  </div>
+);
 
 export default function Inventory() {
   const [variants, setVariants] = useState([]);
@@ -20,6 +43,7 @@ export default function Inventory() {
   useEffect(() => {
     fetchInventory();
     fetchSummary();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search]);
 
   const fetchInventory = async () => {
@@ -78,128 +102,203 @@ export default function Inventory() {
   };
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-        <h3>Inventory Management</h3>
-        {currentUser.role === 'ADMIN' && (
-          <Link to="/inventory/history" style={{ padding: '0.5rem 1rem', background: '#374151', color: 'white', textDecoration: 'none', borderRadius: '4px' }}>
-            View Global History
+    <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.5rem', fontFamily: '"Inter", "Plus Jakarta Sans", system-ui, sans-serif' }}>
+      
+      {/* Header Section */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+        <div>
+          <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#111827', margin: 0, marginBottom: '0.25rem' }}>Inventory Management</h1>
+          <p style={{ color: '#6b7280', margin: 0, fontSize: '0.875rem' }}>Track products, stock levels, and inventory value</p>
+        </div>
+        {currentUser?.role === 'ADMIN' && (
+          <Link to="/inventory/history" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', background: 'white', color: '#374151', border: '1px solid #d1d5db', textDecoration: 'none', borderRadius: '8px', fontSize: '0.875rem', fontWeight: 500, boxShadow: '0 1px 2px rgba(0,0,0,0.05)', transition: 'background-color 0.15s' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'white'}>
+            <History size={16} /> View Global History
           </Link>
         )}
       </div>
 
+      {/* Summary Cards */}
       {summary && (
-        <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
-          <div style={{ flex: 1, padding: '1rem', background: 'white', borderRadius: '8px' }}>
-            <h4>Total Products</h4>
-            <p>{summary.totalProducts}</p>
-          </div>
-          <div style={{ flex: 1, padding: '1rem', background: 'white', borderRadius: '8px' }}>
-            <h4>Total Variants</h4>
-            <p>{summary.totalVariants}</p>
-          </div>
-          <div style={{ flex: 1, padding: '1rem', background: 'white', borderRadius: '8px' }}>
-            <h4>Units In Stock</h4>
-            <p>{summary.totalUnits}</p>
-          </div>
-          <div style={{ flex: 1, padding: '1rem', background: '#fef3c7', borderRadius: '8px' }}>
-            <h4>Low Stock</h4>
-            <p>{summary.lowStockCount}</p>
-          </div>
-          <div style={{ flex: 1, padding: '1rem', background: '#fee2e2', borderRadius: '8px' }}>
-            <h4>Out of Stock</h4>
-            <p>{summary.outOfStockCount}</p>
-          </div>
-          <div style={{ flex: 1, padding: '1rem', background: '#e0e7ff', borderRadius: '8px' }}>
-            <h4>Asset Value</h4>
-            <p>Rs. {summary.assetValue || 0}</p>
-          </div>
-          <div style={{ flex: 1, padding: '1rem', background: '#dcfce3', borderRadius: '8px' }}>
-            <h4>Potential Value</h4>
-            <p>Rs. {summary.potentialValue}</p>
-          </div>
+        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+          <SummaryCard title="Total Products" value={summary.totalProducts} icon={Package} color="#3b82f6" bgColor="#eff6ff" />
+          <SummaryCard title="Total Variants" value={summary.totalVariants} icon={Layers} color="#8b5cf6" bgColor="#f5f3ff" />
+          <SummaryCard title="Units In Stock" value={summary.totalUnits} icon={Archive} color="#10b981" bgColor="#ecfdf5" />
+          <SummaryCard title="Low Stock" value={summary.lowStockCount} icon={AlertTriangle} color="#f59e0b" bgColor="#fffbeb" />
+          <SummaryCard title="Out of Stock" value={summary.outOfStockCount} icon={XCircle} color="#ef4444" bgColor="#fef2f2" />
+          <SummaryCard title="Asset Value" value={`Rs. ${summary.assetValue || 0}`} icon={DollarSign} color="#6366f1" bgColor="#e0e7ff" />
+          <SummaryCard title="Potential Value" value={`Rs. ${summary.potentialValue}`} icon={TrendingUp} color="#14b8a6" bgColor="#ccfbf1" />
         </div>
       )}
 
-      <input 
-        type="text" 
-        placeholder="Search inventory by name, SKU, barcode..." 
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        style={{ width: '100%', padding: '0.5rem', marginBottom: '1rem', borderRadius: '4px', border: '1px solid #ccc' }}
-      />
+      {/* Search and Table Area */}
+      <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+        
+        {/* Search Bar */}
+        <div style={{ padding: '1.25rem', borderBottom: '1px solid #e5e7eb', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+          <div style={{ position: 'relative', flex: 1, minWidth: '250px' }}>
+            <Search size={18} style={{ position: 'absolute', left: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af' }} />
+            <input 
+              type="text" 
+              placeholder="Search inventory by name, SKU, barcode..." 
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              style={{ width: '100%', padding: '0.625rem 0.875rem 0.625rem 2.5rem', borderRadius: '8px', border: '1px solid #d1d5db', fontSize: '0.875rem', outline: 'none', transition: 'border-color 0.15s, box-shadow 0.15s', boxSizing: 'border-box' }}
+              onFocus={(e) => { e.target.style.borderColor = '#3b82f6'; e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)'; }}
+              onBlur={(e) => { e.target.style.borderColor = '#d1d5db'; e.target.style.boxShadow = 'none'; }}
+            />
+          </div>
+        </div>
 
-      {loading ? <p>Loading...</p> : (
-        <div className="table-responsive"><table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse', backgroundColor: 'white' }}>
-          <thead>
-            <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
-              <th style={{ padding: '0.75rem' }}>Product</th>
-              <th style={{ padding: '0.75rem' }}>SKU</th>
-              <th style={{ padding: '0.75rem' }}>Stock</th>
-              <th style={{ padding: '0.75rem' }}>Status</th>
-              <th style={{ padding: '0.75rem' }}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {variants.map(v => {
-              let status = 'In Stock';
-              let color = 'green';
-              if (v.stock === 0) {
-                status = 'Out of Stock';
-                color = 'red';
-              } else if (v.stock <= v.lowStockThreshold) {
-                status = 'Low Stock';
-                color = 'orange';
-              }
+        {/* Table */}
+        {loading ? (
+          <div style={{ padding: '3rem', textAlign: 'center', color: '#6b7280' }}>Loading inventory...</div>
+        ) : variants.length === 0 ? (
+          <div style={{ padding: '3rem', textAlign: 'center', color: '#6b7280', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+            <Package size={32} color="#d1d5db" />
+            <p style={{ margin: 0, fontWeight: 500, color: '#374151' }}>No products found</p>
+            <p style={{ margin: 0, fontSize: '0.875rem' }}>Try adjusting your search criteria</p>
+          </div>
+        ) : (
+          <>
+            <div className="table-responsive">
+              <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse', minWidth: '800px' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid #e5e7eb', backgroundColor: '#f9fafb' }}>
+                    <th style={{ padding: '0.875rem 1.25rem', fontSize: '0.75rem', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Product</th>
+                    <th style={{ padding: '0.875rem 1.25rem', fontSize: '0.75rem', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Stock</th>
+                    <th style={{ padding: '0.875rem 1.25rem', fontSize: '0.75rem', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Status</th>
+                    <th style={{ padding: '0.875rem 1.25rem', fontSize: '0.75rem', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em', textAlign: 'right' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {variants.map((v, index) => {
+                    const isOutOfStock = v.stock === 0;
+                    const isLowStock = !isOutOfStock && v.stock <= (v.lowStockThreshold || 0);
+                    
+                    const badge = isOutOfStock 
+                      ? { label: 'Out of Stock', bg: '#fef2f2', color: '#b91c1c', border: '#fecaca' }
+                      : isLowStock 
+                      ? { label: 'Low Stock', bg: '#fffbeb', color: '#b45309', border: '#fde68a' }
+                      : { label: 'In Stock', bg: '#ecfdf5', color: '#047857', border: '#a7f3d0' };
 
-              return (
-                <tr key={v.id} style={{ borderBottom: '1px solid #e5e7eb' }}>
-                  <td style={{ padding: '0.75rem' }}>
-                    {v.product.name} {v.size ? `- ${v.size}` : ''} {v.color ? `- ${v.color}` : ''}
-                  </td>
-                  <td style={{ padding: '0.75rem' }}>{v.sku}</td>
-                  <td style={{ padding: '0.75rem', fontWeight: 'bold' }}>{v.stock}</td>
-                  <td style={{ padding: '0.75rem', color, fontWeight: 'bold' }}>{status}</td>
-                  <td style={{ padding: '0.75rem', display: 'flex', gap: '0.5rem' }}>
-                    <Link to={`/inventory/${v.id}/history`}>History</Link>
-                    {currentUser.role === 'ADMIN' && (
-                      <>
-                        <button onClick={() => openModal(v, 'STOCK_IN')} style={{ background: '#dcfce3', border: '1px solid #4ade80' }}>In</button>
-                        <button onClick={() => openModal(v, 'STOCK_OUT')} style={{ background: '#fee2e2', border: '1px solid #f87171' }}>Out</button>
-                        <button onClick={() => openModal(v, 'ADJUST')} style={{ background: '#e0e7ff', border: '1px solid #818cf8' }}>Adjust</button>
-                      </>
-                    )}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table></div>
-      )}
-
-      {showModal && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-          <div style={{ background: 'white', padding: '2rem', borderRadius: '8px', minWidth: '400px' }}>
-            <h3>
-              {modalType === 'STOCK_IN' && 'Stock In'}
-              {modalType === 'STOCK_OUT' && 'Stock Out'}
-              {modalType === 'ADJUST' && 'Adjust Physical Stock'}
-            </h3>
-            <p>{selectedVariant?.product.name} ({selectedVariant?.sku})</p>
-            <p>Current Stock: {selectedVariant?.stock}</p>
+                    return (
+                      <tr key={v.id} style={{ borderBottom: index === variants.length - 1 ? 'none' : '1px solid #e5e7eb', transition: 'background-color 0.15s' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
+                        <td style={{ padding: '1rem 1.25rem' }}>
+                          <div style={{ fontWeight: 600, color: '#111827', fontSize: '0.875rem', marginBottom: '0.25rem' }}>
+                            {v.product?.name || 'Unknown'} {v.size ? `- ${v.size}` : ''} {v.color ? `- ${v.color}` : ''}
+                          </div>
+                          <div style={{ fontSize: '0.75rem', color: '#6b7280', fontFamily: 'monospace' }}>
+                            {v.sku}
+                          </div>
+                        </td>
+                        <td style={{ padding: '1rem 1.25rem' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <span style={{ fontWeight: 600, color: '#374151', fontSize: '0.875rem' }}>{v.stock}</span>
+                            <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>units</span>
+                            {isLowStock && (
+                              <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#f59e0b', marginLeft: '0.25rem' }} title="Low stock indicator"></div>
+                            )}
+                            {isOutOfStock && (
+                              <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#ef4444', marginLeft: '0.25rem' }} title="Out of stock indicator"></div>
+                            )}
+                          </div>
+                        </td>
+                        <td style={{ padding: '1rem 1.25rem' }}>
+                          <span style={{ display: 'inline-flex', padding: '0.25rem 0.625rem', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: 600, backgroundColor: badge.bg, color: badge.color, border: `1px solid ${badge.border}` }}>
+                            {badge.label}
+                          </span>
+                        </td>
+                        <td style={{ padding: '1rem 1.25rem', textAlign: 'right' }}>
+                          <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', alignItems: 'center' }}>
+                            <Link to={`/inventory/${v.id}/history`} style={{ padding: '0.375rem 0.75rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 500, backgroundColor: 'white', color: '#4b5563', border: '1px solid #d1d5db', textDecoration: 'none', transition: 'all 0.15s' }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#f9fafb'; e.currentTarget.style.borderColor = '#9ca3af'; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'white'; e.currentTarget.style.borderColor = '#d1d5db'; }}>
+                              History
+                            </Link>
+                            {currentUser?.role === 'ADMIN' && (
+                              <>
+                                <button onClick={() => openModal(v, 'STOCK_IN')} style={{ padding: '0.375rem 0.75rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 500, backgroundColor: '#ecfdf5', color: '#047857', border: '1px solid #a7f3d0', cursor: 'pointer', transition: 'all 0.15s' }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#d1fae5'; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#ecfdf5'; }}>
+                                  In
+                                </button>
+                                <button onClick={() => openModal(v, 'STOCK_OUT')} style={{ padding: '0.375rem 0.75rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 500, backgroundColor: '#fef2f2', color: '#b91c1c', border: '1px solid #fecaca', cursor: 'pointer', transition: 'all 0.15s' }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#fee2e2'; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#fef2f2'; }}>
+                                  Out
+                                </button>
+                                <button onClick={() => openModal(v, 'ADJUST')} style={{ padding: '0.375rem 0.75rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 500, backgroundColor: '#eff6ff', color: '#1d4ed8', border: '1px solid #bfdbfe', cursor: 'pointer', transition: 'all 0.15s' }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#dbeafe'; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#eff6ff'; }}>
+                                  Adjust
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
             
-            <form onSubmit={handleStockAction} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
+            {/* Table Footer */}
+            <div style={{ padding: '1rem 1.25rem', borderTop: '1px solid #e5e7eb', backgroundColor: '#f9fafb', fontSize: '0.875rem', color: '#6b7280', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span>Showing <strong>{variants.length > 0 ? 1 : 0}</strong>–<strong>{variants.length}</strong> of <strong>{variants.length}</strong> products</span>
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Modal */}
+      {showModal && (
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(17, 24, 39, 0.6)', backdropFilter: 'blur(4px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 50, padding: '1rem' }} onClick={() => setShowModal(false)}>
+          <div style={{ background: 'white', padding: '2rem', borderRadius: '12px', width: '100%', maxWidth: '450px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ marginBottom: '1.5rem' }}>
+              <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 'bold', color: '#111827' }}>
+                {modalType === 'STOCK_IN' && 'Stock In'}
+                {modalType === 'STOCK_OUT' && 'Stock Out'}
+                {modalType === 'ADJUST' && 'Adjust Physical Stock'}
+              </h3>
+              <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem', color: '#6b7280' }}>
+                Update inventory for <strong style={{ color: '#374151' }}>{selectedVariant?.product?.name}</strong> ({selectedVariant?.sku})
+              </p>
+            </div>
+            
+            <div style={{ background: '#f9fafb', padding: '1rem', borderRadius: '8px', border: '1px solid #e5e7eb', marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.875rem', color: '#4b5563', fontWeight: 500 }}>Current Stock</span>
+              <span style={{ fontSize: '1.125rem', fontWeight: 'bold', color: '#111827' }}>{selectedVariant?.stock}</span>
+            </div>
+            
+            <form onSubmit={handleStockAction} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <div>
-                <label>{modalType === 'ADJUST' ? 'Physical Stock Count' : 'Quantity'}</label><br/>
-                <input type="number" min="0" required value={quantity} onChange={e => setQuantity(e.target.value)} style={{ width: '100%', padding: '0.5rem' }} />
+                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, color: '#374151', marginBottom: '0.5rem' }}>
+                  {modalType === 'ADJUST' ? 'Physical Stock Count' : 'Quantity'}
+                </label>
+                <input 
+                  type="number" 
+                  min="0" 
+                  required 
+                  value={quantity} 
+                  onChange={e => setQuantity(e.target.value)} 
+                  style={{ width: '100%', padding: '0.625rem 0.75rem', borderRadius: '8px', border: '1px solid #d1d5db', fontSize: '0.875rem', outline: 'none', transition: 'border-color 0.15s, box-shadow 0.15s', boxSizing: 'border-box' }}
+                  onFocus={(e) => { e.target.style.borderColor = '#3b82f6'; e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)'; }}
+                  onBlur={(e) => { e.target.style.borderColor = '#d1d5db'; e.target.style.boxShadow = 'none'; }}
+                />
               </div>
               <div>
-                <label>Reason</label><br/>
-                <input required value={reason} onChange={e => setReason(e.target.value)} style={{ width: '100%', padding: '0.5rem' }} />
+                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, color: '#374151', marginBottom: '0.5rem' }}>
+                  Reason
+                </label>
+                <input 
+                  required 
+                  value={reason} 
+                  onChange={e => setReason(e.target.value)} 
+                  style={{ width: '100%', padding: '0.625rem 0.75rem', borderRadius: '8px', border: '1px solid #d1d5db', fontSize: '0.875rem', outline: 'none', transition: 'border-color 0.15s, box-shadow 0.15s', boxSizing: 'border-box' }}
+                  onFocus={(e) => { e.target.style.borderColor = '#3b82f6'; e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)'; }}
+                  onBlur={(e) => { e.target.style.borderColor = '#d1d5db'; e.target.style.boxShadow = 'none'; }}
+                />
               </div>
-              <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '1rem' }}>
-                <button type="button" onClick={() => setShowModal(false)} style={{ padding: '0.5rem 1rem' }}>Cancel</button>
-                <button type="submit" style={{ padding: '0.5rem 1rem', background: '#2563eb', color: 'white', border: 'none' }}>Save</button>
+              <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
+                <button type="button" onClick={() => setShowModal(false)} style={{ padding: '0.625rem 1rem', borderRadius: '8px', fontSize: '0.875rem', fontWeight: 500, backgroundColor: 'white', color: '#374151', border: '1px solid #d1d5db', cursor: 'pointer', transition: 'background-color 0.15s' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'white'}>
+                  Cancel
+                </button>
+                <button type="submit" style={{ padding: '0.625rem 1.25rem', borderRadius: '8px', fontSize: '0.875rem', fontWeight: 500, backgroundColor: '#2563eb', color: 'white', border: 'none', cursor: 'pointer', transition: 'background-color 0.15s', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1d4ed8'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}>
+                  Save Changes
+                </button>
               </div>
             </form>
           </div>
@@ -208,5 +307,3 @@ export default function Inventory() {
     </div>
   );
 }
-
-

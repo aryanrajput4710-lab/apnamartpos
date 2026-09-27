@@ -225,8 +225,13 @@ export default function AppLayout() {
               </span>
             </div>
 
-            <div style={{ fontSize: '0.8125rem', color: '#64748b', fontWeight: '500', flexShrink: 0 }}>
-              {currentUser.name}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0, padding: '0.25rem 0.75rem 0.25rem 0.25rem', borderRadius: '9999px', background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '24px', height: '24px', borderRadius: '50%', background: '#3b82f6', color: 'white', fontWeight: 'bold', fontSize: '0.7rem' }}>
+                {currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'U'}
+              </div>
+              <div style={{ fontSize: '0.8125rem', color: '#334155', fontWeight: '600' }}>
+                {currentUser.name}
+              </div>
             </div>
           </header>
         )}
