@@ -128,7 +128,20 @@ export default function Orders() {
   };
 
 
+
+  const handleClearTestOrders = async () => {
+    if (!window.confirm('WARNING: Are you absolutely sure you want to delete ALL orders and related data (returns, payments, sale history)? This will NOT restore inventory! This is meant for clearing test data only.')) return;
+    try {
+      await api.delete("/orders");
+      fetchOrders();
+      alert('All test orders cleared successfully.');
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to clear orders');
+    }
+  };
+
   const handleDeleteOrder = async (orderId) => {
+
     if (!window.confirm('Are you sure you want to completely delete this order? This action cannot be undone, but inventory will be restored.')) return;
     try {
       await api.delete("/orders/" + orderId);
@@ -143,12 +156,18 @@ export default function Orders() {
     <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.5rem', fontFamily: '"Inter", "Plus Jakarta Sans", system-ui, sans-serif', paddingBottom: '2rem' }}>
       
       {/* Header Section */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
-        <div>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#111827', margin: 0, marginBottom: '0.25rem' }}>All Orders</h1>
-          <p style={{ color: '#6b7280', margin: 0, fontSize: '0.875rem' }}>View, track, and manage your orders and returns</p>
+      
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+          <div>
+            <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#111827', margin: 0, marginBottom: '0.25rem' }}>All Orders</h1>
+            <p style={{ color: '#6b7280', margin: 0, fontSize: '0.875rem' }}>View, track, and manage your orders and returns</p>
+          </div>
+          {currentUser?.role === 'ADMIN' && (
+            <button onClick={handleClearTestOrders} style={{ padding: '0.75rem 1.5rem', background: '#dc2626', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Trash2 size={18} /> Clear Test Orders
+            </button>
+          )}
         </div>
-      </div>
 
       <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
         {/* Search & Filters */}
