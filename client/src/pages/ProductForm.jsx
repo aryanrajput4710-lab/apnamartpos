@@ -317,13 +317,23 @@ export default function ProductForm() {
                       <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '600', color: '#475569', marginBottom: '0.25rem' }}>
                         Size <span style={{ color: '#94a3b8', fontWeight: '400' }}>(Optional)</span>
                       </label>
-                      <input 
-                        type="text" 
-                        placeholder="e.g. S, M, L, XL"
-                        value={v.size} 
-                        onChange={e => updateVariant(i, 'size', e.target.value)} 
-                        style={{ width: '100%', height: '40px', padding: '0 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.9rem', outline: 'none', boxSizing: 'border-box', background: 'white' }}
-                      />
+                                              <input 
+                          type="text" 
+                          list="size-options"
+                          placeholder="e.g. S, M, L, XL"
+                          value={v.size} 
+                          onChange={e => updateVariant(i, 'size', e.target.value)} 
+                          style={{ width: '100%', height: '40px', padding: '0 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.9rem', outline: 'none', boxSizing: 'border-box', background: 'white' }}
+                        />
+                        <datalist id="size-options">
+                          <option value="S" />
+                          <option value="M" />
+                          <option value="L" />
+                          <option value="XL" />
+                          <option value="XXL" />
+                          <option value="Small" />
+                          <option value="Big" />
+                        </datalist>
                       <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Leave blank if N/A</span>
                     </div>
 
