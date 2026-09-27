@@ -43,7 +43,15 @@ export default function EditProduct() {
           subcategory: p.subcategory || '', 
           brand: p.brand || '' 
         });
-        setVariants(p.variants || []);
+        setVariants((p.variants || []).map(v => {
+    let dp = '';
+    if (v.mrp > 0 && v.sellingPrice > 0) {
+      dp = (((v.mrp - v.sellingPrice) / v.mrp) * 100).toFixed(2);
+      // Strip trailing zeros if it's a clean number
+      dp = parseFloat(dp).toString(); 
+    }
+    return { ...v, discountPercent: dp };
+  }));
       }).catch(err => {
         console.error(err);
         alert('Failed to load product');
@@ -55,12 +63,29 @@ export default function EditProduct() {
   }, [id, navigate]);
 
   const addVariant = () => {
-    setVariants([...variants, { size: '', color: '', netQuantity: '', costPrice: '', mrp: '', sellingPrice: '', stock: 0 }]);
+    setVariants([...variants, { size: '', color: '', netQuantity: '', costPrice: '', mrp: '', sellingPrice: '', discountPercent: '', stock: 0 }]);
   };
 
   const updateVariant = (index, field, value) => {
     const newVariants = [...variants];
     newVariants[index][field] = value;
+
+    if (field === 'mrp' || field === 'discountPercent') {
+      const mrp = parseFloat(newVariants[index].mrp);
+      const discount = parseFloat(newVariants[index].discountPercent);
+      if (!isNaN(mrp) && !isNaN(discount)) {
+        newVariants[index].sellingPrice = (mrp - (mrp * discount / 100)).toFixed(2);
+      }
+    } else if (field === 'sellingPrice') {
+      const mrp = parseFloat(newVariants[index].mrp);
+      const sp = parseFloat(value);
+      if (!isNaN(mrp) && !isNaN(sp) && mrp > 0) {
+        newVariants[index].discountPercent = (((mrp - sp) / mrp) * 100).toFixed(2);
+      } else {
+        newVariants[index].discountPercent = '';
+      }
+    }
+
     setVariants(newVariants);
   };
 
@@ -424,7 +449,23 @@ export default function EditProduct() {
                       />
                     </div>
 
-                    {/* Selling Price */}
+                    
+                      {/* Discount % */}
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '600', color: '#475569', marginBottom: '0.25rem' }}>
+                          Discount %
+                        </label>
+                        <input 
+                          type="number" 
+                          step="0.01"
+                          placeholder="%"
+                          value={v.discountPercent || ''} 
+                          onChange={e => updateVariant(i, 'discountPercent', e.target.value)} 
+                          style={{ width: '100%', height: '40px', padding: '0 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.9rem', outline: 'none', boxSizing: 'border-box', background: 'white' }}
+                        />
+                      </div>
+
+                      {/* Selling Price */}
                     <div>
                       <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '600', color: '#475569', marginBottom: '0.25rem' }}>
                         Selling Price <span style={{ color: '#ef4444' }}>*</span>
