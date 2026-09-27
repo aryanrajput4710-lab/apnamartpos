@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Printer, RotateCcw, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, Printer, RotateCcw, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
@@ -127,7 +127,19 @@ export default function Orders() {
     }
   };
 
+
+  const handleDeleteOrder = async (orderId) => {
+    if (!window.confirm('Are you sure you want to completely delete this order? This action cannot be undone, but inventory will be restored.')) return;
+    try {
+      await api.delete("/orders/" + orderId);
+      fetchOrders();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to delete order');
+    }
+  };
+
   return (
+
     <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.5rem', fontFamily: '"Inter", "Plus Jakarta Sans", system-ui, sans-serif', paddingBottom: '2rem' }}>
       
       {/* Header Section */}
