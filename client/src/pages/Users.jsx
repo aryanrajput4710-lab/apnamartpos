@@ -80,28 +80,28 @@ export default function Users() {
             <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#4b5563', marginBottom: '0.25rem' }}>Name</label>
             <div style={{ position: 'relative' }}>
               <User size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af' }} />
-              <input required value={name} onChange={e => setName(e.target.value)} placeholder="Full Name" style={{ width: '100%', padding: '0.5rem 0.75rem 0.5rem 2.75rem', borderRadius: '6px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box' }} />
+              <input required value={name} onChange={e => setName(e.target.value)} placeholder="Full Name" style={{ width: '100%', padding: '8px 12px 8px 40px', borderRadius: '6px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box' }} />
             </div>
           </div>
           <div style={{ flex: '1 1 200px' }}>
             <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#4b5563', marginBottom: '0.25rem' }}>Email</label>
             <div style={{ position: 'relative' }}>
               <Mail size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af' }} />
-              <input required type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email Address" style={{ width: '100%', padding: '0.5rem 0.75rem 0.5rem 2.75rem', borderRadius: '6px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box' }} />
+              <input required type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email Address" style={{ width: '100%', padding: '8px 12px 8px 40px', borderRadius: '6px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box' }} />
             </div>
           </div>
           <div style={{ flex: '1 1 200px' }}>
             <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#4b5563', marginBottom: '0.25rem' }}>Password</label>
             <div style={{ position: 'relative' }}>
               <Lock size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af' }} />
-              <input required type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Secure Password" style={{ width: '100%', padding: '0.5rem 0.75rem 0.5rem 2.75rem', borderRadius: '6px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box' }} />
+              <input required type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Secure Password" style={{ width: '100%', padding: '8px 12px 8px 40px', borderRadius: '6px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box' }} />
             </div>
           </div>
           <div style={{ flex: '1 1 150px' }}>
             <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#4b5563', marginBottom: '0.25rem' }}>Role</label>
             <div style={{ position: 'relative' }}>
               <Shield size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af' }} />
-              <select value={role} onChange={e => setRole(e.target.value)} style={{ width: '100%', padding: '0.5rem 0.75rem 0.5rem 2.75rem', borderRadius: '6px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box', backgroundColor: 'white' }}>
+              <select value={role} onChange={e => setRole(e.target.value)} style={{ width: '100%', padding: '8px 12px 8px 40px', borderRadius: '6px', border: '1px solid #d1d5db', outline: 'none', boxSizing: 'border-box', backgroundColor: 'white' }}>
                 <option value="CASHIER">CASHIER</option>
                 <option value="ADMIN">ADMIN</option>
               </select>
