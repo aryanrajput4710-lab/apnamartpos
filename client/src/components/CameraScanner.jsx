@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Html5Qrcode } from 'html5-qrcode';
+import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
 
 export default function CameraScanner({ onScan, onClose }) {
   const [errorMsg, setErrorMsg] = useState("");
@@ -23,7 +23,11 @@ export default function CameraScanner({ onScan, onClose }) {
         
         await html5QrCode.start(
           { facingMode: facingMode },
-          { fps: 10, qrbox: { width: 250, height: 250 } },
+          { 
+            fps: 10, 
+            qrbox: { width: 300, height: 150 },
+            formatsToSupport: [ Html5QrcodeSupportedFormats.CODE_128, Html5QrcodeSupportedFormats.QR_CODE, Html5QrcodeSupportedFormats.EAN_13 ]
+          },
           (decodedText) => {
             if (scanningRef.current) return;
             scanningRef.current = true;
@@ -46,7 +50,11 @@ export default function CameraScanner({ onScan, onClose }) {
             if (devices && devices.length > 0) {
               await html5QrCode.start(
                 devices[0].id,
-                { fps: 10, qrbox: { width: 250, height: 250 } },
+                { 
+                  fps: 10, 
+                  qrbox: { width: 300, height: 150 },
+                  formatsToSupport: [ Html5QrcodeSupportedFormats.CODE_128, Html5QrcodeSupportedFormats.QR_CODE, Html5QrcodeSupportedFormats.EAN_13 ]
+                },
                 (decodedText) => {
                   if (scanningRef.current) return;
                   scanningRef.current = true;
