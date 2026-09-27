@@ -65,7 +65,7 @@ export default function ProductDetail() {
                 {/* 2. Optional Product Details */}
                 {(brand || size || color || netQty) && (
                   <div className="label-details">
-                    {brand && <span className="label-detail-item">{brand}</span>}
+                    {brand && <span className="label-detail-item">Brand: {brand}</span>}
                     {size && <span className="label-detail-item">Size: {size}</span>}
                     {color && <span className="label-detail-item">Color: {color}</span>}
                     {netQty && <span className="label-detail-item">Net Qty: {netQty}</span>}
@@ -93,7 +93,7 @@ export default function ProductDetail() {
                     height={45} 
                     displayValue={true} 
                     fontSize={13} 
-                    margin={10} 
+                    margin={5} 
                     background="#ffffff"
                     lineColor="#000000"
                   />
