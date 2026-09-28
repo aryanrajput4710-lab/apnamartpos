@@ -16,6 +16,7 @@ import {
   Search, 
   History 
 } from 'lucide-react';
+import { SkeletonRow, SkeletonCard } from '../components/SkeletonRow';
 
 const SummaryCard = ({ title, value, icon: Icon, color, bgColor }) => (
   <div style={{ padding: '1.25rem', background: 'white', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 2px rgba(0,0,0,0.05)', display: 'flex', flexDirection: 'column', gap: '0.75rem', flex: '1 1 180px', minWidth: '160px' }}>
@@ -174,7 +175,7 @@ export default function Inventory() {
 
         {/* Table */}
         {loading ? (
-          <div style={{ padding: '3rem', textAlign: 'center', color: '#6b7280' }}>Loading inventory...</div>
+          <div><SkeletonCard /><SkeletonCard /><SkeletonCard /></div>
         ) : variants.length === 0 ? (
           <div style={{ padding: '3rem', textAlign: 'center', color: '#6b7280', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
             <Package size={32} color="#d1d5db" />

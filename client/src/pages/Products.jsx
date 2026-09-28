@@ -21,6 +21,7 @@ import {
   ChevronUp,
   RotateCcw
 } from 'lucide-react';
+import { SkeletonRow, SkeletonCard } from '../components/SkeletonRow';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useIsMobile } from '../hooks/useMediaQuery';
@@ -338,9 +339,7 @@ export default function Products() {
 
       {/* 4. PRODUCT TABLE */}
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '3rem', color: '#64748b', background: 'white', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-          Loading products...
-        </div>
+        <div><SkeletonCard /><SkeletonCard /><SkeletonCard /></div>
       ) : fetchError ? (
         <div style={{ textAlign: 'center', padding: '3rem 1.5rem', background: 'white', borderRadius: '12px', border: '1px solid #fee2e2' }}>
           <AlertTriangle size={36} color="#dc2626" style={{ margin: '0 auto 0.75rem' }} />

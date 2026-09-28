@@ -39,7 +39,7 @@ export default function CustomerDetail() {
     fetchOrders();
   }, [id, page]);
 
-  if (loading && !customer) return <div style={{ padding: '2rem' }}>Loading customer profile...</div>;
+  if (loading && !customer) return <div><SkeletonCard /><SkeletonCard /><SkeletonCard /></div>;
   if (!customer) return <div style={{ padding: '2rem', color: 'red' }}>Customer not found</div>;
 
   return (
@@ -79,7 +79,7 @@ export default function CustomerDetail() {
       <h3 style={{ marginBottom: '1rem' }}>Order History</h3>
       
       {loading ? (
-        <div>Loading orders...</div>
+        <div><SkeletonCard /><SkeletonCard /><SkeletonCard /></div>
       ) : orders.length === 0 ? (
         <div style={{ padding: '2rem', background: '#f9fafb', borderRadius: '8px', color: '#6b7280', textAlign: 'center' }}>
           No completed purchases yet.

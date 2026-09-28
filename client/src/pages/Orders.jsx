@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useDebounce } from 'use-debounce';
 import { Link } from 'react-router-dom';
 import { Search, Printer, RotateCcw, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
+import { SkeletonRow, SkeletonCard } from '../components/SkeletonRow';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
@@ -214,7 +215,7 @@ export default function Orders() {
         </div>
 
         {loading ? (
-          <div style={{ padding: '3rem', textAlign: 'center', color: '#6b7280' }}>Loading orders...</div>
+          <div><SkeletonCard /><SkeletonCard /><SkeletonCard /></div>
         ) : orders.length === 0 ? (
           <div style={{ padding: '3rem', textAlign: 'center', color: '#6b7280', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
             <p style={{ margin: 0, fontWeight: 500, color: '#374151' }}>No orders found</p>

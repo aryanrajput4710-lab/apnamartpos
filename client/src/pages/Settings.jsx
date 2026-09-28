@@ -77,7 +77,7 @@ export default function Settings() {
     }
   };
 
-  if (loading) return <div>Loading settings...</div>;
+  if (loading) return <div><SkeletonCard /><SkeletonCard /><SkeletonCard /></div>;
 
   return (
     <div style={{ padding: '1rem', display: 'flex', gap: '2rem' }}>

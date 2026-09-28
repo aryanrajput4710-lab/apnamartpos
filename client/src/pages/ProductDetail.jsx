@@ -40,7 +40,7 @@ export default function ProductDetail() {
     window.print();
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <div><SkeletonCard /><SkeletonCard /><SkeletonCard /></div>;
   if (!product) return <div>Product not found</div>;
 
   const totalLabels = Object.values(labelCounts).reduce((a, b) => a + b, 0);

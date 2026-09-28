@@ -102,7 +102,7 @@ export default function Reports() {
       </div>
 
       {loading ? (
-        <div>Loading reports...</div>
+        <div><SkeletonCard /><SkeletonCard /><SkeletonCard /></div>
       ) : !data ? (
         <div style={{ color: 'red' }}>Error loading data.</div>
       ) : (

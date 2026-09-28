@@ -23,7 +23,7 @@ export default function ReceiptView() {
     fetchOrder();
   }, [id]);
 
-  if (loading) return <div style={{ padding: '2rem' }}>Loading receipt...</div>;
+  if (loading) return <div><SkeletonCard /><SkeletonCard /><SkeletonCard /></div>;
   if (error) return <div style={{ padding: '2rem', color: 'red' }}>{error}</div>;
 
   return (

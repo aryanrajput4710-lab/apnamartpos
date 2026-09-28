@@ -1,6 +1,7 @@
 import toast from 'react-hot-toast';
 import { useState, useEffect } from 'react';
 import { Shield, ShieldAlert, UserPlus, Mail, Lock, User } from 'lucide-react';
+import { SkeletonRow, SkeletonCard } from '../components/SkeletonRow';
 import api from '../services/api';
 
 export default function Users() {
@@ -52,7 +53,7 @@ export default function Users() {
     }
   };
 
-  if (loading) return <div style={{ padding: '3rem', textAlign: 'center', color: '#6b7280' }}>Loading users...</div>;
+  if (loading) return <div><SkeletonCard /><SkeletonCard /><SkeletonCard /></div>;
 
   return (
     <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.5rem', fontFamily: '"Inter", "Plus Jakarta Sans", system-ui, sans-serif' }}>

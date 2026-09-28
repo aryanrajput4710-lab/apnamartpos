@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useDebounce } from 'use-debounce';
 import { Link } from 'react-router-dom';
 import { Search, ChevronLeft, ChevronRight, Users } from 'lucide-react';
+import { SkeletonRow, SkeletonCard } from '../components/SkeletonRow';
 import api from '../services/api';
 
 export default function Customers() {
@@ -73,7 +74,7 @@ export default function Customers() {
 
         {/* Table Area */}
         {loading ? (
-          <div style={{ padding: '3rem', textAlign: 'center', color: '#6b7280' }}>Loading customers...</div>
+          <div><SkeletonCard /><SkeletonCard /><SkeletonCard /></div>
         ) : customers.length === 0 ? (
           <div style={{ padding: '3rem', textAlign: 'center', color: '#6b7280', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
             <Users size={32} color="#d1d5db" />
