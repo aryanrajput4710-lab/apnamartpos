@@ -657,6 +657,13 @@ export default function POS() {
               </div>
             </div>
 
+            {paymentMethod === 'QR' && settings?.paymentQrCodeUrl && (
+              <div style={{ marginBottom: '1.5rem', textAlign: 'center', background: '#f9fafb', padding: '1rem', borderRadius: '8px', border: '1px dashed #d1d5db' }}>
+                <div style={{ marginBottom: '0.5rem', fontWeight: '500', color: '#4b5563' }}>Scan to Pay</div>
+                <img src={settings.paymentQrCodeUrl} alt="Store QR Code" style={{ width: '200px', height: '200px', objectFit: 'contain', margin: '0 auto' }} />
+              </div>
+            )}
+
             <button 
               onClick={handleCheckout} 
               disabled={isProcessing}
