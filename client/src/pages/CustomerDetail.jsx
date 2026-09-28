@@ -1,3 +1,4 @@
+import { SkeletonCard } from '../components/SkeletonRow';
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import api from '../services/api';

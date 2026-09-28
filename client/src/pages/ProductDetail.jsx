@@ -1,3 +1,4 @@
+import { SkeletonCard } from '../components/SkeletonRow';
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Barcode from 'react-barcode';
