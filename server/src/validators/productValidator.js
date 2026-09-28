@@ -4,12 +4,13 @@ const variantSchema = z.object({
   color: z.string().optional(),
   size: z.string().optional(),
   netQuantity: z.string().optional(),
-  costPrice: z.number().min(0),
-  mrp: z.number().positive('MRP must be positive'),
-  sellingPrice: z.number().positive('Selling price must be positive'),
+  costPrice: z.coerce.number().min(0),
+  mrp: z.coerce.number().positive('MRP must be positive'),
+  sellingPrice: z.coerce.number().positive('Selling price must be positive'),
   discountType: z.enum(['NONE', 'PERCENTAGE', 'FIXED']).default('NONE'),
-  discountValue: z.number().min(0).default(0),
-  stock: z.number().int().min(0).default(0),
+  discountValue: z.coerce.number().min(0).default(0),
+  discountPercent: z.coerce.number().min(0).max(100).optional(),
+  stock: z.coerce.number().int().min(0).default(0),
   sku: z.string().optional()
 });
 
