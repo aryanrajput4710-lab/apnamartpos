@@ -1,4 +1,6 @@
+import toast from 'react-hot-toast';
 import { useState, useEffect } from 'react';
+import { useDebounce } from 'use-debounce';
 import { Link } from 'react-router-dom';
 import { Search, Printer, RotateCcw, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
 import api from '../services/api';
@@ -10,6 +12,7 @@ export default function Orders() {
   const [loading, setLoading] = useState(true);
   
   const [search, setSearch] = useState('');
+  const [debouncedSearch] = useDebounce(search, 500);
   const [paymentMethod, setPaymentMethod] = useState('');
   const [paymentStatus, setPaymentStatus] = useState('');
   const [orderStatus, setOrderStatus] = useState('');
@@ -65,7 +68,7 @@ export default function Orders() {
       });
       setReturnItems(initialItems);
     } catch (err) {
-      alert('Error fetching order details: ' + (err.response?.data?.message || err.message)); console.error(err);
+      toast('Error fetching order details: ' + (err.response?.data?.message || err.message)); console.error(err);
     }
   };
 
@@ -76,7 +79,7 @@ export default function Orders() {
       .map(([id, data]) => ({ orderItemId: id, quantity: data.quantity, reason: data.reason }));
       
     if (itemsToReturn.length === 0) {
-      alert('Please select at least one item to return');
+      toast('Please select at least one item to return');
       return;
     }
 
@@ -85,11 +88,11 @@ export default function Orders() {
     setReturnProcessing(true);
     try {
       await api.post(`/orders/${returnOrder.id}/return`, { items: itemsToReturn });
-      alert('Return processed successfully');
+      toast.success('Return processed successfully');
       setReturnOrder(null);
       fetchOrders();
     } catch (err) {
-      alert('Error processing return: ' + (err.response?.data?.message || err.message));
+      toast('Error processing return: ' + (err.response?.data?.message || err.message));
     } finally {
       setReturnProcessing(false);
     }
@@ -134,9 +137,9 @@ export default function Orders() {
     try {
       await api.delete("/orders");
       fetchOrders();
-      alert('All test orders cleared successfully.');
+      toast.success('All test orders cleared successfully.');
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to clear orders');
+      toast(err.response?.data?.message || 'Failed to clear orders');
     }
   };
 
@@ -147,7 +150,7 @@ export default function Orders() {
       await api.delete("/orders/" + orderId);
       fetchOrders();
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to delete order');
+      toast(err.response?.data?.message || 'Failed to delete order');
     }
   };
 

@@ -1,4 +1,6 @@
+import toast from 'react-hot-toast';
 import { useState, useEffect } from 'react';
+import { useDebounce } from 'use-debounce';
 import { Link } from 'react-router-dom';
 import { 
   Plus, 
@@ -20,11 +22,13 @@ import {
 } from 'lucide-react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { useIsMobile } from '../hooks/useMediaQuery';
 
 export default function Products() {
   const [products, setProducts] = useState([]);
   const [summary, setSummary] = useState({ totalProducts: 0, activeProductsCount: 0, inactiveProductsCount: 0, lowStockProductsCount: 0 });
   const [search, setSearch] = useState('');
+  const [debouncedSearch] = useDebounce(search, 500);
   const [categoryFilter, setCategoryFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [stockFilter, setStockFilter] = useState('');
@@ -38,17 +42,17 @@ export default function Products() {
 
   useEffect(() => {
     setPage(1);
-  }, [search, categoryFilter, statusFilter, stockFilter]);
+  }, [debouncedSearch, categoryFilter, statusFilter, stockFilter]);
 
   useEffect(() => {
     fetchProducts();
-  }, [search, categoryFilter, statusFilter, stockFilter, page]);
+  }, [debouncedSearch, categoryFilter, statusFilter, stockFilter, page]);
 
   const fetchProducts = async () => {
     setLoading(true);
     setFetchError('');
     try {
-      let url = `/products?page=${page}&limit=50&search=${encodeURIComponent(search)}`;
+      let url = `/products?page=${page}&limit=50&search=${encodeURIComponent(debouncedSearch)}`;
       if (categoryFilter) url += `&category=${encodeURIComponent(categoryFilter)}`;
       if (statusFilter) url += `&status=${encodeURIComponent(statusFilter)}`;
       if (stockFilter) url += `&stock=${encodeURIComponent(stockFilter)}`;
@@ -81,7 +85,7 @@ export default function Products() {
       await api.delete('/products/' + id);
       fetchProducts();
     } catch (err) {
-      alert(err.response?.data?.message || 'Error deleting product');
+      toast(err.response?.data?.message || 'Error deleting product');
     } finally {
       setActiveMenuId(null);
     }
@@ -92,7 +96,7 @@ export default function Products() {
       await api.patch(`/products/${id}/status`, { isActive: !isActive });
       fetchProducts();
     } catch (err) {
-      alert('Error changing status');
+      toast.error('Error changing status');
     } finally {
       setActiveMenuId(null);
     }
@@ -114,6 +118,7 @@ export default function Products() {
 
   // Derive filter categories
   const categories = Array.from(new Set(products.map(p => p.category).filter(Boolean)));
+  const isMobile = useIsMobile();
 
   // Products are already filtered by the backend
   const filteredProducts = products;
@@ -378,6 +383,49 @@ export default function Products() {
             Showing {(page - 1) * 50 + (filteredProducts.length > 0 ? 1 : 0)}–{(page - 1) * 50 + filteredProducts.length} of {totalProducts} products
           </div>
 
+          {/* Mobile Card View */}
+          {isMobile && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+              {filteredProducts.map(p => {
+                const stockInfo = getProductStockInfo(p);
+                const primaryVariant = p.variants && p.variants[0];
+                return (
+                  <div key={p.id} style={{ padding: '1rem', borderBottom: '1px solid #f1f5f9', background: 'white' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontWeight: '600', color: '#0f172a', fontSize: '0.95rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</div>
+                        {p.brand && <span style={{ fontSize: '0.75rem', color: '#64748b', background: '#f1f5f9', padding: '2px 6px', borderRadius: '4px', marginTop: '0.25rem', display: 'inline-block' }}>{p.brand}</span>}
+                      </div>
+                      <span style={{ padding: '0.2rem 0.6rem', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: '600', background: stockInfo.bg, color: stockInfo.color, marginLeft: '0.5rem', whiteSpace: 'nowrap' }}>
+                        {stockInfo.label}
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', alignItems: 'center', fontSize: '0.8rem', color: '#64748b' }}>
+                      {p.category && <span style={{ background: '#eff6ff', color: '#1d4ed8', padding: '2px 8px', borderRadius: '6px', fontWeight: '500' }}>{p.category}</span>}
+                      <span>{(p._count?.variants || p.variants?.length || 0)} variant{(p._count?.variants || p.variants?.length || 0) !== 1 ? 's' : ''}</span>
+                      {primaryVariant?.sku && <span style={{ color: '#94a3b8' }}>SKU: {primaryVariant.sku}</span>}
+                      <span style={{ marginLeft: 'auto', padding: '2px 8px', borderRadius: '9999px', background: p.isActive ? '#dcfce7' : '#f1f5f9', color: p.isActive ? '#16a34a' : '#6b7280', fontWeight: '600' }}>
+                        {p.isActive ? 'Active' : 'Inactive'}
+                      </span>
+                    </div>
+                    {currentUser?.role === 'ADMIN' && (
+                      <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem', flexWrap: 'wrap' }}>
+                        <Link to={`/products/${p.id}`} style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem', borderRadius: '6px', border: '1px solid #e2e8f0', color: '#334155', textDecoration: 'none', background: 'white' }}>View</Link>
+                        <Link to={`/products/${p.id}/edit`} style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem', borderRadius: '6px', border: '1px solid #e2e8f0', color: '#334155', textDecoration: 'none', background: 'white' }}>Edit</Link>
+                        <button onClick={() => toggleStatus(p.id, p.isActive)} style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem', borderRadius: '6px', border: '1px solid #e2e8f0', color: p.isActive ? '#dc2626' : '#16a34a', background: 'white', cursor: 'pointer' }}>
+                          {p.isActive ? 'Deactivate' : 'Activate'}
+                        </button>
+                        <button onClick={() => handleDelete(p.id)} style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem', borderRadius: '6px', border: '1px solid #fecaca', color: '#dc2626', background: '#fef2f2', cursor: 'pointer' }}>Delete</button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Desktop Table View */}
+          {!isMobile && (
           <div className="table-responsive" style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.925rem' }}>
               <thead>
@@ -707,6 +755,7 @@ export default function Products() {
                 Next →
               </button>
             </div>
+          )}
           )}
         </div>
       )}

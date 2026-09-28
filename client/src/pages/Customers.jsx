@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useDebounce } from 'use-debounce';
 import { Link } from 'react-router-dom';
 import { Search, ChevronLeft, ChevronRight, Users } from 'lucide-react';
 import api from '../services/api';
@@ -7,6 +8,7 @@ export default function Customers() {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [debouncedSearch] = useDebounce(search, 500);
   
   // Pagination
   const [page, setPage] = useState(1);

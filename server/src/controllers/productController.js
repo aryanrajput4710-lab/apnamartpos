@@ -1,5 +1,6 @@
 
 const crypto = require('crypto');
+const { Prisma } = require('@prisma/client');
 
 const prisma = require('../utils/prisma');
 
@@ -121,16 +122,27 @@ const getProducts = async (req, res) => {
     if (req.query.status === 'inactive') where.isActive = false;
 
     if (req.query.stock) {
-      const allForStock = await prisma.product.findMany({ select: { id: true, variants: { select: { stock: true } } } });
-      const validIds = allForStock.filter(p => {
-        const total = p.variants.reduce((sum, v) => sum + (v.stock || 0), 0);
-        if (req.query.stock === 'in_stock') return total > 1;
-        if (req.query.stock === 'low_stock') return total === 1;
-        if (req.query.stock === 'out_of_stock') return total === 0;
-        return true;
-      }).map(p => p.id);
-      where.id = { in: validIds };
+      let havingClause;
+      if (req.query.stock === 'in_stock') {
+        havingClause = Prisma.sql`HAVING SUM(v.stock) > 1`;
+      } else if (req.query.stock === 'low_stock') {
+        havingClause = Prisma.sql`HAVING SUM(v.stock) = 1`;
+      } else if (req.query.stock === 'out_of_stock') {
+        havingClause = Prisma.sql`HAVING SUM(v.stock) = 0`;
+      }
+
+      if (havingClause) {
+        const rows = await prisma.$queryRaw`
+          SELECT p.id FROM "Product" p
+          JOIN "ProductVariant" v ON v."productId" = p.id
+          GROUP BY p.id
+          ${havingClause}
+        `;
+        const validIds = rows.map(r => r.id);
+        where.id = { in: validIds };
+      }
     }
+
 
     const [products, total, allProductsSummary] = await Promise.all([
       prisma.product.findMany({

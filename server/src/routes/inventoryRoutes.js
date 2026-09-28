@@ -11,6 +11,8 @@ const {
   getDashboardSummary
 } = require('../controllers/inventoryController');
 const { requireAuth, requireRole } = require('../middleware/auth');
+const validate = require('../middleware/validate');
+const { stockActionSchema, adjustStockSchema } = require('../validators/inventoryValidator');
 
 const router = express.Router();
 
@@ -26,8 +28,8 @@ router.get('/summary', getDashboardSummary);
 router.use(requireRole('ADMIN'));
 router.get('/history', getGlobalHistory);
 router.get('/:variantId/history', getVariantHistory);
-router.post('/stock-in', stockIn);
-router.post('/stock-out', stockOut);
-router.post('/adjust', adjustStock);
+router.post('/stock-in', validate(stockActionSchema), stockIn);
+router.post('/stock-out', validate(stockActionSchema), stockOut);
+router.post('/adjust', validate(adjustStockSchema), adjustStock);
 
 module.exports = router;

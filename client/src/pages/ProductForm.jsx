@@ -1,3 +1,4 @@
+import toast from 'react-hot-toast';
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Plus, Trash2, Tag, Check, Save } from 'lucide-react';
@@ -61,7 +62,7 @@ export default function ProductForm() {
 
   const removeVariant = (index) => {
     if (variants.length === 1) {
-      alert('A product must have at least one variant.');
+      toast('A product must have at least one variant.');
       return;
     }
     setVariants(variants.filter((_, i) => i !== index));
@@ -74,7 +75,7 @@ export default function ProductForm() {
       await api.post('/products', { ...formData, variants });
       navigate('/products');
     } catch (err) {
-      alert(err.response?.data?.message || 'Error creating product');
+      toast(err.response?.data?.message || 'Error creating product');
     } finally {
       setLoading(false);
     }

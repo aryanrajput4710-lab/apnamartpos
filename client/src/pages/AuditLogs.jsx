@@ -1,3 +1,4 @@
+import toast from 'react-hot-toast';
 import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Activity, Clock } from 'lucide-react';
 import api from '../services/api';
@@ -18,7 +19,7 @@ export default function AuditLogs() {
       setLogs(res.data.data);
       setTotal(res.data.total);
     } catch (err) {
-      alert('Failed to fetch audit logs');
+      toast.error('Failed to fetch audit logs');
     } finally {
       setLoading(false);
     }

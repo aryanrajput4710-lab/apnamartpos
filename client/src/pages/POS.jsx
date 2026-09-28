@@ -1,3 +1,4 @@
+import toast from 'react-hot-toast';
 import { useState, useRef, useEffect, useMemo } from 'react';
 import api from '../services/api';
 import { Link, useOutletContext } from 'react-router-dom';
@@ -137,7 +138,7 @@ export default function POS() {
       const variant = res.data.data;
       
       if (variant.stock <= 0) {
-        alert('Product is out of stock!');
+        toast('Product is out of stock!');
       } else {
         addToCart(variant);
       }
@@ -147,7 +148,7 @@ export default function POS() {
       if (err.response?.status === 404) {
         searchProducts(rawCode);
       } else {
-        alert(err.response?.data?.message || 'Error scanning product');
+        toast(err.response?.data?.message || 'Error scanning product');
       }
     }
   };
@@ -175,7 +176,7 @@ export default function POS() {
       const existing = prev.find(item => item.id === variant.id);
       if (existing) {
         if (existing.quantity >= variant.stock) {
-          alert(`Only ${variant.stock} available in stock.`);
+          toast(`Only ${variant.stock} available in stock.`);
           return prev;
         }
         return prev.map(item => 
@@ -195,7 +196,7 @@ export default function POS() {
         const newQty = item.quantity + delta;
         if (newQty <= 0) return item; // Handled by remove
         if (newQty > item.stock) {
-          alert(`Only ${item.stock} available in stock.`);
+          toast(`Only ${item.stock} available in stock.`);
           return item;
         }
         return { ...item, quantity: newQty };
@@ -214,7 +215,7 @@ export default function POS() {
     try {
       const res = await api.post('/register/open', { openingFloat });
       setShift({ ...res.data.data, expectedCash: parseFloat(openingFloat), totalSalesCash: 0, totalSalesUPI: 0 });
-    } catch (err) { alert('Failed to open register'); }
+    } catch (err) { toast.error('Failed to open register'); }
   };
 
   const closeRegister = async (e) => {
@@ -225,13 +226,13 @@ export default function POS() {
         totalUPI: shift.totalSalesUPI, 
         expectedCash: shift.expectedCash 
       });
-      alert('Register closed successfully. End of shift.');
+      toast.success('Register closed successfully. End of shift.');
       setClosedShiftReport({ ...shift, actualCash });
       setShift(null);
       setShowShiftModal(false);
       setActualCash('');
       setOpeningFloat('');
-    } catch (err) { alert('Failed to close register'); }
+    } catch (err) { toast.error('Failed to close register'); }
   };
 
   const clearCart = () => {
@@ -297,7 +298,7 @@ export default function POS() {
       setCustomer(res.data.data);
       setShowCustomerModal(false);
     } catch (err) {
-      alert(err.response?.data?.message || 'Error creating customer');
+      toast(err.response?.data?.message || 'Error creating customer');
     }
   };
 
@@ -311,7 +312,7 @@ export default function POS() {
 
   const handleCheckout = async () => {
     if (!shift) {
-      alert("Please open the register first!");
+      toast("Please open the register first!");
       return;
     }
     setIsProcessing(true);
@@ -333,7 +334,7 @@ export default function POS() {
       setCustomerPhone('');
         setExtraDiscount('');
     } catch (err) {
-      alert(err.response?.data?.message || 'Checkout failed');
+      toast(err.response?.data?.message || 'Checkout failed');
     } finally {
       setIsProcessing(false);
     }

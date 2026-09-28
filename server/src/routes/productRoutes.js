@@ -13,6 +13,8 @@ const {
   importCatalog
 } = require('../controllers/productController');
 const { requireAuth, requireRole } = require('../middleware/auth');
+const validate = require('../middleware/validate');
+const { createProductSchema } = require('../validators/productValidator');
 
 const router = express.Router();
 
@@ -23,7 +25,7 @@ router.get('/', getProducts);
 router.get('/catalog/export', requireRole('ADMIN'), exportCatalog);
 router.post('/catalog/import', requireRole('ADMIN'), importCatalog);
 router.get('/:id', getProductById);
-router.post('/', requireRole('ADMIN'), createProduct);
+router.post('/', requireRole('ADMIN'), validate(createProductSchema), createProduct);
 router.put('/:id', requireRole('ADMIN'), updateProduct);
 router.delete('/:id', requireRole('ADMIN'), deleteProduct);
 router.patch('/:id/status', requireRole('ADMIN'), toggleProductStatus);

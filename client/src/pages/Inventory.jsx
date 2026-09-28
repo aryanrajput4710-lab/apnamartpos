@@ -1,7 +1,10 @@
+import toast from 'react-hot-toast';
 import { useState, useEffect } from 'react';
+import { useDebounce } from 'use-debounce';
 import { Link } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { useIsMobile } from '../hooks/useMediaQuery';
 import { 
   Package, 
   Layers, 
@@ -30,6 +33,7 @@ export default function Inventory() {
   const [variants, setVariants] = useState([]);
   const [summary, setSummary] = useState(null);
   const [search, setSearch] = useState('');
+  const [debouncedSearch] = useDebounce(search, 500);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -47,17 +51,17 @@ export default function Inventory() {
     setPage(1);
     fetchSummary();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search]);
+  }, [debouncedSearch]);
 
   useEffect(() => {
     fetchInventory();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search, page]);
+  }, [debouncedSearch, page]);
 
   const fetchInventory = async () => {
     setLoading(true);
     try {
-      const res = await api.get(`/inventory?page=${page}&limit=50&search=${encodeURIComponent(search)}`);
+      const res = await api.get(`/inventory?page=${page}&limit=50&search=${encodeURIComponent(debouncedSearch)}`);
       setVariants(res.data.data);
       if (res.data.pagination) {
         setTotalPages(Math.ceil(res.data.pagination.total / res.data.pagination.limit));
@@ -109,13 +113,16 @@ export default function Inventory() {
       }
 
       await api.post(endpoint, payload);
+      toast.success('Stock updated successfully');
       setShowModal(false);
       fetchInventory();
       fetchSummary();
     } catch (err) {
-      alert(err.response?.data?.message || 'Error updating stock');
+      toast.error(err.response?.data?.message || 'Error updating stock');
     }
   };
+
+  const isMobile = useIsMobile();
 
   return (
     <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.5rem', fontFamily: '"Inter", "Plus Jakarta Sans", system-ui, sans-serif' }}>
@@ -176,6 +183,45 @@ export default function Inventory() {
           </div>
         ) : (
           <>
+            {/* Mobile card view */}
+            {isMobile && (
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                {variants.map((v) => {
+                  const isOutOfStock = v.stock === 0;
+                  const isLowStock = v.stock === 1;
+                  const badge = isOutOfStock
+                    ? { label: 'Out of Stock', bg: '#fef2f2', color: '#b91c1c' }
+                    : isLowStock
+                    ? { label: 'Low Stock', bg: '#fffbeb', color: '#b45309' }
+                    : { label: 'In Stock', bg: '#ecfdf5', color: '#047857' };
+                  return (
+                    <div key={v.id} style={{ padding: '1rem', borderBottom: '1px solid #e5e7eb', background: 'white' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.375rem' }}>
+                        <div style={{ fontWeight: 600, color: '#111827', fontSize: '0.875rem', flex: 1, minWidth: 0, marginRight: '0.5rem' }}>
+                          {v.product?.name || 'Unknown'}{v.size ? ` - ${v.size}` : ''}{v.color ? ` - ${v.color}` : ''}
+                        </div>
+                        <span style={{ padding: '2px 8px', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: 600, background: badge.bg, color: badge.color, whiteSpace: 'nowrap' }}>{badge.label}</span>
+                      </div>
+                      <div style={{ fontSize: '0.75rem', color: '#6b7280', fontFamily: 'monospace', marginBottom: '0.5rem' }}>{v.sku}</div>
+                      <div style={{ fontSize: '0.85rem', fontWeight: '700', color: '#111827', marginBottom: '0.5rem' }}>Stock: {v.stock}</div>
+                      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                        <Link to={`/inventory/${v.id}/history`} style={{ padding: '0.3rem 0.65rem', fontSize: '0.75rem', borderRadius: '6px', border: '1px solid #d1d5db', color: '#374151', textDecoration: 'none', background: 'white' }}>History</Link>
+                        {currentUser?.role === 'ADMIN' && (
+                          <>
+                            <button onClick={() => openModal(v, 'STOCK_IN')} style={{ padding: '0.3rem 0.65rem', fontSize: '0.75rem', borderRadius: '6px', border: '1px solid #a7f3d0', color: '#047857', background: '#ecfdf5', cursor: 'pointer' }}>In</button>
+                            <button onClick={() => openModal(v, 'STOCK_OUT')} style={{ padding: '0.3rem 0.65rem', fontSize: '0.75rem', borderRadius: '6px', border: '1px solid #fecaca', color: '#b91c1c', background: '#fef2f2', cursor: 'pointer' }}>Out</button>
+                            <button onClick={() => openModal(v, 'ADJUST')} style={{ padding: '0.3rem 0.65rem', fontSize: '0.75rem', borderRadius: '6px', border: '1px solid #bfdbfe', color: '#1d4ed8', background: '#eff6ff', cursor: 'pointer' }}>Adjust</button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Desktop Table */}
+            {!isMobile && (
             <div className="table-responsive">
               <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse', minWidth: '800px' }}>
                 <thead>
@@ -250,6 +296,7 @@ export default function Inventory() {
                 </tbody>
               </table>
             </div>
+            )} {/* end !isMobile desktop table */}
             
             {/* Table Footer with Pagination Controls */}
             {totalPages > 1 && (

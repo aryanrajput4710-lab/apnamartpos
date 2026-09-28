@@ -1,3 +1,4 @@
+import toast from 'react-hot-toast';
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Plus, Trash2, Check, Save, Barcode, Hash } from 'lucide-react';
@@ -54,7 +55,7 @@ export default function EditProduct() {
   }));
       }).catch(err => {
         console.error(err);
-        alert('Failed to load product');
+        toast.error('Failed to load product');
         navigate('/products');
       }).finally(() => {
         setFetching(false);
@@ -91,7 +92,7 @@ export default function EditProduct() {
 
   const removeVariant = (index) => {
     if (variants.length === 1) {
-      alert('A product must have at least one variant.');
+      toast('A product must have at least one variant.');
       return;
     }
     setVariants(variants.filter((_, i) => i !== index));
@@ -109,10 +110,10 @@ export default function EditProduct() {
           await api.post(`/products/${id}/variants`, v);
         }
       }
-      alert('Product updated successfully!');
+      toast.success('Product updated successfully!');
       navigate('/products');
     } catch (err) {
-      alert(err.response?.data?.message || 'Error updating product');
+      toast(err.response?.data?.message || 'Error updating product');
     } finally {
       setLoading(false);
     }

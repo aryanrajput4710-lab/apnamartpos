@@ -1,3 +1,4 @@
+import toast from 'react-hot-toast';
 import { useState, useEffect } from 'react';
 import api from '../services/api';
 import Papa from 'papaparse';
@@ -37,19 +38,19 @@ export default function Settings() {
     e.preventDefault();
     try {
       await api.put('/settings', settings);
-      alert('Settings saved successfully');
+      toast.success('Settings saved successfully');
     } catch (err) {
-      alert('Failed to save settings');
+      toast.error('Failed to save settings');
     }
   };
 
   const handleCreateBackup = async () => {
     try {
       const res = await api.post('/backup/create');
-      alert(res.data.message);
+      toast(res.data.message);
       fetchData();
     } catch (err) {
-      alert('Failed to create backup');
+      toast.error('Failed to create backup');
     }
   };
 
@@ -60,9 +61,9 @@ export default function Settings() {
     if (confirm(`Are you absolutely sure you want to restore from ${filename}? This cannot be undone.`)) {
       try {
         await api.post('/backup/restore', { filename });
-        alert('Database restored successfully');
+        toast.success('Database restored successfully');
       } catch (err) {
-        alert('Restore failed');
+        toast.error('Restore failed');
       }
     }
   };
@@ -72,7 +73,7 @@ export default function Settings() {
       const res = await api.get('/integrity');
       setIntegrityIssues(res.data.data);
     } catch (err) {
-      alert('Failed to run integrity checks');
+      toast.error('Failed to run integrity checks');
     }
   };
 
@@ -164,7 +165,7 @@ export default function Settings() {
                 a.href = url;
                 a.download = 'catalog.json';
                 a.click();
-              } catch (e) { alert('Export failed'); }
+              } catch (e) { toast.error('Export failed'); }
             }} style={{ padding: '0.75rem', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Export Catalog (JSON)</button>
             
             <label style={{ padding: '0.75rem', background: '#eab308', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
@@ -178,10 +179,10 @@ export default function Settings() {
                     const products = JSON.parse(ev.target.result);
                     if (confirm(`Import ${products.length} products?`)) {
                       await api.post('/products/catalog/import', { products });
-                      alert('Import successful!');
+                      toast.success('Import successful!');
                     }
                   } catch (err) {
-                    alert('Import failed: ' + (err.response?.data?.message || err.message));
+                    toast('Import failed: ' + (err.response?.data?.message || err.message));
                   }
                 };
                 reader.readAsText(file);
@@ -249,19 +250,19 @@ export default function Settings() {
                       const productsToImport = Array.from(productMap.values());
                       
                       if (productsToImport.length === 0) {
-                        return alert('No valid products found in CSV. Please check the template.');
+                        return toast('No valid products found in CSV. Please check the template.');
                       }
                       
                       if (confirm(`Found ${productsToImport.length} products (with ${results.data.length} total variants). Import now?`)) {
                         await api.post('/products/catalog/import', { products: productsToImport });
-                        alert('CSV Import successful!');
+                        toast.success('CSV Import successful!');
                       }
                     } catch (err) {
-                      alert('CSV Import failed: ' + (err.response?.data?.message || err.message));
+                      toast('CSV Import failed: ' + (err.response?.data?.message || err.message));
                     }
                   },
                   error: (err) => {
-                    alert('Error parsing CSV: ' + err.message);
+                    toast('Error parsing CSV: ' + err.message);
                   }
                 });
               }} />
@@ -301,14 +302,14 @@ function OffersManager() {
       await api.post('/offers', newOffer);
       setNewOffer({ title: '', description: '', discountType: 'FIXED', discountValue: '', minCartValue: '' });
       fetchOffers();
-    } catch (err) { alert('Failed to create offer'); }
+    } catch (err) { toast.error('Failed to create offer'); }
   };
 
   const toggleOffer = async (id, currentStatus) => {
     try {
       await api.patch('/offers/' + id, { isActive: !currentStatus });
       fetchOffers();
-    } catch (err) { alert('Failed to toggle offer'); }
+    } catch (err) { toast.error('Failed to toggle offer'); }
   };
 
   const deleteOffer = async (id) => {
@@ -316,7 +317,7 @@ function OffersManager() {
     try {
       await api.delete('/offers/' + id);
       fetchOffers();
-    } catch (err) { alert('Failed to delete offer'); }
+    } catch (err) { toast.error('Failed to delete offer'); }
   };
 
   return (

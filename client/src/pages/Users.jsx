@@ -1,3 +1,4 @@
+import toast from 'react-hot-toast';
 import { useState, useEffect } from 'react';
 import { Shield, ShieldAlert, UserPlus, Mail, Lock, User } from 'lucide-react';
 import api from '../services/api';
@@ -38,7 +39,7 @@ export default function Users() {
       setRole('CASHIER');
       fetchUsers();
     } catch (err) {
-      alert(err.response?.data?.message || 'Error creating user');
+      toast(err.response?.data?.message || 'Error creating user');
     }
   };
 
@@ -47,7 +48,7 @@ export default function Users() {
       await api.patch(`/users/${id}/active`, { isActive: !currentStatus });
       fetchUsers();
     } catch (err) {
-      alert(err.response?.data?.message || 'Error toggling user status');
+      toast(err.response?.data?.message || 'Error toggling user status');
     }
   };
 
