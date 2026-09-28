@@ -135,25 +135,29 @@ export default function Orders() {
 
 
 
-  const handleClearTestOrders = async () => {
-    setConfirmModal({ open: true, action: 'deleteAll', id: null }); return;
-    try {
-      await api.delete("/orders");
-      fetchOrders();
-      toast.success('All test orders cleared successfully.');
-    } catch (err) {
-      toast(err.response?.data?.message || 'Failed to clear orders');
-    }
+  const handleClearTestOrders = () => {
+    setConfirmModal({ open: true, action: 'deleteAll', id: null });
   };
 
-  const handleDeleteOrder = async (orderId) => {
+  const handleDeleteOrder = (orderId) => {
+    setConfirmModal({ open: true, action: 'deleteSingle', id: orderId });
+  };
 
-    setConfirmModal({ open: true, action: 'deleteSingle', id: orderId }); return;
+  const handleConfirmAction = async () => {
+    const { action, id } = confirmModal;
+    setConfirmModal({ open: false, action: null, id: null });
     try {
-      await api.delete("/orders/" + orderId);
-      fetchOrders();
+      if (action === 'deleteAll') {
+        await api.delete('/orders');
+        toast.success('All test orders cleared successfully.');
+        fetchOrders();
+      } else if (action === 'deleteSingle') {
+        await api.delete('/orders/' + id);
+        toast.success('Order deleted.');
+        fetchOrders();
+      }
     } catch (err) {
-      toast(err.response?.data?.message || 'Failed to delete order');
+      toast.error(err.response?.data?.message || 'Operation failed');
     }
   };
 
@@ -380,6 +384,19 @@ export default function Orders() {
           </div>
         </div>
       )}
+
+
+      <ConfirmModal
+        isOpen={confirmModal.open}
+        title={confirmModal.action === 'deleteAll' ? 'Clear All Test Orders?' : 'Delete Order?'}
+        message={confirmModal.action === 'deleteAll'
+          ? 'This will permanently delete ALL orders. This action cannot be undone.'
+          : 'This will permanently delete this order. This action cannot be undone.'}
+        confirmText={confirmModal.action === 'deleteAll' ? 'Clear All' : 'Delete'}
+        confirmColor="#dc2626"
+        onConfirm={handleConfirmAction}
+        onCancel={() => setConfirmModal({ open: false, action: null, id: null })}
+      />
     </div>
   );
 }
