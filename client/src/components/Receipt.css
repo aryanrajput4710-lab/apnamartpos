@@ -1,161 +1,341 @@
+/* ============================================================
+   APNA MART – THERMAL RECEIPT STYLESHEET
+   Optimized for 80mm thermal paper.
+   Screen preview max-width is 340px to simulate receipt width.
+   ============================================================ */
+
+/* ── BASE ── */
 .receipt-container {
-  width: 100%;
-  max-width: 350px;
+  width: 302px;          /* 80mm ≈ 302px at 96dpi — fixed, not fluid */
+  max-width: 302px;
   margin: 0 auto;
-  padding: 1rem;
-  background: white;
+  padding: 8px 8px 12px;
+  background: #fff;
   font-family: 'Courier New', Courier, monospace;
   color: #000;
-  font-size: 14px;
-  line-height: 1.4;
+  font-size: 12px;
+  line-height: 1.45;
+  box-sizing: border-box;
+  word-break: break-word;
 }
 
+/* ── HEADER ── */
 .receipt-header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 1rem;
-}
-
-.receipt-header-left {
-  margin-right: 15px;
+  text-align: center;
+  margin-bottom: 4px;
 }
 
 .receipt-logo {
-  width: 60px;
-  height: 60px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   object-fit: cover;
-  /* filter: grayscale(100%); */
-}
-
-.receipt-header-right {
-  text-align: center;
+  display: block;
+  margin: 0 auto 4px;
 }
 
 .receipt-store-name {
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: bold;
+  font-size: 17px;
+  font-weight: 900;
+  letter-spacing: 2px;
   text-transform: uppercase;
+  margin: 0 0 2px;
 }
 
-.receipt-address,
-.receipt-location,
+.receipt-address {
+  font-size: 10px;
+  margin: 1px 0;
+  line-height: 1.35;
+}
+
 .receipt-tagline {
-  margin: 2px 0;
-  font-size: 12px;
+  font-size: 10px;
+  margin: 3px 0 0;
+  letter-spacing: 0.5px;
 }
 
-.receipt-separator {
+/* ── SEPARATORS ── */
+.receipt-sep-dash {
+  border: none;
   border-top: 1px dashed #000;
-  margin: 10px 0;
+  margin: 6px 0;
 }
 
-.receipt-info-row,
-.receipt-pay-row {
+.receipt-sep-solid {
+  border: none;
+  border-top: 1px solid #000;
+  margin: 3px 0;
+}
+
+/* ── BILL INFO ── */
+.receipt-info {
+  margin: 0;
+}
+
+.receipt-info-row {
   display: flex;
-  margin-bottom: 4px;
+  align-items: baseline;
+  margin-bottom: 2px;
+  font-size: 11px;
 }
 
-.receipt-info-label {
-  width: 120px;
+.rif-label {
+  min-width: 58px;
+  font-weight: bold;
 }
 
-.receipt-info-colon {
-  margin-right: 8px;
+.rif-colon {
+  margin: 0 4px 0 1px;
 }
 
-.receipt-info-value {
+.rif-value {
   flex: 1;
 }
 
-.receipt-item-header {
+.rif-spacer {
+  flex: 1;
+}
+
+/* ── ITEM TABLE ── */
+.receipt-items {
+  width: 100%;
+}
+
+.item-hdr,
+.item-row-main {
   display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.item-hdr {
   font-weight: bold;
-  border-bottom: 1px dashed #000;
-  padding-bottom: 5px;
-  margin-bottom: 5px;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
 }
 
-.col-item { flex: 1.5; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.col-qty { flex: 0.5; text-align: center; }
-.col-price { flex: 1.2; text-align: right; white-space: nowrap; }
-.col-disc { flex: 1.1; text-align: right; white-space: nowrap; }
-.col-sub { flex: 1.3; text-align: right; white-space: nowrap; }
+/* Column widths — total 100% of receipt inner width */
+.ic-name      { flex: 0 0 48%; font-size: 11px; }
+.ic-qty       { flex: 0 0 10%; text-align: center; font-size: 11px; }
+.ic-rate      { flex: 0 0 20%; text-align: right; font-size: 11px; white-space: nowrap; }
+.ic-amt       { flex: 0 0 22%; text-align: right; font-size: 11px; white-space: nowrap; }
 
-.receipt-item-row {
-  margin-bottom: 10px;
+/* Item name: allow wrapping, no truncation */
+.ic-name-wrap {
+  white-space: normal;
+  word-break: break-word;
+  overflow: visible;
 }
 
-.receipt-item-main {
-  display: flex;
+.item-row {
+  margin-bottom: 7px;
+}
+
+.item-row-main {
   font-weight: bold;
-  font-size: 13px;
 }
 
-.receipt-item-details {
-  font-size: 12px;
+.item-details {
+  font-size: 10px;
   color: #333;
-  padding-left: 5px;
-  margin-top: 2px;
+  padding-left: 12px;
+  margin-top: 1px;
+  font-weight: normal;
 }
 
+.item-disc-row {
+  display: flex;
+  justify-content: flex-end;
+  font-size: 10px;
+  color: #333;
+  padding-right: 0;
+  margin-top: 1px;
+  gap: 6px;
+}
+
+.item-disc-label {
+  font-style: italic;
+}
+
+.item-disc-val {
+  min-width: 50px;
+  text-align: right;
+}
+
+/* ── TOTALS ── */
 .receipt-totals {
-  margin-left: 20%;
+  padding-left: 20%;
 }
 
-.receipt-total-row {
+.total-row {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
+  font-size: 12px;
 }
 
-.receipt-final-total {
+.total-final {
+  font-weight: 900;
+  font-size: 16px;
+  letter-spacing: 0.5px;
+}
+
+/* ── PAYMENT ── */
+.receipt-payment {
+  font-size: 11px;
+}
+
+.pay-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 3px;
+  gap: 2px;
+}
+
+.pay-label {
   font-weight: bold;
-  font-size: 1.2rem;
-  margin-top: 8px;
-  padding-top: 8px;
-  border-top: 1px dashed #000;
+  min-width: 72px;
 }
 
-.receipt-footer {
-  text-align: center;
-  margin-top: 15px;
+.pay-colon {
+  margin-right: 4px;
 }
 
-.receipt-footer h3 {
-  margin: 0 0 5px 0;
-  font-size: 1.3rem;
+.pay-method {
+  flex: 1;
+}
+
+.pay-badge {
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.8px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  border: 1.5px solid;
   text-transform: uppercase;
 }
 
-.receipt-footer p {
-  margin: 0;
-  font-size: 12px;
+.pay-paid {
+  color: #000;
+  border-color: #000;
 }
 
+.pay-pending {
+  color: #555;
+  border-color: #555;
+}
+
+/* ── FOOTER ── */
+.receipt-footer {
+  text-align: center;
+  margin-top: 2px;
+}
+
+.footer-thankyou {
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  margin-bottom: 2px;
+}
+
+.footer-sub {
+  font-size: 11px;
+  margin-bottom: 4px;
+}
+
+.footer-terms {
+  font-size: 9px;
+  color: #444;
+  margin-top: 4px;
+}
+
+/* ── BARCODE ── */
+.receipt-barcode {
+  display: flex;
+  justify-content: center;
+  margin-top: 8px;
+  overflow: hidden;
+}
+
+.receipt-barcode svg,
+.receipt-barcode canvas {
+  max-width: 100%;
+}
+
+/* ============================================================
+   PRINT STYLES
+   @page: 80mm wide, auto height — no margins
+   Only the receipt-container is visible.
+   ============================================================ */
 @media print {
-  * { visibility: hidden !important; background: transparent !important; box-shadow: none !important; }
-  .receipt-container, .receipt-container * { visibility: visible !important; }
+  @page {
+    size: 80mm auto;
+    margin: 0;
+  }
+
+  /* Hide everything */
+  body * { visibility: hidden !important; }
+
+  /* Show only the receipt */
+  .receipt-container,
+  .receipt-container * {
+    visibility: visible !important;
+  }
+
   .receipt-container {
     position: fixed !important;
     top: 0 !important;
     left: 0 !important;
     width: 80mm !important;
     max-width: 80mm !important;
+    padding: 3mm 3mm 5mm !important;
     margin: 0 !important;
-    padding: 4mm !important;
-    font-size: 11px !important;
+    font-size: 10pt !important;
     background: white !important;
     border: none !important;
+    box-shadow: none !important;
   }
-  @page { size: 80mm auto; margin: 0; }
-  .receipt-container, .receipt-container * {
-    color: #000 !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
+
+  .receipt-store-name {
+    font-size: 14pt !important;
   }
-  .no-print { display: none !important; visibility: hidden !important; }
-  .receipt-separator { border-top: 1px dashed #000 !important; }
+
+  .total-final {
+    font-size: 13pt !important;
+  }
+
+  .receipt-sep-dash {
+    border-top: 1px dashed #000 !important;
+  }
+
+  .receipt-sep-solid {
+    border-top: 1px solid #000 !important;
+  }
+
+  .pay-badge {
+    border: 1.5px solid !important;
+  }
+
+  /* Prevent receipt from splitting across pages */
+  .receipt-container {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Hide UI buttons / nav */
+  .no-print,
+  nav,
+  header,
+  aside,
+  .print-hide {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  /* Ensure colors print */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
 }
