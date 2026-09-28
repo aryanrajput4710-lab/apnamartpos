@@ -15,12 +15,14 @@ const variantSchema = z.object({
 });
 
 const createProductSchema = z.object({
-  name: z.string().min(1, 'Product name is required').max(200),
-  description: z.string().optional(),
-  category: z.string().optional(),
-  subcategory: z.string().optional(),
-  brand: z.string().optional(),
-  variants: z.array(variantSchema).optional()
+  body: z.object({
+    name: z.string().min(1, 'Product name is required').max(200),
+    description: z.string().optional(),
+    category: z.string().optional(),
+    subcategory: z.string().optional(),
+    brand: z.string().optional(),
+    variants: z.array(variantSchema).optional()
+  })
 });
 
 module.exports = { createProductSchema };
