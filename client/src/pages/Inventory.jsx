@@ -31,6 +31,9 @@ export default function Inventory() {
   const [summary, setSummary] = useState(null);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalVariantsCount, setTotalVariantsCount] = useState(0);
   
   const { currentUser } = useAuth();
   
@@ -41,15 +44,28 @@ export default function Inventory() {
   const [reason, setReason] = useState('MANUAL');
 
   useEffect(() => {
-    fetchInventory();
+    setPage(1);
     fetchSummary();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search]);
 
+  useEffect(() => {
+    fetchInventory();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search, page]);
+
   const fetchInventory = async () => {
+    setLoading(true);
     try {
-      const res = await api.get(`/inventory?search=${search}`);
+      const res = await api.get(`/inventory?page=${page}&limit=50&search=${encodeURIComponent(search)}`);
       setVariants(res.data.data);
+      if (res.data.pagination) {
+        setTotalPages(Math.ceil(res.data.pagination.total / res.data.pagination.limit));
+        setTotalVariantsCount(res.data.pagination.total);
+        if (page > 1 && res.data.data.length === 0) {
+          setPage(page - 1);
+        }
+      }
     } catch (err) {
       console.error(err);
     } finally {
@@ -235,9 +251,70 @@ export default function Inventory() {
               </table>
             </div>
             
-            {/* Table Footer */}
+            {/* Table Footer with Pagination Controls */}
+            {totalPages > 1 && (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '1rem', borderTop: '1px solid #e5e7eb', background: 'white' }}>
+                <button
+                  onClick={() => setPage(page - 1)}
+                  disabled={page === 1}
+                  style={{
+                    padding: '0.4rem 0.8rem',
+                    borderRadius: '6px',
+                    border: '1px solid #cbd5e1',
+                    background: page === 1 ? '#f9fafb' : 'white',
+                    color: page === 1 ? '#9ca3af' : '#374151',
+                    cursor: page === 1 ? 'not-allowed' : 'pointer',
+                    fontSize: '0.85rem',
+                    fontWeight: '500'
+                  }}
+                >
+                  ← Previous
+                </button>
+                
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+                  <button
+                    key={p}
+                    onClick={() => setPage(p)}
+                    style={{
+                      width: '32px',
+                      height: '32px',
+                      borderRadius: '6px',
+                      border: p === page ? 'none' : '1px solid #cbd5e1',
+                      background: p === page ? '#3b82f6' : 'white',
+                      color: p === page ? 'white' : '#374151',
+                      cursor: p === page ? 'default' : 'pointer',
+                      fontSize: '0.85rem',
+                      fontWeight: p === page ? '600' : '500',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    {p}
+                  </button>
+                ))}
+
+                <button
+                  onClick={() => setPage(page + 1)}
+                  disabled={page === totalPages}
+                  style={{
+                    padding: '0.4rem 0.8rem',
+                    borderRadius: '6px',
+                    border: '1px solid #cbd5e1',
+                    background: page === totalPages ? '#f9fafb' : 'white',
+                    color: page === totalPages ? '#9ca3af' : '#374151',
+                    cursor: page === totalPages ? 'not-allowed' : 'pointer',
+                    fontSize: '0.85rem',
+                    fontWeight: '500'
+                  }}
+                >
+                  Next →
+                </button>
+              </div>
+            )}
+            
             <div style={{ padding: '1rem 1.25rem', borderTop: '1px solid #e5e7eb', backgroundColor: '#f9fafb', fontSize: '0.875rem', color: '#6b7280', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span>Showing <strong>{variants.length > 0 ? 1 : 0}</strong>–<strong>{variants.length}</strong> of <strong>{variants.length}</strong> products</span>
+              <span>Showing <strong>{(page - 1) * 50 + (variants.length > 0 ? 1 : 0)}</strong>–<strong>{(page - 1) * 50 + variants.length}</strong> of <strong>{totalVariantsCount}</strong> items</span>
             </div>
           </>
         )}
