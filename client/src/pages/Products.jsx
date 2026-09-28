@@ -437,7 +437,7 @@ export default function Products() {
           )}
 
           {/* Desktop Table View */}
-          {!isMobile && (
+          {!isMobile && (<>
           <div className="table-responsive" style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.925rem' }}>
               <thead>
@@ -768,7 +768,7 @@ export default function Products() {
               </button>
             </div>
           )}
-          )}
+          </> )}
         </div>
       )}
 
