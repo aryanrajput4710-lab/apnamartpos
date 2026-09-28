@@ -41,18 +41,12 @@ const getLowStock = async (req, res) => {
     const variants = await prisma.productVariant.findMany({
       where: {
         isActive: true,
-        stock: { gt: 0 },
-        // Use raw query logic if needed, but Prisma can compare fields if we use raw, 
-        // or we fetch and filter in JS if not too big, or just use raw query.
-        // Actually, stock <= lowStockThreshold can be queried by comparing fields in newer Prisma (using sql or extensions)
-        // For simplicity, we can fetch where stock > 0, then filter in memory if the dataset is small,
-        // but better to use raw SQL for performance on large tables.
+        stock: 1
       },
       include: { product: true }
     });
     
-    const lowStock = variants.filter(v => v.stock <= v.lowStockThreshold);
-    res.status(200).json({ success: true, data: lowStock });
+    res.status(200).json({ success: true, data: variants });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Failed to fetch low stock' });
   }
@@ -268,7 +262,7 @@ const getDashboardSummary = async (req, res) => {
       potentialValue += v.stock * parseFloat(v.sellingPrice || 0);
       assetValue += v.stock * parseFloat(v.costPrice || 0);
       if (v.stock === 0) outOfStockCount++;
-      else if (v.stock <= v.lowStockThreshold) lowStockCount++;
+      else if (v.stock === 1) lowStockCount++;
     }
 
     res.status(200).json({

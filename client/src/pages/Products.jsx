@@ -23,6 +23,7 @@ import { useAuth } from '../context/AuthContext';
 
 export default function Products() {
   const [products, setProducts] = useState([]);
+  const [summary, setSummary] = useState({ totalProducts: 0, activeProductsCount: 0, inactiveProductsCount: 0, lowStockProductsCount: 0 });
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
@@ -43,6 +44,9 @@ export default function Products() {
     try {
       const res = await api.get(`/products?search=${encodeURIComponent(search)}`);
       setProducts(res.data.data || []);
+      if (res.data.summary) {
+        setSummary(res.data.summary);
+      }
     } catch (err) {
       console.error(err);
       setFetchError(err.response?.data?.message || 'Failed to load products');
@@ -79,11 +83,10 @@ export default function Products() {
       return { totalStock: 0, status: 'out', label: 'Out of stock', color: '#ef4444', bg: '#fef2f2' };
     }
     const totalStock = product.variants.reduce((sum, v) => sum + (v.stock || 0), 0);
-    const hasLowStock = product.variants.some(v => (v.stock || 0) <= (v.lowStockThreshold || 5));
     
     if (totalStock === 0) {
       return { totalStock: 0, status: 'out', label: '✕ Out of stock', color: '#dc2626', bg: '#fee2e2' };
-    } else if (hasLowStock || totalStock <= 5) {
+    } else if (totalStock === 1) {
       return { totalStock, status: 'low', label: `⚠ Low stock (${totalStock})`, color: '#d97706', bg: '#fef3c7' };
     }
     return { totalStock, status: 'in', label: `✓ ${totalStock} in stock`, color: '#16a34a', bg: '#dcfce7' };
@@ -107,10 +110,7 @@ export default function Products() {
   });
 
   // Calculate summary stats
-  const totalProducts = products.length;
-  const activeProductsCount = products.filter(p => p.isActive).length;
-  const inactiveProductsCount = products.filter(p => !p.isActive).length;
-  const lowStockProductsCount = products.filter(p => getProductStockInfo(p).status === 'low' || getProductStockInfo(p).status === 'out').length;
+  const { totalProducts, activeProductsCount, inactiveProductsCount, lowStockProductsCount } = summary;
 
   const hasActiveFilters = Boolean(search || categoryFilter || statusFilter || stockFilter);
 

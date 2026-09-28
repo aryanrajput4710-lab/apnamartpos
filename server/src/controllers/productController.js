@@ -117,7 +117,7 @@ const getProducts = async (req, res) => {
       where.subcategory = subcategory;
     }
 
-    const [products, total] = await Promise.all([
+    const [products, total, allProductsSummary] = await Promise.all([
       prisma.product.findMany({
         where,
         skip: parseInt(skip),
@@ -128,12 +128,41 @@ const getProducts = async (req, res) => {
         },
         orderBy: { createdAt: 'desc' }
       }),
-      prisma.product.count({ where })
+      prisma.product.count({ where }),
+      prisma.product.findMany({
+        where,
+        select: {
+          isActive: true,
+          variants: {
+            select: { stock: true }
+          }
+        }
+      })
     ]);
+
+    let activeCount = 0;
+    let inactiveCount = 0;
+    let lowOrOutStockCount = 0;
+
+    for (const p of allProductsSummary) {
+      if (p.isActive) activeCount++;
+      else inactiveCount++;
+
+      const totalStock = p.variants.reduce((sum, v) => sum + (v.stock || 0), 0);
+      if (totalStock <= 1) { // 0 is Out of Stock, 1 is Low Stock
+        lowOrOutStockCount++;
+      }
+    }
 
     res.status(200).json({
       success: true,
       data: products,
+      summary: {
+        totalProducts: total,
+        activeProductsCount: activeCount,
+        inactiveProductsCount: inactiveCount,
+        lowStockProductsCount: lowOrOutStockCount
+      },
       pagination: { total, page: parseInt(page), limit: parseInt(limit) }
     });
   } catch (error) {

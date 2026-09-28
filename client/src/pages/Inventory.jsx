@@ -173,7 +173,7 @@ export default function Inventory() {
                 <tbody>
                   {variants.map((v, index) => {
                     const isOutOfStock = v.stock === 0;
-                    const isLowStock = !isOutOfStock && v.stock <= (v.lowStockThreshold || 0);
+                    const isLowStock = v.stock === 1;
                     
                     const badge = isOutOfStock 
                       ? { label: 'Out of Stock', bg: '#fef2f2', color: '#b91c1c', border: '#fecaca' }
