@@ -116,6 +116,21 @@ const getProducts = async (req, res) => {
     if (subcategory) {
       where.subcategory = subcategory;
     }
+    
+    if (req.query.status === 'active') where.isActive = true;
+    if (req.query.status === 'inactive') where.isActive = false;
+
+    if (req.query.stock) {
+      const allForStock = await prisma.product.findMany({ select: { id: true, variants: { select: { stock: true } } } });
+      const validIds = allForStock.filter(p => {
+        const total = p.variants.reduce((sum, v) => sum + (v.stock || 0), 0);
+        if (req.query.stock === 'in_stock') return total > 1;
+        if (req.query.stock === 'low_stock') return total === 1;
+        if (req.query.stock === 'out_of_stock') return total === 0;
+        return true;
+      }).map(p => p.id);
+      where.id = { in: validIds };
+    }
 
     const [products, total, allProductsSummary] = await Promise.all([
       prisma.product.findMany({
@@ -126,7 +141,7 @@ const getProducts = async (req, res) => {
           _count: { select: { variants: true } },
           variants: true
         },
-        orderBy: { createdAt: 'desc' }
+        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }]
       }),
       prisma.product.count({ where }),
       prisma.product.findMany({

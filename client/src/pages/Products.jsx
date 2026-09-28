@@ -27,23 +27,43 @@ export default function Products() {
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [stockFilter, setStockFilter] = useState('');
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState('');
-  const [stockFilter, setStockFilter] = useState('');
   const [activeMenuId, setActiveMenuId] = useState(null);
   const [expandedProductId, setExpandedProductId] = useState(null);
   const { currentUser } = useAuth();
 
   useEffect(() => {
+    setPage(1);
+  }, [search, categoryFilter, statusFilter, stockFilter]);
+
+  useEffect(() => {
     fetchProducts();
-  }, [search]);
+  }, [search, categoryFilter, statusFilter, stockFilter, page]);
 
   const fetchProducts = async () => {
     setLoading(true);
     setFetchError('');
     try {
-      const res = await api.get(`/products?search=${encodeURIComponent(search)}`);
+      let url = `/products?page=${page}&limit=50&search=${encodeURIComponent(search)}`;
+      if (categoryFilter) url += `&category=${encodeURIComponent(categoryFilter)}`;
+      if (statusFilter) url += `&status=${encodeURIComponent(statusFilter)}`;
+      if (stockFilter) url += `&stock=${encodeURIComponent(stockFilter)}`;
+      
+      const res = await api.get(url);
       setProducts(res.data.data || []);
+      
+      if (res.data.pagination) {
+        setTotalPages(Math.ceil(res.data.pagination.total / res.data.pagination.limit));
+        // Safety check if current page is empty after a delete
+        if (page > 1 && res.data.data.length === 0) {
+          setPage(page - 1);
+        }
+      }
+      
       if (res.data.summary) {
         setSummary(res.data.summary);
       }
@@ -95,19 +115,8 @@ export default function Products() {
   // Derive filter categories
   const categories = Array.from(new Set(products.map(p => p.category).filter(Boolean)));
 
-  // Filter products locally by category, status, stock
-  const filteredProducts = products.filter(p => {
-    if (categoryFilter && p.category !== categoryFilter) return false;
-    if (statusFilter === 'active' && !p.isActive) return false;
-    if (statusFilter === 'inactive' && p.isActive) return false;
-    
-    const stockInfo = getProductStockInfo(p);
-    if (stockFilter === 'in_stock' && stockInfo.status === 'out') return false;
-    if (stockFilter === 'low_stock' && stockInfo.status !== 'low') return false;
-    if (stockFilter === 'out_of_stock' && stockInfo.status !== 'out') return false;
-
-    return true;
-  });
+  // Products are already filtered by the backend
+  const filteredProducts = products;
 
   // Calculate summary stats
   const { totalProducts, activeProductsCount, inactiveProductsCount, lowStockProductsCount } = summary;
@@ -366,7 +375,7 @@ export default function Products() {
         <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.02)', overflow: 'hidden' }}>
           
           <div style={{ padding: '0.875rem 1.25rem', borderBottom: '1px solid #f1f5f9', background: '#f8fafc', fontSize: '0.85rem', color: '#64748b', fontWeight: '500' }}>
-            Showing {filteredProducts.length} of {totalProducts} products
+            Showing {(page - 1) * 50 + (filteredProducts.length > 0 ? 1 : 0)}–{(page - 1) * 50 + filteredProducts.length} of {totalProducts} products
           </div>
 
           <div className="table-responsive" style={{ overflowX: 'auto' }}>
@@ -638,6 +647,67 @@ export default function Products() {
               </tbody>
             </table>
           </div>
+          
+          {totalPages > 1 && (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '1rem', borderTop: '1px solid #e2e8f0', background: 'white' }}>
+              <button
+                onClick={() => setPage(page - 1)}
+                disabled={page === 1}
+                style={{
+                  padding: '0.4rem 0.8rem',
+                  borderRadius: '6px',
+                  border: '1px solid #cbd5e1',
+                  background: page === 1 ? '#f8fafc' : 'white',
+                  color: page === 1 ? '#94a3b8' : '#334155',
+                  cursor: page === 1 ? 'not-allowed' : 'pointer',
+                  fontSize: '0.85rem',
+                  fontWeight: '500'
+                }}
+              >
+                ← Previous
+              </button>
+              
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+                <button
+                  key={p}
+                  onClick={() => setPage(p)}
+                  style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '6px',
+                    border: p === page ? 'none' : '1px solid #cbd5e1',
+                    background: p === page ? '#2563eb' : 'white',
+                    color: p === page ? 'white' : '#334155',
+                    cursor: p === page ? 'default' : 'pointer',
+                    fontSize: '0.85rem',
+                    fontWeight: p === page ? '600' : '500',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
+                  {p}
+                </button>
+              ))}
+
+              <button
+                onClick={() => setPage(page + 1)}
+                disabled={page === totalPages}
+                style={{
+                  padding: '0.4rem 0.8rem',
+                  borderRadius: '6px',
+                  border: '1px solid #cbd5e1',
+                  background: page === totalPages ? '#f8fafc' : 'white',
+                  color: page === totalPages ? '#94a3b8' : '#334155',
+                  cursor: page === totalPages ? 'not-allowed' : 'pointer',
+                  fontSize: '0.85rem',
+                  fontWeight: '500'
+                }}
+              >
+                Next →
+              </button>
+            </div>
+          )}
         </div>
       )}
 
