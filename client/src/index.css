@@ -55,3 +55,8 @@ body { margin: 0; font-family: system-ui, sans-serif; background-color: #f9fafb;
   .no-print { display: none !important; }
 }
 
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+

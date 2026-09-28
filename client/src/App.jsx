@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ProtectedRoute, RoleRoute } from './components/ProtectedRoute';
 import AppLayout from './layouts/AppLayout';
+import ErrorBoundary from './components/ErrorBoundary';
 
 // Eagerly loaded for better UX on initial landing
 import Login from './pages/Login';
@@ -48,42 +49,44 @@ function App() {
     <BrowserRouter>
       <AuthProvider>
         <Toaster position="top-right" />
-        <Suspense fallback={<PageLoader />}>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/unauthorized" element={<Unauthorized />} />
+        <ErrorBoundary>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/unauthorized" element={<Unauthorized />} />
 
-            {/* Protected Routes */}
-            <Route element={<ProtectedRoute />}>
-              <Route path="/receipt/:id" element={<ReceiptView />} />
-              
-              <Route element={<AppLayout />}>
-                <Route path="/" element={<RootRedirect />} />
-                <Route path="/pos" element={<POS />} />
-                <Route path="/customers" element={<Customers />} />
-                <Route path="/customers/:id" element={<CustomerDetail />} />
-                <Route path="/orders" element={<Orders />} />
+              {/* Protected Routes */}
+              <Route element={<ProtectedRoute />}>
+                <Route path="/receipt/:id" element={<ReceiptView />} />
                 
-                <Route path="/products" element={<Products />} />
-                <Route path="/products/:id" element={<ProductDetail />} />
-                <Route path="/products/:id/edit" element={<EditProduct />} />
-                
-                <Route path="/inventory" element={<Inventory />} />
-                <Route path="/inventory/:variantId/history" element={<InventoryHistory />} />
-                
-                {/* Admin Only Routes */}
-                <Route element={<RoleRoute allowedRoles={['ADMIN']} />}>
-                  <Route path="/reports" element={<Reports />} />
-                  <Route path="/products/new" element={<ProductForm />} />
-                  <Route path="/inventory/history" element={<InventoryHistory />} />
-                  <Route path="/users" element={<Users />} />
-                  <Route path="/settings" element={<Settings />} />
-                  <Route path="/audit-logs" element={<AuditLogs />} />
+                <Route element={<AppLayout />}>
+                  <Route path="/" element={<RootRedirect />} />
+                  <Route path="/pos" element={<POS />} />
+                  <Route path="/customers" element={<Customers />} />
+                  <Route path="/customers/:id" element={<CustomerDetail />} />
+                  <Route path="/orders" element={<Orders />} />
+                  
+                  <Route path="/products" element={<Products />} />
+                  <Route path="/products/:id" element={<ProductDetail />} />
+                  <Route path="/products/:id/edit" element={<EditProduct />} />
+                  
+                  <Route path="/inventory" element={<Inventory />} />
+                  <Route path="/inventory/:variantId/history" element={<InventoryHistory />} />
+                  
+                  {/* Admin Only Routes */}
+                  <Route element={<RoleRoute allowedRoles={['ADMIN']} />}>
+                    <Route path="/reports" element={<Reports />} />
+                    <Route path="/products/new" element={<ProductForm />} />
+                    <Route path="/inventory/history" element={<InventoryHistory />} />
+                    <Route path="/users" element={<Users />} />
+                    <Route path="/settings" element={<Settings />} />
+                    <Route path="/audit-logs" element={<AuditLogs />} />
+                  </Route>
                 </Route>
               </Route>
-            </Route>
-          </Routes>
-        </Suspense>
+            </Routes>
+          </Suspense>
+        </ErrorBoundary>
       </AuthProvider>
     </BrowserRouter>
   );

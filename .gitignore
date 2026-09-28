@@ -111,3 +111,11 @@ dist
 
 # Prisma
 server/prisma/*.db
+
+# Temp scripts
+scratch/
+extract_prompt.js
+prompt.txt
+client/patch_*.cjs
+client/fix_*.cjs
+server/test-*.js

@@ -1,4 +1,5 @@
 import toast from 'react-hot-toast';
+import ConfirmModal from '../components/ConfirmModal';
 import { useState, useEffect } from 'react';
 import { useDebounce } from 'use-debounce';
 import { Link } from 'react-router-dom';
@@ -38,6 +39,7 @@ export default function Products() {
   const [fetchError, setFetchError] = useState('');
   const [activeMenuId, setActiveMenuId] = useState(null);
   const [expandedProductId, setExpandedProductId] = useState(null);
+  const [confirmModal, setConfirmModal] = useState({ open: false, productId: null });
   const { currentUser } = useAuth();
 
   useEffect(() => {
@@ -80,12 +82,18 @@ export default function Products() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this product? (This will fail if it has past orders)')) return;
+    setConfirmModal({ open: true, productId: id });
+  };
+
+  const confirmDelete = async () => {
+    const id = confirmModal.productId;
+    setConfirmModal({ open: false, productId: null });
     try {
       await api.delete('/products/' + id);
+      toast.success('Product deleted successfully');
       fetchProducts();
     } catch (err) {
-      toast(err.response?.data?.message || 'Error deleting product');
+      toast.error(err.response?.data?.message || 'Error deleting product');
     } finally {
       setActiveMenuId(null);
     }
@@ -349,9 +357,13 @@ export default function Products() {
         <div style={{ textAlign: 'center', padding: '4rem 1.5rem', background: 'white', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
           {hasActiveFilters ? (
             <div>
-              <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>🔍</div>
-              <h3 style={{ fontSize: '1.15rem', color: '#0f172a', margin: '0 0 0.5rem 0' }}>No products match your search</h3>
-              <p style={{ color: '#64748b', margin: '0 0 1.25rem 0' }}>Try changing or resetting your search or filter options.</p>
+              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔍</div>
+              <h3 style={{ fontSize: '1.25rem', color: '#0f172a', margin: '0 0 0.5rem 0' }}>
+                No products match your filters
+              </h3>
+              <p style={{ color: '#64748b', margin: '0 0 1.5rem 0' }}>
+                Try adjusting or clearing your search and filter criteria.
+              </p>
               <button
                 onClick={clearFilters}
                 style={{ padding: '0.6rem 1.25rem', background: '#2563eb', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '500' }}
@@ -760,6 +772,15 @@ export default function Products() {
         </div>
       )}
 
+      <ConfirmModal
+        isOpen={confirmModal.open}
+        title="Delete Product"
+        message="Are you sure you want to delete this product? This action cannot be undone. (This will fail if the product has past orders.)"
+        confirmText="Delete"
+        confirmColor="#dc2626"
+        onConfirm={confirmDelete}
+        onCancel={() => setConfirmModal({ open: false, productId: null })}
+      />
     </div>
   );
 }
