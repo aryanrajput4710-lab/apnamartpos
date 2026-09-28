@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useDebounce } from 'use-debounce';
 import { Link } from 'react-router-dom';
 import { Search, Printer, RotateCcw, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
+import ConfirmModal from '../components/ConfirmModal';
 import { SkeletonRow, SkeletonCard } from '../components/SkeletonRow';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -11,6 +12,7 @@ export default function Orders() {
   const { currentUser } = useAuth();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [confirmModal, setConfirmModal] = useState({ open: false, action: null, id: null });
   
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 500);
@@ -134,7 +136,7 @@ export default function Orders() {
 
 
   const handleClearTestOrders = async () => {
-    if (!window.confirm('WARNING: Are you absolutely sure you want to delete ALL orders and related data (returns, payments, sale history)? This will NOT restore inventory! This is meant for clearing test data only.')) return;
+    setConfirmModal({ open: true, action: 'deleteAll', id: null }); return;
     try {
       await api.delete("/orders");
       fetchOrders();
@@ -146,7 +148,7 @@ export default function Orders() {
 
   const handleDeleteOrder = async (orderId) => {
 
-    if (!window.confirm('Are you sure you want to completely delete this order? This action cannot be undone, but inventory will be restored.')) return;
+    setConfirmModal({ open: true, action: 'deleteSingle', id: orderId }); return;
     try {
       await api.delete("/orders/" + orderId);
       fetchOrders();

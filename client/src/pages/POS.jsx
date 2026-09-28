@@ -4,6 +4,7 @@ import api from '../services/api';
 import { Link, useOutletContext } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { ShoppingCart, User, Search, Trash2, Plus, Minus, X, Camera, Menu, LayoutDashboard, Package, Users, FileText, TrendingUp, UserPlus, Settings, LogOut, ChevronRight, Keyboard } from 'lucide-react';
+import ConfirmModal from '../components/ConfirmModal';
 import CameraScanner from '../components/CameraScanner';
 import { useBarcodeScanner } from '../hooks/useBarcodeScanner';
 import Receipt from '../components/Receipt';
@@ -15,6 +16,7 @@ export default function POS() {
   
   // Cart State
   const [cart, setCart] = useState([]);
+  const [confirmModal, setConfirmModal] = useState(false);
   const [extraDiscount, setExtraDiscount] = useState('');
   
   // Scanner / Search State
@@ -235,15 +237,10 @@ export default function POS() {
     } catch (err) { toast.error('Failed to close register'); }
   };
 
-  const clearCart = () => {
-    if (cart.length > 0 && window.confirm('Clear all items from this sale?')) {
-      setCart([]);
-      setCustomer(null);
-      setExtraDiscount("");
-    }
-  };
+  const clearCart = () => { if (cart.length > 0) { setConfirmModal(true); } };
+  const confirmClearCart = () => { setCart([]); setCustomer(null); setExtraDiscount(''); };
 
-  // Calculations
+// Calculations
   const totals = useMemo(() => {
     let subtotal = 0;
     let totalDiscount = 0;
