@@ -638,6 +638,35 @@ export default function POS() {
             
             <h2 style={{ marginTop: 0 }}>Checkout</h2>
             
+            {/* Customer Info at Checkout */}
+            {!customer ? (
+              <div style={{ marginBottom: '1.5rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold', color: '#334155' }}>Customer Phone (Optional)</label>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <input 
+                    type="text" 
+                    value={customerPhone} 
+                    onChange={e => setCustomerPhone(e.target.value)}
+                    placeholder="Enter phone number..."
+                    style={{ flex: 1, padding: '0.75rem 1rem', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none' }}
+                  />
+                  <button onClick={searchCustomer} style={{ padding: '0 1.25rem', background: '#f1f5f9', color: '#334155', border: '1px solid #cbd5e1', borderRadius: '8px', fontWeight: '600', cursor: 'pointer' }}>
+                    Find
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div style={{ marginBottom: '1.5rem', background: '#f8fafc', padding: '1rem', borderRadius: '8px', border: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <div style={{ fontWeight: 'bold', color: '#0f172a' }}>{customer.name}</div>
+                  <div style={{ color: '#64748b', fontSize: '0.875rem', marginTop: '0.25rem' }}>{customer.phone}</div>
+                </div>
+                <button onClick={() => {setCustomer(null); setCustomerPhone('');}} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '0.25rem' }}>
+                  <X size={18} />
+                </button>
+              </div>
+            )}
+
             <div style={{ marginBottom: '1.5rem', background: '#f3f4f6', padding: '1rem', borderRadius: '8px', textAlign: 'center' }}>
               <div style={{ fontSize: '1.2rem', color: '#4b5563' }}>Amount Due</div>
               <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#16a34a' }}>Rs. {totals.total.toFixed(2)}</div>
