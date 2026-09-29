@@ -11,7 +11,7 @@ const CATEGORY_TREE = {
   "Bags": [],
   "Accessories": ["Watch", "Belt", "Ladies Purse", "Mens Purse", "Chain", "Earrings", "Others"],
   "Gift Items": ["Birthday Items"],
-  "Grocery": [],
+  "Grocery": ["Rice", "Dal & Pulses", "Flour & Atta", "Sugar & Salt", "Oils & Ghee", "Spices & Masala", "Dry Fruits", "Tea & Coffee", "Snacks & Biscuits", "Others"],
   "Daily Use Items": ["Soap", "Shampoo", "Toothpaste", "Toothbrush", "Face Wash", "Hair Oil", "Body Lotion", "Detergent", "Dishwash", "Phenyl", "Mosquito Repellent", "Handwash", "Others"],
   "Plastic Item": [],
   "Cookware": [],
@@ -19,7 +19,7 @@ const CATEGORY_TREE = {
   "Stationery": [],
   "Glass Set": [],
   "Crockery": [],
-  "Beauty & Fashion": [],
+  "Beauty & Fashion": ["Makeup", "Skincare", "Haircare", "Fragrances", "Deodorants", "Mens Grooming", "Others"],
   "Puja Items": [],
   "Electronics": [],
   "Other Items": []
