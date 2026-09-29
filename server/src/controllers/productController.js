@@ -425,25 +425,54 @@ module.exports.deleteProduct = deleteProduct;
 const updateVariant = async (req, res) => {
   try {
     const { variantId } = req.params;
-    const { color, size, netQuantity, costPrice, mrp, sellingPrice, discountType, discountValue, lowStockThreshold, sku } = req.body;
-    
-    const variant = await prisma.productVariant.update({
-      where: { id: variantId },
-      data: {
-        sku: sku || undefined,
-        color,
-        size,
-        netQuantity,
-        costPrice,
-        mrp,
-        sellingPrice,
-        discountType,
-        discountValue,
-        lowStockThreshold
+    const { color, size, netQuantity, costPrice, mrp, sellingPrice, discountType, discountValue, lowStockThreshold, sku, stock } = req.body;
+
+    // Get current variant to check existing stock
+    const existing = await prisma.productVariant.findUnique({ where: { id: variantId } });
+    if (!existing) return res.status(404).json({ success: false, message: 'Variant not found' });
+
+    const newStock = stock !== undefined ? parseInt(stock) : existing.stock;
+    const stockChanged = newStock !== existing.stock;
+
+    const variant = await prisma.$transaction(async (tx) => {
+      const updated = await tx.productVariant.update({
+        where: { id: variantId },
+        data: {
+          sku: sku || undefined,
+          color,
+          size,
+          netQuantity,
+          costPrice,
+          mrp,
+          sellingPrice,
+          discountType,
+          discountValue,
+          lowStockThreshold,
+          stock: newStock
+        }
+      });
+
+      // Record inventory adjustment if stock changed
+      if (stockChanged) {
+        await tx.inventoryTransaction.create({
+          data: {
+            variantId,
+            type: 'ADJUSTMENT',
+            quantity: Math.abs(newStock - existing.stock),
+            previousStock: existing.stock,
+            newStock,
+            reason: 'MANUAL_ADJUSTMENT',
+            createdBy: req.user.id
+          }
+        });
       }
+
+      return updated;
     });
+
     res.json({ success: true, data: variant });
   } catch (error) {
+    console.error('Update variant error:', error);
     res.status(500).json({ success: false, message: 'Failed to update variant' });
   }
 };

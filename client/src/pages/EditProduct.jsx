@@ -12,6 +12,7 @@ const CATEGORY_TREE = {
   "Accessories": ["Watch", "Belt", "Ladies Purse", "Mens Purse", "Chain", "Earrings", "Others"],
   "Gift Items": ["Birthday Items"],
   "Grocery": [],
+  "Daily Use Items": ["Soap", "Shampoo", "Toothpaste", "Toothbrush", "Face Wash", "Hair Oil", "Body Lotion", "Detergent", "Dishwash", "Phenyl", "Mosquito Repellent", "Others"],
   "Plastic Item": [],
   "Cookware": [],
   "Kitchen & Home Appliances": [],
