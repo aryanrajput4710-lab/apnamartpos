@@ -138,11 +138,22 @@ export default function ProductDetail() {
                       const barcodeValue = variant.barcode || variant.sku || '000000';
                       // Approximate max modules for Code128 (worst case alphanumeric)
                       const moduleCount = barcodeValue.length * 11 + 35;
+                      // Calculate exact CSS pixel width for 1, 2, 3, 4 dots on a 203 DPI thermal printer
+                      // 1 inch = 96 CSS pixels = 203 thermal dots. Therefore 1 dot = 96/203 = 0.4729px.
+                      const dot1 = 96 / 203;
+                      const dot2 = dot1 * 2;
+                      const dot3 = dot1 * 3;
+                      const dot4 = dot1 * 4;
+
                       // 40mm label width (~151px) minus 2mm padding total (~8px) = ~143px available
-                      // Subtract 10px for the barcode's own margin (5px left/right) -> ~133px
-                      let dynamicWidth = Math.floor((133 / moduleCount) * 10) / 10;
-                      // Ensure width is at least 0.7 and at most 2.5 to fit long SKUs without CSS scaling
-                      dynamicWidth = Math.max(0.7, Math.min(dynamicWidth, 2.5));
+                      // Subtract 10px for the barcode's own margin (5px left/right) -> ~133px max width
+                      const maxWidth = 133;
+
+                      // Snap to the largest integer dot width that fits the label
+                      let dynamicWidth = dot1; // Fallback to 1 dot (very dense, but scannable)
+                      if (moduleCount * dot4 <= maxWidth) dynamicWidth = dot4;
+                      else if (moduleCount * dot3 <= maxWidth) dynamicWidth = dot3;
+                      else if (moduleCount * dot2 <= maxWidth) dynamicWidth = dot2;
 
                       return (
                         <Barcode 

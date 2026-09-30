@@ -39,12 +39,11 @@
 .label-title {
   font-weight: 800; /* Bolder */
   font-size: 10pt; /* Smaller for 40x30 */
-  line-height: 1.1;
+  line-height: 1.2;
   text-transform: uppercase;
   margin-bottom: 3px;
   word-wrap: break-word;
-  max-height: 2.2em; /* allow up to 2 lines */
-  overflow: hidden;
+  max-height: 2.4em; /* allow up to 2 lines */
 }
 
 .label-details {
