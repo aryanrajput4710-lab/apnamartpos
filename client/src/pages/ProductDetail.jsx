@@ -127,10 +127,16 @@ export default function ProductDetail() {
                       {hasDiscount ? (
                         <>
                           <div className="label-mrp">MRP: Rs. {variant.mrp}</div>
-                          <div className="label-sale">SALE: Rs. {variant.sellingPrice}</div>
+                          <div className="label-sale">
+                            <div>SALE:</div>
+                            <div>Rs. {variant.sellingPrice}</div>
+                          </div>
                         </>
                       ) : (
-                        <div className="label-sale">MRP: Rs. {variant.mrp || variant.sellingPrice}</div>
+                        <div className="label-sale">
+                          <div>MRP:</div>
+                          <div>Rs. {variant.mrp || variant.sellingPrice}</div>
+                        </div>
                       )}
                     </div>
                   </div>
