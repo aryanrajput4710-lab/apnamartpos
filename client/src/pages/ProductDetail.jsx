@@ -134,17 +134,30 @@ export default function ProductDetail() {
                   </div>
 
                   <div className="label-barcode-section">
-                    <Barcode 
-                      value={variant.barcode || variant.sku || '000000'} 
-                      format="CODE128" 
-                      width={2} 
-                      height={45} 
-                      displayValue={true} 
-                      fontSize={13} 
-                      margin={5} 
-                      background="#ffffff"
-                      lineColor="#000000"
-                    />
+                    {(() => {
+                      const barcodeValue = variant.barcode || variant.sku || '000000';
+                      // Approximate max modules for Code128 (worst case alphanumeric)
+                      const moduleCount = barcodeValue.length * 11 + 35;
+                      // 2-inch label width (~192px) minus padding (~20px) = ~170px available
+                      // Subtract 20px for the barcode's own margin (10px left/right) -> 150px
+                      let dynamicWidth = Math.floor((150 / moduleCount) * 10) / 10;
+                      // Ensure width is at least 1 and at most 2.5
+                      dynamicWidth = Math.max(1.0, Math.min(dynamicWidth, 2.5));
+
+                      return (
+                        <Barcode 
+                          value={barcodeValue} 
+                          format="CODE128" 
+                          width={dynamicWidth} 
+                          height={60} 
+                          displayValue={true} 
+                          fontSize={13} 
+                          margin={10} 
+                          background="#ffffff"
+                          lineColor="#000000"
+                        />
+                      );
+                    })()}
                   </div>
                 </div>
               </div>
