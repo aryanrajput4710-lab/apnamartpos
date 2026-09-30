@@ -1,7 +1,7 @@
 import { SkeletonCard } from '../components/SkeletonRow';
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import Barcode from 'react-barcode';
+import { QRCodeSVG } from 'qrcode.react';
 import api from '../services/api';
 import './LabelPrint.css';
 
@@ -111,62 +111,44 @@ export default function ProductDetail() {
             return Array.from({ length: count }).map((_, index) => (
               <div className="label-container" key={`${variant.id}-${index}`}>
                 <div className="label-content">
-                  <div className="label-title">{product.name}</div>
-                  
-                  {(brand || size || color || netQty) && (
-                    <div className="label-details">
-                      {brand && <span className="label-detail-item">Brand: {brand}</span>}
-                      {size && <span className="label-detail-item">Size: {size}</span>}
-                      {color && <span className="label-detail-item">Color: {color}</span>}
-                      {netQty && <span className="label-detail-item">Net Qty: {netQty}</span>}
-                    </div>
-                  )}
-                  
-                  <div className="label-pricing">
-                    {hasDiscount ? (
-                      <>
-                        <div className="label-mrp">MRP: Rs. {variant.mrp}</div>
-                        <div className="label-sale">SALE: Rs. {variant.sellingPrice}</div>
-                      </>
-                    ) : (
-                      <div className="label-sale">MRP: Rs. {variant.mrp || variant.sellingPrice}</div>
+                  <div className="label-text-section">
+                    <div className="label-title">{product.name}</div>
+                    
+                    {(brand || size || color || netQty) && (
+                      <div className="label-details">
+                        {brand && <span className="label-detail-item">Brand: {brand}</span>}
+                        {size && <span className="label-detail-item">Size: {size}</span>}
+                        {color && <span className="label-detail-item">Color: {color}</span>}
+                        {netQty && <span className="label-detail-item">Net Qty: {netQty}</span>}
+                      </div>
                     )}
+                    
+                    <div className="label-pricing">
+                      {hasDiscount ? (
+                        <>
+                          <div className="label-mrp">MRP: Rs. {variant.mrp}</div>
+                          <div className="label-sale">SALE: Rs. {variant.sellingPrice}</div>
+                        </>
+                      ) : (
+                        <div className="label-sale">MRP: Rs. {variant.mrp || variant.sellingPrice}</div>
+                      )}
+                    </div>
                   </div>
 
-                  <div className="label-barcode-section">
+                  <div className="label-qr-section">
                     {(() => {
                       const barcodeValue = variant.barcode || variant.sku || '000000';
-                      // Approximate max modules for Code128 (worst case alphanumeric)
-                      const moduleCount = barcodeValue.length * 11 + 35;
-                      // Calculate exact CSS pixel width for 1, 2, 3, 4 dots on a 203 DPI thermal printer
-                      // 1 inch = 96 CSS pixels = 203 thermal dots. Therefore 1 dot = 96/203 = 0.4729px.
-                      const dot1 = 96 / 203;
-                      const dot2 = dot1 * 2;
-                      const dot3 = dot1 * 3;
-                      const dot4 = dot1 * 4;
-
-                      // 40mm label width (~151px) minus 2mm padding total (~8px) = ~143px available
-                      // Subtract 10px for the barcode's own margin (5px left/right) -> ~133px max width
-                      const maxWidth = 133;
-
-                      // Snap to the largest integer dot width that fits the label
-                      let dynamicWidth = dot1; // Fallback to 1 dot (very dense, but scannable)
-                      if (moduleCount * dot4 <= maxWidth) dynamicWidth = dot4;
-                      else if (moduleCount * dot3 <= maxWidth) dynamicWidth = dot3;
-                      else if (moduleCount * dot2 <= maxWidth) dynamicWidth = dot2;
-
                       return (
-                        <Barcode 
-                          value={barcodeValue} 
-                          format="CODE128" 
-                          width={dynamicWidth} 
-                          height={30} 
-                          displayValue={true} 
-                          fontSize={9} 
-                          margin={5} 
-                          background="#ffffff"
-                          lineColor="#000000"
-                        />
+                        <>
+                          <QRCodeSVG 
+                            value={barcodeValue} 
+                            size={45} 
+                            level={"M"}
+                            marginSize={0}
+                            style={{ shapeRendering: 'crispEdges' }}
+                          />
+                          <div className="label-qr-value">{barcodeValue}</div>
+                        </>
                       );
                     })()}
                   </div>
