@@ -117,7 +117,10 @@ const checkout = async (req, res) => {
         if (!variant.isActive) throw new Error(`Variant ${variant.sku} is inactive`);
         if (variant.stock < item.quantity) throw new Error(`Insufficient stock for ${variant.sku}. Available: ${variant.stock}`);
 
-        const price = parseFloat(variant.sellingPrice);
+        let price = parseFloat(variant.sellingPrice);
+        if (variant.sku === 'MISC' && item.customPrice !== undefined) {
+          price = parseFloat(item.customPrice);
+        }
         const qty = item.quantity;
         const lineTotal = price * qty;
         

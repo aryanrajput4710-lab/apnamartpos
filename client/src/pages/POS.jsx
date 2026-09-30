@@ -192,6 +192,34 @@ export default function POS() {
     scanInputRef.current?.focus();
   };
 
+  const addCustomItem = async () => {
+    const priceStr = prompt("Enter price for custom item (Rs):");
+    if (!priceStr) return;
+    const price = parseFloat(priceStr);
+    if (isNaN(price) || price <= 0) {
+      toast.error("Invalid price");
+      return;
+    }
+    const name = prompt("Enter item name (optional):") || "Miscellaneous Item";
+    try {
+      const res = await api.get('/pos/scan/MISC');
+      const variant = res.data.data;
+      const customItem = {
+        ...variant,
+        id: 'custom-' + Date.now(),
+        variantId: variant.id,
+        sellingPrice: price,
+        customPrice: price,
+        quantity: 1,
+        product: { ...variant.product, name: name }
+      };
+      playBeep();
+      setCart(prev => [...prev, customItem]);
+    } catch (err) {
+      toast.error("Error adding custom item");
+    }
+  };
+
   const updateQuantity = (id, delta) => {
     setCart(prev => prev.map(item => {
       if (item.id === id) {
@@ -315,7 +343,7 @@ export default function POS() {
     setIsProcessing(true);
     try {
       const payload = {
-        items: cart.map(item => ({ variantId: item.id, quantity: item.quantity })),
+        items: cart.map(item => ({ variantId: item.variantId || item.id, quantity: item.quantity, customPrice: item.customPrice })),
         customerId: customer?.id || null,
         customerPhone: customerPhone || null,
         customerName: newCustomer.name || null,
@@ -423,6 +451,9 @@ export default function POS() {
             </div>
             <button type="submit" style={{ padding: '0 1.5rem', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '12px', fontWeight: '600', fontSize: '1rem', cursor: 'pointer', boxShadow: '0 2px 4px rgba(59,130,246,0.3)' }}>
               Search
+            </button>
+            <button type="button" onClick={addCustomItem} style={{ padding: '0 1.5rem', background: '#f59e0b', color: 'white', border: 'none', borderRadius: '12px', fontWeight: '600', fontSize: '1rem', cursor: 'pointer', boxShadow: '0 2px 4px rgba(245,158,11,0.3)' }}>
+              Custom Item
             </button>
           </form>
 
