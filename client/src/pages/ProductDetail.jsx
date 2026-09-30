@@ -138,21 +138,21 @@ export default function ProductDetail() {
                       const barcodeValue = variant.barcode || variant.sku || '000000';
                       // Approximate max modules for Code128 (worst case alphanumeric)
                       const moduleCount = barcodeValue.length * 11 + 35;
-                      // 40mm label width (~151px) minus 4mm padding (~15px) = ~136px available
-                      // Subtract 20px for the barcode's own margin (10px left/right) -> ~116px
-                      let dynamicWidth = Math.floor((116 / moduleCount) * 10) / 10;
-                      // Ensure width is at least 1 and at most 2.5
-                      dynamicWidth = Math.max(1.0, Math.min(dynamicWidth, 2.5));
+                      // 40mm label width (~151px) minus 2mm padding total (~8px) = ~143px available
+                      // Subtract 10px for the barcode's own margin (5px left/right) -> ~133px
+                      let dynamicWidth = Math.floor((133 / moduleCount) * 10) / 10;
+                      // Ensure width is at least 0.7 and at most 2.5 to fit long SKUs without CSS scaling
+                      dynamicWidth = Math.max(0.7, Math.min(dynamicWidth, 2.5));
 
                       return (
                         <Barcode 
                           value={barcodeValue} 
                           format="CODE128" 
                           width={dynamicWidth} 
-                          height={35} 
+                          height={30} 
                           displayValue={true} 
-                          fontSize={10} 
-                          margin={10} 
+                          fontSize={9} 
+                          margin={5} 
                           background="#ffffff"
                           lineColor="#000000"
                         />

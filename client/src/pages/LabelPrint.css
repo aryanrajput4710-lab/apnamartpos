@@ -22,7 +22,7 @@
   flex-direction: column;
   color: black;
   box-sizing: border-box;
-  padding: 2mm; /* Smaller padding for smaller label */
+  padding: 1mm; /* Reduced padding to maximize width for barcode */
   overflow: hidden;
   page-break-inside: avoid;
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
@@ -91,7 +91,6 @@
 }
 
 .label-barcode-section svg {
-  max-width: 100%;
   display: block;
   shape-rendering: crispEdges; /* help with sharpness */
 }
