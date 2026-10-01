@@ -698,6 +698,18 @@ export default function POS() {
               </div>
             )}
 
+            <div style={{ marginBottom: '1.5rem' }}>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold', color: '#334155' }}>Extra Discount (Rs)</label>
+              <input 
+                type="number" 
+                min="0"
+                value={extraDiscount}
+                onChange={e => setExtraDiscount(e.target.value)}
+                placeholder="0"
+                style={{ width: '100%', padding: '0.75rem 1rem', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none', boxSizing: 'border-box' }}
+              />
+            </div>
+
             <div style={{ marginBottom: '1.5rem', background: '#f3f4f6', padding: '1rem', borderRadius: '8px', textAlign: 'center' }}>
               <div style={{ fontSize: '1.2rem', color: '#4b5563' }}>Amount Due</div>
               <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#16a34a' }}>Rs. {totals.total.toFixed(2)}</div>
