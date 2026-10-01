@@ -248,7 +248,7 @@ export default function Orders() {
                     <tr key={o.id} style={{ borderBottom: index === orders.length - 1 ? 'none' : '1px solid #e5e7eb', transition: 'background-color 0.15s' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
                       <td style={{ padding: '1rem 1.25rem', fontWeight: 600, color: '#111827', fontSize: '0.875rem' }}>{o.orderNumber}</td>
                       <td style={{ padding: '1rem 1.25rem', fontSize: '0.875rem', color: '#4b5563' }}>{new Date(o.createdAt).toLocaleString()}</td>
-                      <td style={{ padding: '1rem 1.25rem', fontWeight: 600, color: '#111827', fontSize: '0.875rem' }}>Rs. {parseFloat(o.totalAmount).toFixed(2)}</td>
+                      <td style={{ padding: '1rem 1.25rem', fontWeight: 600, color: '#111827', fontSize: '0.875rem' }}>Rs. {parseFloat(o.total).toFixed(2)}</td>
                       <td style={{ padding: '1rem 1.25rem', fontSize: '0.875rem', color: '#4b5563' }}>{o.payments?.[0]?.method || 'N/A'}</td>
                       <td style={{ padding: '1rem 1.25rem' }}>
                         <span style={{ padding: '0.25rem 0.65rem', background: o.payments?.[0]?.status === 'COMPLETED' ? '#dcfce7' : '#fef2f2', color: o.payments?.[0]?.status === 'COMPLETED' ? '#15803d' : '#b91c1c', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '0.375rem' }}>

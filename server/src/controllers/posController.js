@@ -5,8 +5,7 @@ const scanProduct = async (req, res) => {
   try {
     const { code } = req.params;
 
-    // Search by exact barcode or SKU
-    const variant = await prisma.productVariant.findFirst({
+    let variant = await prisma.productVariant.findFirst({
       where: {
         OR: [
           { barcode: code },
@@ -21,6 +20,44 @@ const scanProduct = async (req, res) => {
         product: true
       }
     });
+
+    if (!variant && code === 'MISC') {
+      const product = await prisma.product.create({
+        data: {
+          name: 'Miscellaneous Item',
+          category: 'Miscellaneous',
+          isActive: true,
+          variants: {
+            create: {
+              sku: 'MISC',
+              barcode: 'MISC',
+              stock: 999999,
+              costPrice: 0,
+              sellingPrice: 0,
+              mrp: 0
+            }
+          }
+        },
+        include: {
+          variants: true
+        }
+      });
+      variant = {
+        ...product.variants[0],
+        product: {
+          id: product.id,
+          name: product.name,
+          category: product.category,
+          isActive: product.isActive
+        }
+      };
+    } else if (variant && variant.sku === 'MISC' && variant.stock < 100) {
+      await prisma.productVariant.update({
+        where: { id: variant.id },
+        data: { stock: 999999 }
+      });
+      variant.stock = 999999;
+    }
 
     if (!variant) {
       return res.status(404).json({ success: false, message: 'Product not found or inactive' });
