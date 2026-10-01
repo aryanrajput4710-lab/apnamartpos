@@ -48,7 +48,6 @@ export default function Receipt({ order }) {
 
       {/* ── HEADER ── */}
       <div className="receipt-header">
-        <img src="/receipt-logo.jpg" alt="Logo" className="receipt-logo" />
         <div className="receipt-store-name">{storeName}</div>
         <div className="receipt-address">{storeAddress}</div>
         {storePhone && <div className="receipt-address">Ph: {storePhone}</div>}
@@ -68,7 +67,8 @@ export default function Receipt({ order }) {
           <span className="rif-label">Date</span>
           <span className="rif-colon">:</span>
           <span className="rif-value">{dateStr}</span>
-          <span className="rif-spacer" />
+        </div>
+        <div className="receipt-info-row">
           <span className="rif-label">Time</span>
           <span className="rif-colon">:</span>
           <span className="rif-value">{timeStr}</span>
