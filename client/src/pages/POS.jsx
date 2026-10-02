@@ -200,32 +200,40 @@ export default function POS() {
     scanInputRef.current?.focus();
   };
 
-  const addCustomItem = async () => {
-    const priceStr = prompt("Enter price for custom item (Rs):");
-    if (!priceStr) return;
-    const price = parseFloat(priceStr);
-    if (isNaN(price) || price <= 0) {
-      toast.error("Invalid price");
-      return;
-    }
-    const name = prompt("Enter item name (optional):") || "Miscellaneous Item";
+
+  const handleCreateCustomProduct = async (e) => {
+    e.preventDefault();
     try {
-      const res = await api.get('/pos/scan/MISC');
-      const variant = res.data.data;
-      const customItem = {
-        ...variant,
-        id: 'custom-' + Date.now(),
-        variantId: variant.id,
-        sellingPrice: price,
-        customPrice: price,
-        quantity: 1,
-        product: { ...variant.product, name: name }
+      const { name, costPrice, sellingPrice, mrp, stock } = customProductForm;
+      if (!name || !costPrice || !sellingPrice || !mrp || !stock) {
+        toast('Please fill all fields');
+        return;
+      }
+      
+      const payload = {
+        name,
+        variants: [{
+          costPrice: Number(costPrice),
+          sellingPrice: Number(sellingPrice),
+          mrp: Number(mrp),
+          stock: Number(stock)
+        }]
       };
-      playBeep();
-      setCart(prev => [...prev, customItem]);
+      
+      const res = await api.post('/products', payload);
+      const newProduct = res.data.data;
+      const newVariant = { ...newProduct.variants[0], product: { name: newProduct.name } };
+      addToCart(newVariant);
+      setShowAddProductModal(false);
+      toast('Product added and inventory updated!');
     } catch (err) {
-      toast.error("Error adding custom item");
+      toast(err.response?.data?.message || 'Error creating product');
     }
+  };
+
+  const handleCustomItemClick = () => {
+    setCustomProductForm({ name: '', costPrice: '', sellingPrice: '', mrp: '', stock: '' });
+    setShowAddProductModal(true);
   };
 
   const updateQuantity = (id, delta) => {
