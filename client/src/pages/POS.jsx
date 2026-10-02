@@ -194,8 +194,6 @@ export default function POS() {
       }
       return [...prev, { ...variant, quantity: 1 }];
     });
-    setSearchResults([]);
-    setScanInput('');
     scanInputRef.current?.focus();
   };
 
@@ -449,7 +447,10 @@ export default function POS() {
                 ref={scanInputRef}
                 type="text"
                 value={scanInput}
-                onChange={(e) => setScanInput(e.target.value)}
+                onChange={(e) => {
+                  setScanInput(e.target.value);
+                  if (e.target.value.trim() === '') setSearchResults([]);
+                }}
                 placeholder="Scan barcode or search product..."
                 style={{ width: '100%', height: '52px', padding: '0 16px', fontSize: '1.05rem', borderRadius: '12px', border: '1px solid #cbd5e1', outline: 'none', boxShadow: '0 2px 4px rgba(0,0,0,0.02)', transition: 'border-color 0.2s', boxSizing: 'border-box', background: 'white', minHeight: 'unset' }}
                 onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
