@@ -96,6 +96,13 @@ export default function POS() {
     setShowHeldModal(false);
   };
   const [settings, setSettings] = useState(null);
+
+  const handleDeleteHeldCart = (heldId) => {
+    if (window.confirm("Are you sure you want to delete this held cart?")) {
+      setHeldCarts(heldCarts.filter(hc => hc.id !== heldId));
+    }
+  };
+
   const [offers, setOffers] = useState([]);
   const [heldCarts, setHeldCarts] = useState(() => {
     try {
@@ -812,7 +819,10 @@ export default function POS() {
                       <div style={{ fontWeight: 'bold' }}>Time: {hc.time}</div>
                       <div style={{ color: '#4b5563', fontSize: '0.9rem' }}>Items: {hc.cart.length} | Customer: {hc.customer ? hc.customer.phone : 'Guest'}</div>
                     </div>
-                    <button onClick={() => handleRestoreCart(hc.id)} style={{ padding: '0.5rem 1rem', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>Resume</button>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <button onClick={() => handleDeleteHeldCart(hc.id)} style={{ padding: '0.5rem 1rem', background: '#ef4444', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>Delete</button>
+                      <button onClick={() => handleRestoreCart(hc.id)} style={{ padding: '0.5rem 1rem', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>Resume</button>
+                    </div>
                   </div>
                 ))}
               </div>
