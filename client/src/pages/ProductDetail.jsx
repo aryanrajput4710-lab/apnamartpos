@@ -10,6 +10,7 @@ export default function ProductDetail() {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [labelCounts, setLabelCounts] = useState({});
+  const [showSellingPrice, setShowSellingPrice] = useState(true);
 
   useEffect(() => {
     fetchProduct();
@@ -61,6 +62,18 @@ export default function ProductDetail() {
           <button onClick={handlePrint} disabled={totalLabels === 0} style={{ padding: '0.75rem 1.5rem', background: totalLabels > 0 ? '#2563eb' : '#94a3b8', color: 'white', border: 'none', borderRadius: '8px', cursor: totalLabels > 0 ? 'pointer' : 'not-allowed', fontWeight: 'bold', fontSize: '1rem', boxShadow: '0 4px 6px -1px rgba(37, 99, 235, 0.2)' }}>
             Print {totalLabels} Labels
           </button>
+        </div>
+
+        <div style={{ marginBottom: '1rem' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', color: '#334155' }}>
+            <input 
+              type="checkbox" 
+              checked={showSellingPrice} 
+              onChange={(e) => setShowSellingPrice(e.target.checked)} 
+              style={{ cursor: 'pointer' }}
+            />
+            Show Selling Price on Label
+          </label>
         </div>
 
         <div>
@@ -124,7 +137,7 @@ export default function ProductDetail() {
                     )}
                     
                     <div className="label-pricing">
-                      {hasDiscount ? (
+                      {showSellingPrice && hasDiscount ? (
                         <>
                           <div className="label-mrp">MRP: Rs. {variant.mrp}</div>
                           <div className="label-sale">
@@ -133,7 +146,7 @@ export default function ProductDetail() {
                           </div>
                         </>
                       ) : (
-                        <div className="label-sale">
+                        <div className="label-sale" style={!showSellingPrice ? { fontSize: '1.1rem', justifyContent: 'center', fontWeight: 'bold' } : {}}>
                           <div>MRP:</div>
                           <div>Rs. {variant.mrp || variant.sellingPrice}</div>
                         </div>
