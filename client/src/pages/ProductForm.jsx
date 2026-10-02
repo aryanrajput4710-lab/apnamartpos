@@ -31,12 +31,12 @@ export default function ProductForm() {
     name: '', description: '', category: '', subcategory: '', brand: ''
   });
   const [variants, setVariants] = useState([
-    { size: '', color: '', netQuantity: '', costPrice: '', mrp: '', sellingPrice: '', discountPercent: '', stock: 0 }
+    { size: '', color: '', netQuantity: '', costPrice: '', mrp: '', sellingPrice: '', discountPercent: '', stock: 0, remarks: '' }
   ]);
   const [loading, setLoading] = useState(false);
 
   const addVariant = () => {
-    setVariants([...variants, { size: '', color: '', netQuantity: '', costPrice: '', mrp: '', sellingPrice: '', discountPercent: '', stock: 0 }]);
+    setVariants([...variants, { size: '', color: '', netQuantity: '', costPrice: '', mrp: '', sellingPrice: '', discountPercent: '', stock: 0, remarks: '' }]);
   };
 
   const updateVariant = (index, field, value) => {

@@ -71,6 +71,7 @@ model ProductVariant {
   isActive          Boolean      @default(true)
   createdAt         DateTime     @default(now())
   updatedAt         DateTime     @updatedAt
+  remarks           String?
 
   product               Product                @relation(fields: [productId], references: [id])
   inventoryTransactions InventoryTransaction[]
@@ -278,4 +279,15 @@ model CashRegister {
   difference    Decimal?
   totalUPI      Decimal?
   status        String    @default("OPEN") // OPEN, CLOSED
+  transactions  CashTransaction[]
+}
+
+model CashTransaction {
+  id          String       @id @default(uuid())
+  registerId  String
+  register    CashRegister @relation(fields: [registerId], references: [id])
+  type        String       // ADD, REMOVE
+  amount      Decimal
+  remarks     String?
+  createdAt   DateTime     @default(now())
 }

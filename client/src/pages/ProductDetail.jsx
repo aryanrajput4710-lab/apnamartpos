@@ -152,6 +152,12 @@ export default function ProductDetail() {
                         </div>
                       )}
                     </div>
+                    
+                    {variant.remarks && (
+                      <div style={{ fontSize: '0.65rem', fontWeight: 'bold', color: '#0f172a', textAlign: 'center', marginTop: '2px', paddingTop: '2px', borderTop: '1px dashed #cbd5e1', lineHeight: '1.1' }}>
+                        {variant.remarks}
+                      </div>
+                    )}
                   </div>
 
                   <div className="label-qr-section">

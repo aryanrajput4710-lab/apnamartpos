@@ -109,3 +109,21 @@ exports.closeRegister = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
+
+// Cash Transaction
+exports.addCashTransaction = async (req, res) => {
+  try {
+    const { registerId, type, amount, remarks } = req.body;
+    const tx = await prisma.cashTransaction.create({
+      data: {
+        registerId,
+        type,
+        amount: parseFloat(amount),
+        remarks
+      }
+    });
+    res.json({ success: true, data: tx });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
