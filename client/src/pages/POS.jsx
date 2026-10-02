@@ -24,6 +24,9 @@ export default function POS() {
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
+
+  const [showAddProductModal, setShowAddProductModal] = useState(false);
+  const [customProductForm, setCustomProductForm] = useState({ name: '', costPrice: '', sellingPrice: '', mrp: '', stock: '' });
   const scanInputRef = useRef(null);
 
   // Customer State
@@ -460,7 +463,7 @@ export default function POS() {
             <button type="submit" style={{ padding: '0 1.5rem', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '12px', fontWeight: '600', fontSize: '1rem', cursor: 'pointer', boxShadow: '0 2px 4px rgba(59,130,246,0.3)' }}>
               Search
             </button>
-            <button type="button" onClick={addCustomItem} style={{ padding: '0 1.5rem', background: '#f59e0b', color: 'white', border: 'none', borderRadius: '12px', fontWeight: '600', fontSize: '1rem', cursor: 'pointer', boxShadow: '0 2px 4px rgba(245,158,11,0.3)' }}>
+            <button type="button" onClick={handleCustomItemClick} style={{ padding: '0 1.5rem', background: '#f59e0b', color: 'white', border: 'none', borderRadius: '12px', fontWeight: '600', fontSize: '1rem', cursor: 'pointer', boxShadow: '0 2px 4px rgba(245,158,11,0.3)' }}>
               Custom Item
             </button>
           </form>
@@ -882,6 +885,27 @@ export default function POS() {
         </div>
       )}
 
+
+      
+      {showAddProductModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 9999, padding: '1rem' }}>
+          <div style={{ background: 'white', borderRadius: '12px', padding: '2rem', width: '100%', maxWidth: '400px' }}>
+            <h3 style={{ margin: '0 0 1rem 0' }}>Add Custom Product</h3>
+            <form onSubmit={handleCreateCustomProduct} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <input type="text" placeholder="Product Name" value={customProductForm.name} onChange={e => setCustomProductForm({...customProductForm, name: e.target.value})} style={{ padding: '0.75rem', borderRadius: '8px', border: '1px solid #ccc' }} required />
+              <input type="number" placeholder="Cost Price (Rs)" value={customProductForm.costPrice} onChange={e => setCustomProductForm({...customProductForm, costPrice: e.target.value})} style={{ padding: '0.75rem', borderRadius: '8px', border: '1px solid #ccc' }} required />
+              <input type="number" placeholder="MRP (Rs)" value={customProductForm.mrp} onChange={e => setCustomProductForm({...customProductForm, mrp: e.target.value})} style={{ padding: '0.75rem', borderRadius: '8px', border: '1px solid #ccc' }} required />
+              <input type="number" placeholder="Selling Price (Rs)" value={customProductForm.sellingPrice} onChange={e => setCustomProductForm({...customProductForm, sellingPrice: e.target.value})} style={{ padding: '0.75rem', borderRadius: '8px', border: '1px solid #ccc' }} required />
+              <input type="number" placeholder="Stock" value={customProductForm.stock} onChange={e => setCustomProductForm({...customProductForm, stock: e.target.value})} style={{ padding: '0.75rem', borderRadius: '8px', border: '1px solid #ccc' }} required />
+              
+              <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                <button type="button" onClick={() => setShowAddProductModal(false)} style={{ flex: 1, padding: '0.75rem', background: '#e5e7eb', color: '#374151', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>Cancel</button>
+                <button type="submit" style={{ flex: 1, padding: '0.75rem', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>Add Product</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Keyboard Shortcuts Modal */}
       {showShortcuts && (
