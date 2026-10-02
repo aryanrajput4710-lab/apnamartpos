@@ -927,6 +927,18 @@ export default function POS() {
         </div>
       )}
 
+      <ConfirmModal 
+        isOpen={confirmModal}
+        title="Clear Cart?"
+        message="Are you sure you want to remove all items from the cart? This cannot be undone."
+        confirmText="Clear Cart"
+        onConfirm={() => {
+          confirmClearCart();
+          setConfirmModal(false);
+        }}
+        onCancel={() => setConfirmModal(false)}
+      />
+
     </div>
   );
 }
