@@ -236,6 +236,16 @@ export default function POS() {
     setShowAddProductModal(true);
   };
 
+  const updatePrice = (id, newPriceStr) => {
+    const newPrice = parseFloat(newPriceStr);
+    setCart(prev => prev.map(item => {
+      if (item.id === id) {
+        return { ...item, sellingPrice: isNaN(newPrice) ? '' : newPrice, customPrice: isNaN(newPrice) ? 0 : newPrice };
+      }
+      return item;
+    }));
+  };
+
   const updateQuantity = (id, delta) => {
     setCart(prev => prev.map(item => {
       if (item.id === id) {
@@ -290,7 +300,7 @@ export default function POS() {
     let totalDiscount = 0;
     
     cart.forEach(item => {
-      const price = parseFloat(item.sellingPrice);
+      const price = parseFloat(item.sellingPrice) || 0;
       const qty = item.quantity;
       const lineTotal = price * qty;
       
@@ -620,10 +630,17 @@ export default function POS() {
                   <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '1rem', borderBottom: '1px solid #f1f5f9' }}>
                     <div style={{ flex: 1, paddingRight: '1rem' }}>
                       <div style={{ fontWeight: '600', color: '#1e293b', marginBottom: '0.25rem', fontSize: '0.95rem' }}>{item.product?.name}</div>
-                      <div style={{ color: '#64748b', fontSize: '0.875rem' }}>₹{item.sellingPrice}</div>
+                      <div style={{ color: '#64748b', fontSize: '0.875rem', display: 'flex', alignItems: 'center' }}>
+                        ₹<input 
+                          type="number" 
+                          value={item.sellingPrice} 
+                          onChange={(e) => updatePrice(item.id, e.target.value)}
+                          style={{ width: '60px', marginLeft: '4px', padding: '2px 4px', border: '1px solid #cbd5e1', borderRadius: '4px', fontSize: '0.875rem' }}
+                        />
+                      </div>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
-                      <div style={{ fontWeight: 'bold', color: '#0f172a', fontSize: '1.05rem' }}>₹{(item.sellingPrice * item.quantity).toFixed(2)}</div>
+                      <div style={{ fontWeight: 'bold', color: '#0f172a', fontSize: '1.05rem' }}>₹{((parseFloat(item.sellingPrice) || 0) * item.quantity).toFixed(2)}</div>
                       <div style={{ display: 'flex', alignItems: 'center', background: '#f8fafc', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
                         <button onClick={() => updateQuantity(item.id, -1)} style={{ padding: '0.375rem', background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}><Minus size={14}/></button>
                         <span style={{ padding: '0 0.5rem', fontWeight: '600', fontSize: '0.875rem', minWidth: '1.5rem', textAlign: 'center' }}>{item.quantity}</span>

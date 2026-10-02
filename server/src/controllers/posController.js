@@ -155,7 +155,7 @@ const checkout = async (req, res) => {
         if (variant.stock < item.quantity) throw new Error(`Insufficient stock for ${variant.sku}. Available: ${variant.stock}`);
 
         let price = parseFloat(variant.sellingPrice);
-        if (variant.sku === 'MISC' && item.customPrice !== undefined) {
+        if (item.customPrice !== undefined && item.customPrice !== null) {
           price = parseFloat(item.customPrice);
         }
         const qty = item.quantity;
