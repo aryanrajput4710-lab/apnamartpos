@@ -134,11 +134,18 @@ export default function Inventory() {
           <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#111827', margin: 0, marginBottom: '0.25rem' }}>Inventory Management</h1>
           <p style={{ color: '#6b7280', margin: 0, fontSize: '0.875rem' }}>Track products, stock levels, and inventory value</p>
         </div>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+        {currentUser?.role === 'ADMIN' && (
+          <button onClick={() => window.location.href = '/inventory/batch-restock'} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', fontSize: '0.875rem', fontWeight: 500, cursor: 'pointer', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+            <Package size={16} /> Batch Restock (Landed Cost)
+          </button>
+        )}
         {currentUser?.role === 'ADMIN' && (
           <Link to="/inventory/history" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', background: 'white', color: '#374151', border: '1px solid #d1d5db', textDecoration: 'none', borderRadius: '8px', fontSize: '0.875rem', fontWeight: 500, boxShadow: '0 1px 2px rgba(0,0,0,0.05)', transition: 'background-color 0.15s' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'white'}>
             <History size={16} /> View Global History
           </Link>
         )}
+        </div>
       </div>
 
       {/* Summary Cards */}
