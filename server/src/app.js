@@ -24,6 +24,7 @@ const settingsRoutes = require('./routes/settingsRoutes');
 const offerRoutes = require('./routes/offerRoutes');
 const registerRoutes = require('./routes/registerRoutes');
 const integrityRoutes = require('./routes/integrityRoutes');
+const expenseRoutes = require('./routes/expenseRoutes');
 
 const helmet = require('helmet');
 const compression = require('compression');
@@ -75,6 +76,7 @@ app.use('/api/settings', settingsRoutes);
 app.use('/api/offers', offerRoutes);
 app.use('/api/register', registerRoutes);
 app.use('/api/integrity', integrityRoutes);
+app.use('/api/expenses', expenseRoutes);
 
 // Temporary test routes for role validation
 const { requireAuth, requireRole } = require('./middleware/auth');

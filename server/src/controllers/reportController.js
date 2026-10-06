@@ -110,7 +110,8 @@ const getDashboardSummary = async (req, res) => {
       topCategoriesAgg,
       prevOrderAgg,
       prevItemsAgg,
-      prevProfitAgg
+      prevProfitAgg,
+      expensesAgg
     ] = await Promise.all([
       // 1. Summary Cards (Revenue, Orders, Tax, Discount)
       prisma.order.aggregate({
@@ -236,7 +237,12 @@ const getDashboardSummary = async (req, res) => {
           SELECT id FROM "Order" 
           WHERE "status" = 'COMPLETED' AND "createdAt" >= ${pStart} AND "createdAt" <= ${pEnd}
         )
-      `
+      `,
+      // 17. Expenses
+      prisma.expense.aggregate({
+        where: { date: { gte: start, lte: end } },
+        _sum: { amount: true }
+      })
     ]);
 
     // Format results
@@ -246,7 +252,8 @@ const getDashboardSummary = async (req, res) => {
     const tax = 0;
     const aov = ordersCount > 0 ? (revenue / ordersCount) : 0;
     const itemsSold = (itemsAgg._sum && itemsAgg._sum.quantity) || 0;
-    const profit = profitAgg && profitAgg[0] ? parseFloat(profitAgg[0].profit || 0) : 0;
+    const totalExpenses = expensesAgg && expensesAgg._sum && expensesAgg._sum.amount ? parseFloat(expensesAgg._sum.amount) : 0;
+    const profit = (profitAgg && profitAgg[0] ? parseFloat(profitAgg[0].profit || 0) : 0) - totalExpenses;
 
     const prevRevenue = parseFloat((prevOrderAgg && prevOrderAgg._sum && prevOrderAgg._sum.total) || 0);
     const prevOrdersCount = (prevOrderAgg && prevOrderAgg._count && prevOrderAgg._count.id) || 0;
@@ -305,7 +312,7 @@ const getDashboardSummary = async (req, res) => {
     res.status(200).json({
       success: true,
       data: {
-        summary: { revenue, profit, orders: ordersCount, itemsSold, aov, tax, discounts, prevRevenue, prevProfit, prevOrders: prevOrdersCount, prevItemsSold, prevAov },
+        summary: { revenue, profit, orders: ordersCount, itemsSold, aov, tax, discounts, prevRevenue, prevProfit, prevOrders: prevOrdersCount, prevItemsSold, prevAov, totalExpenses },
         returns: { summary: returnsSummary, recent: recentReturns },
         paymentSummary,
         lowStock: lowStockVariants,

@@ -27,6 +27,7 @@ export default function AppLayout() {
   }, []);
 
   const navItems = [
+      { name: 'Expenses', path: '/expenses', icon: FileText, roles: ['ADMIN'] },
     { name: 'Dashboard', path: '/', icon: LayoutDashboard, roles: ['ADMIN'] },
     { name: 'POS', path: '/pos', icon: ShoppingCart, roles: ['ADMIN', 'CASHIER'] },
     { name: 'Products', path: '/products', icon: Package, roles: ['ADMIN', 'CASHIER'] },

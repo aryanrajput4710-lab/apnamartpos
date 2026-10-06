@@ -26,6 +26,7 @@ const Orders = React.lazy(() => import('./pages/Orders'));
 const Reports = React.lazy(() => import('./pages/Reports'));
 const Settings = React.lazy(() => import('./pages/Settings'));
 const AuditLogs = React.lazy(() => import('./pages/AuditLogs'));
+const Expenses = React.lazy(() => import('./pages/Expenses'));
 
 // Loading fallback UI
 const PageLoader = () => (
@@ -76,6 +77,7 @@ function App() {
                   {/* Admin Only Routes */}
                   <Route element={<RoleRoute allowedRoles={['ADMIN']} />}>
                     <Route path="/reports" element={<Reports />} />
+                    <Route path="/expenses" element={<Expenses />} />
                     <Route path="/products/new" element={<ProductForm />} />
                     <Route path="/inventory/history" element={<InventoryHistory />} />
                     <Route path="/users" element={<Users />} />
