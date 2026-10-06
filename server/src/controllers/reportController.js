@@ -236,12 +236,7 @@ const getDashboardSummary = async (req, res) => {
           SELECT id FROM "Order" 
           WHERE "status" = 'COMPLETED' AND "createdAt" >= ${pStart} AND "createdAt" <= ${pEnd}
         )
-      `,
-      // 17. Expenses
-      prisma.expense.aggregate({
-        where: { date: { gte: start, lte: end } },
-        _sum: { amount: true }
-      })
+      `
     ]);
 
     // Format results
