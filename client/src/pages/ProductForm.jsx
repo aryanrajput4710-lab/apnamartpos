@@ -34,6 +34,7 @@ export default function ProductForm() {
     { size: '', color: '', netQuantity: '', costPrice: '', mrp: '', sellingPrice: '', discountPercent: '', stock: 0, remarks: '' }
   ]);
   const [loading, setLoading] = useState(false);
+  const nameInputRef = useRef(null);
 
   const addVariant = () => {
     setVariants([...variants, { size: '', color: '', netQuantity: '', costPrice: '', mrp: '', sellingPrice: '', discountPercent: '', stock: 0, remarks: '' }]);
@@ -80,6 +81,7 @@ export default function ProductForm() {
         setFormData({ ...formData, name: '', description: '' });
         setVariants([{ size: '', sku: '', barcode: '', costPrice: '', sellingPrice: '', mrp: '', discountPercent: '', stock: 0, remarks: '' }]);
         window.scrollTo(0, 0);
+        setTimeout(() => nameInputRef.current?.focus(), 100);
       } else {
         navigate('/products');
       }
@@ -133,8 +135,9 @@ export default function ProductForm() {
               <input 
                 required 
                 type="text"
-                placeholder="e.g. Cotton T-Shirt, Face Wash, Basmati Rice"
-                value={formData.name} 
+                  ref={nameInputRef}
+                  placeholder="e.g. Cotton T-Shirt, Face Wash, Basmati Rice"
+                  value={formData.name} 
                 onChange={e => setFormData({ ...formData, name: e.target.value })} 
                 style={{ 
                   width: '100%', 
