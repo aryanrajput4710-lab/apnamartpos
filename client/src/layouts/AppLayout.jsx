@@ -34,8 +34,7 @@ export default function AppLayout() {
     { name: 'Customers', path: '/customers', icon: Users, roles: ['ADMIN', 'CASHIER'] },
     { name: 'Orders', path: '/orders', icon: FileText, roles: ['ADMIN', 'CASHIER'] },
     { name: 'Reports', path: '/reports', icon: TrendingUp, roles: ['ADMIN'] },
-      { name: 'Expenses', path: '/expenses', icon: FileText, roles: ['ADMIN'] },
-    { name: 'Users', path: '/users', icon: UserPlus, roles: ['ADMIN'] },
+          { name: 'Users', path: '/users', icon: UserPlus, roles: ['ADMIN'] },
     { name: 'Settings', path: '/settings', icon: Settings, roles: ['ADMIN'] },
     { name: 'Audit Logs', path: '/audit-logs', icon: FileText, roles: ['ADMIN'] },
   ];

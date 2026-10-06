@@ -282,7 +282,57 @@ const getDashboardSummary = async (req, res) => {
   }
 };
 
+
+const batchStockIn = async (req, res) => {
+  try {
+    const { items, reference } = req.body;
+    
+    await prisma.$transaction(async (tx) => {
+      for (const item of items) {
+        const variant = await tx.productVariant.findUnique({ where: { id: item.variantId }});
+        const oldQty = variant.stock;
+        const oldCost = parseFloat(variant.costPrice || 0);
+        const newQty = parseInt(item.quantity);
+        const landedCost = parseFloat(item.unitLandedCost);
+        
+        let newWAC = oldCost;
+        if (oldQty + newQty > 0) {
+          if (oldQty <= 0) {
+            newWAC = landedCost;
+          } else {
+            newWAC = ((oldQty * oldCost) + (newQty * landedCost)) / (oldQty + newQty);
+          }
+        }
+        
+        await tx.productVariant.update({
+          where: { id: variant.id },
+          data: {
+            stock: { increment: newQty },
+            costPrice: newWAC
+          }
+        });
+        
+        await tx.inventoryTransaction.create({
+          data: {
+            variantId: variant.id,
+            type: 'STOCK_IN',
+            quantity: newQty,
+            reference: reference || 'BATCH_RESTOCK',
+            userId: req.user.id
+          }
+        });
+      }
+    });
+    
+    res.json({ success: true, message: 'Batch restock successful' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 module.exports = {
+  batchStockIn,
+
   getInventory,
   getLowStock,
   getOutOfStock,

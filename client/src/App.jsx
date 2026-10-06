@@ -18,6 +18,7 @@ const EditProduct = React.lazy(() => import('./pages/EditProduct'));
 const ProductDetail = React.lazy(() => import('./pages/ProductDetail'));
 const Inventory = React.lazy(() => import('./pages/Inventory'));
 const InventoryHistory = React.lazy(() => import('./pages/InventoryHistory'));
+const BatchRestock = React.lazy(() => import('./pages/BatchRestock'));
 const POS = React.lazy(() => import('./pages/POS'));
 const ReceiptView = React.lazy(() => import('./pages/ReceiptView'));
 const Customers = React.lazy(() => import('./pages/Customers'));
@@ -26,7 +27,6 @@ const Orders = React.lazy(() => import('./pages/Orders'));
 const Reports = React.lazy(() => import('./pages/Reports'));
 const Settings = React.lazy(() => import('./pages/Settings'));
 const AuditLogs = React.lazy(() => import('./pages/AuditLogs'));
-const Expenses = React.lazy(() => import('./pages/Expenses'));
 
 // Loading fallback UI
 const PageLoader = () => (
@@ -73,12 +73,12 @@ function App() {
                   
                   <Route path="/inventory" element={<Inventory />} />
                   <Route path="/inventory/:variantId/history" element={<InventoryHistory />} />
+                  <Route path="/inventory/batch-restock" element={<BatchRestock />} />
                   
                   {/* Admin Only Routes */}
                   <Route element={<RoleRoute allowedRoles={['ADMIN']} />}>
                     <Route path="/reports" element={<Reports />} />
-                    <Route path="/expenses" element={<Expenses />} />
-                    <Route path="/products/new" element={<ProductForm />} />
+                                        <Route path="/products/new" element={<ProductForm />} />
                     <Route path="/inventory/history" element={<InventoryHistory />} />
                     <Route path="/users" element={<Users />} />
                     <Route path="/settings" element={<Settings />} />

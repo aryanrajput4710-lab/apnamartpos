@@ -292,12 +292,4 @@ model CashTransaction {
   createdAt   DateTime     @default(now())
 }
 
-model Expense {
-  id          String   @id @default(uuid())
-  category    String   // e.g. TRANSPORTATION, LABOUR, OTHERS
-  amount      Decimal
-  description String?
-  date        DateTime @default(now())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
+
