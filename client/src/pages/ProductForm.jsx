@@ -70,12 +70,19 @@ export default function ProductForm() {
     setVariants(variants.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e, addAnother = false) => {
     e.preventDefault();
     setLoading(true);
     try {
       await api.post('/products', { ...formData, variants });
-      navigate('/products');
+      toast.success('Product saved!');
+      if (addAnother) {
+        setFormData({ ...formData, name: '', description: '' });
+        setVariants([{ size: '', sku: '', barcode: '', costPrice: '', sellingPrice: '', mrp: '', discountPercent: '', stock: 0, remarks: '' }]);
+        window.scrollTo(0, 0);
+      } else {
+        navigate('/products');
+      }
     } catch (err) {
       toast(err.response?.data?.message || 'Error creating product');
     } finally {
@@ -110,7 +117,7 @@ export default function ProductForm() {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={e => handleSubmit(e, false)}>
         
         {/* BASIC INFORMATION CARD */}
         <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '1.5rem', marginBottom: '1.5rem', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
@@ -493,27 +500,51 @@ export default function ProductForm() {
             Cancel
           </Link>
 
-          <button 
-            type="submit" 
-            disabled={loading}
-            style={{ 
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              padding: '0.65rem 1.5rem', 
-              background: '#2563eb', 
-              color: 'white', 
-              border: 'none', 
-              borderRadius: '8px',
-              fontWeight: '600',
-              fontSize: '0.95rem',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              boxShadow: '0 2px 4px rgba(37,99,235,0.2)'
-            }}
-          >
-            <Save size={18} />
-            {loading ? 'Saving...' : 'Save Product'}
-          </button>
+          <div style={{ display: 'flex', gap: '0.75rem' }}>
+            <button 
+              type="button" 
+              disabled={loading}
+              onClick={(e) => handleSubmit(e, true)}
+              style={{ 
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                padding: '0.65rem 1.5rem', 
+                background: '#f59e0b', 
+                color: 'white', 
+                border: 'none', 
+                borderRadius: '8px',
+                fontWeight: '600',
+                fontSize: '0.95rem',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                boxShadow: '0 2px 4px rgba(245,158,11,0.2)'
+              }}
+            >
+              <Save size={18} />
+              Save & Add Another
+            </button>
+            <button 
+              type="submit" 
+              disabled={loading}
+              style={{ 
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                padding: '0.65rem 1.5rem', 
+                background: '#2563eb', 
+                color: 'white', 
+                border: 'none', 
+                borderRadius: '8px',
+                fontWeight: '600',
+                fontSize: '0.95rem',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                boxShadow: '0 2px 4px rgba(37,99,235,0.2)'
+              }}
+            >
+              <Save size={18} />
+              {loading ? 'Saving...' : 'Save Product'}
+            </button>
+          </div>
         </div>
 
       </form>
