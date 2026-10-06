@@ -25,7 +25,7 @@ export default function BatchRestock() {
     if (searchTimeout.current) clearTimeout(searchTimeout.current);
     searchTimeout.current = setTimeout(async () => {
       try {
-        const res = await api.get(`/products/search?q=${encodeURIComponent(search)}`);
+        const res = await api.get(`/pos/search?q=${encodeURIComponent(search)}`);
         setSearchResults(res.data.data.slice(0, 15));
       } catch (err) {
         console.error(err);
