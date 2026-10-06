@@ -32,5 +32,5 @@ router.post('/stock-in', validate(stockActionSchema), stockIn);
 router.post('/stock-out', validate(stockActionSchema), stockOut);
 router.post('/adjust', validate(adjustStockSchema), adjustStock);
 
-router.post('/batch-stock-in', inventoryController.batchStockIn);
+router.post('/batch-stock-in', require('../controllers/inventoryController').batchStockIn);
 module.exports = router;

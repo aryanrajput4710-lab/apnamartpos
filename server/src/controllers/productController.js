@@ -243,7 +243,7 @@ const createVariant = async (req, res) => {
   try {
     const { productId } = req.params;
     const { color, size, netQuantity, costPrice, mrp, sellingPrice, discountType, discountValue, stock, lowStockThreshold,
-          remarks, sku, remarks } = req.body;
+          sku, remarks } = req.body;
 
     if (costPrice === undefined || costPrice === null || costPrice === '' || !mrp || !sellingPrice) {
       return res.status(400).json({ success: false, message: 'Cost Price, MRP, and selling price are required' });
@@ -430,7 +430,7 @@ const updateVariant = async (req, res) => {
   try {
     const { variantId } = req.params;
     const { color, size, netQuantity, costPrice, mrp, sellingPrice, discountType, discountValue, lowStockThreshold,
-          remarks, sku, stock, remarks } = req.body;
+          sku, stock, remarks } = req.body;
 
     // Get current variant to check existing stock
     const existing = await prisma.productVariant.findUnique({ where: { id: variantId } });
