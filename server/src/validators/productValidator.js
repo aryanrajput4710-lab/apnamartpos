@@ -11,7 +11,8 @@ const variantSchema = z.object({
   discountValue: z.coerce.number().min(0).default(0),
   discountPercent: z.coerce.number().min(0).max(100).optional(),
   stock: z.coerce.number().int().min(0).default(0),
-  sku: z.string().optional()
+  sku: z.string().optional(),
+  manufacturerBarcode: z.string().optional()
 });
 
 const createProductSchema = z.object({

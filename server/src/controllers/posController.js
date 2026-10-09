@@ -9,7 +9,8 @@ const scanProduct = async (req, res) => {
       where: {
         OR: [
           { barcode: code },
-          { sku: code }
+          { sku: code },
+          { manufacturerBarcode: code }
         ],
         isActive: true,
         product: {

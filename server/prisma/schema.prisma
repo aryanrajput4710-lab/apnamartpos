@@ -58,6 +58,7 @@ model ProductVariant {
   productId         String
   sku               String       @unique
   barcode           String       @unique
+  manufacturerBarcode String?
   color             String?
   size              String?
   netQuantity       String?
@@ -80,6 +81,7 @@ model ProductVariant {
 
   @@index([sku])
   @@index([barcode])
+  @@index([manufacturerBarcode])
   @@index([productId])
   @@index([isActive])
 }

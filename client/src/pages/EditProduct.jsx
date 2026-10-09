@@ -66,7 +66,7 @@ export default function EditProduct() {
   }, [id, navigate]);
 
   const addVariant = () => {
-    setVariants([...variants, { size: '', color: '', netQuantity: '', costPrice: '', mrp: '', sellingPrice: '', discountPercent: '', stock: 0 }]);
+    setVariants([...variants, { size: '', color: '', manufacturerBarcode: '', netQuantity: '', costPrice: '', mrp: '', sellingPrice: '', discountPercent: '', stock: 0 }]);
   };
 
   const updateVariant = (index, field, value) => {
@@ -415,6 +415,20 @@ export default function EditProduct() {
                       <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Leave blank if N/A</span>
                     </div>
 
+                    {/* Manufacturer Barcode */}
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '600', color: '#475569', marginBottom: '0.25rem' }}>
+                        Manufacturer Barcode <span style={{ color: '#94a3b8', fontWeight: '400' }}>(Optional)</span>
+                      </label>
+                      <input 
+                        type="text" 
+                        placeholder="Scan or type barcode"
+                        value={v.manufacturerBarcode || ''} 
+                        onChange={e => updateVariant(i, 'manufacturerBarcode', e.target.value)} 
+                        style={{ width: '100%', height: '40px', padding: '0 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.9rem', outline: 'none', boxSizing: 'border-box', background: 'white' }}
+                      />
+                    </div>
+
                     {/* Net Quantity */}
                     <div>
                       <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '600', color: '#475569', marginBottom: '0.25rem' }}>
@@ -580,3 +594,4 @@ export default function EditProduct() {
     </div>
   );
 }
+

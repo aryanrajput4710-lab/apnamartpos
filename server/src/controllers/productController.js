@@ -53,6 +53,7 @@ const createProduct = async (req, res) => {
               productId: p.id,
               sku: v.sku || generateUniqueSku(p.name, v.color, v.size),
               barcode: generateUniqueBarcode(),
+              manufacturerBarcode: v.manufacturerBarcode || null,
               color: v.color || null,
               size: v.size || null,
               netQuantity: v.netQuantity || null,
@@ -109,7 +110,7 @@ const getProducts = async (req, res) => {
       where.OR = [
         { name: { contains: search, mode: 'insensitive' } },
         { variants: { some: { sku: { contains: search, mode: 'insensitive' } } } },
-        { variants: { some: { barcode: { contains: search, mode: 'insensitive' } } } }
+        { variants: { some: { barcode: { contains: search, mode: 'insensitive' } } } }, { variants: { some: { manufacturerBarcode: { contains: search, mode: 'insensitive' } } } }
       ];
     }
     if (category) {
@@ -243,7 +244,7 @@ const createVariant = async (req, res) => {
   try {
     const { productId } = req.params;
     const { color, size, netQuantity, costPrice, mrp, sellingPrice, discountType, discountValue, stock, lowStockThreshold,
-          sku, remarks } = req.body;
+          sku, remarks, manufacturerBarcode } = req.body;
 
     if (costPrice === undefined || costPrice === null || costPrice === '' || !mrp || !sellingPrice) {
       return res.status(400).json({ success: false, message: 'Cost Price, MRP, and selling price are required' });
@@ -263,6 +264,7 @@ const createVariant = async (req, res) => {
           productId,
           sku: actualSku,
           barcode: generateUniqueBarcode(),
+          manufacturerBarcode: manufacturerBarcode || null,
           color: color || null,
           size: size || null,
           netQuantity: netQuantity || null,
@@ -430,7 +432,7 @@ const updateVariant = async (req, res) => {
   try {
     const { variantId } = req.params;
     const { color, size, netQuantity, costPrice, mrp, sellingPrice, discountType, discountValue, lowStockThreshold,
-          sku, stock, remarks } = req.body;
+          sku, stock, remarks, manufacturerBarcode } = req.body;
 
     // Get current variant to check existing stock
     const existing = await prisma.productVariant.findUnique({ where: { id: variantId } });
@@ -444,6 +446,7 @@ const updateVariant = async (req, res) => {
         where: { id: variantId },
         data: {
           sku: sku || undefined,
+          manufacturerBarcode: manufacturerBarcode !== undefined ? (manufacturerBarcode || null) : undefined,
           color,
           size,
           netQuantity,
@@ -483,3 +486,4 @@ const updateVariant = async (req, res) => {
   }
 };
 module.exports.updateVariant = updateVariant;
+
