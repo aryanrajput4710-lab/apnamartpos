@@ -453,7 +453,7 @@ export default function EditProduct() {
                         type="number" 
                         step="0.01"
                         required 
-                        placeholder="â‚¹ 0.00"
+                        placeholder="₹ 0.00"
                         value={v.costPrice !== undefined ? v.costPrice : ''} 
                         onChange={e => updateVariant(i, 'costPrice', e.target.value)} 
                         style={{ width: '100%', height: '40px', padding: '0 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.9rem', outline: 'none', boxSizing: 'border-box', background: 'white' }}
@@ -469,7 +469,7 @@ export default function EditProduct() {
                         type="number" 
                         step="0.01"
                         required 
-                        placeholder="â‚¹ 0.00"
+                        placeholder="₹ 0.00"
                         value={v.mrp !== undefined ? v.mrp : ''} 
                         onChange={e => updateVariant(i, 'mrp', e.target.value)} 
                         style={{ width: '100%', height: '40px', padding: '0 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.9rem', outline: 'none', boxSizing: 'border-box', background: 'white' }}
@@ -501,7 +501,7 @@ export default function EditProduct() {
                         type="number" 
                         step="0.01"
                         required 
-                        placeholder="â‚¹ 0.00"
+                        placeholder="₹ 0.00"
                         value={v.sellingPrice !== undefined ? v.sellingPrice : ''} 
                         onChange={e => updateVariant(i, 'sellingPrice', e.target.value)} 
                         style={{ width: '100%', height: '40px', padding: '0 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.9rem', outline: 'none', boxSizing: 'border-box', background: 'white' }}
@@ -528,7 +528,7 @@ export default function EditProduct() {
                   {savings > 0 && (
                     <div style={{ marginTop: '0.75rem', display: 'inline-flex', alignItems: 'center', gap: '0.375rem', background: '#dcfce7', color: '#15803d', padding: '0.25rem 0.65rem', borderRadius: '6px', fontSize: '0.8rem', fontWeight: '600' }}>
                       <Check size={14} />
-                      Save â‚¹{savings} on MRP
+                      Save ₹{savings} on MRP
                     </div>
                   )}
 

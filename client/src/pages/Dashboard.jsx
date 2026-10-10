@@ -12,6 +12,7 @@ import {
 } from 'recharts';
 import CountUp from 'react-countup';
 import PriceCheckModal from '../components/PriceCheckModal';
+import { Tag } from 'lucide-react';
 
 const CountUpComp = CountUp.default || CountUp;
 
@@ -90,7 +91,7 @@ export default function Dashboard() {
     if (previous === undefined || previous === null || previous === 0) return null;
     const pct = ((current - previous) / previous) * 100;
     const color = pct >= 0 ? '#16a34a' : '#ef4444';
-    const icon = pct >= 0 ? 'â†‘' : 'â†“';
+    const icon = pct >= 0 ? '↑' : '↓';
     return (
       <div style={{ color, fontSize: '0.75rem', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '0.25rem', marginTop: '0.5rem' }}>
         <span>{icon} {Math.abs(pct).toFixed(1)}%</span>
@@ -99,7 +100,7 @@ export default function Dashboard() {
     );
   };
   const formatCurrency = (val) => {
-    return 'â‚¹' + parseFloat(val || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return '₹' + parseFloat(val || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   };
 
   const Card = ({ children, style = {}, className = '' }) => (
@@ -419,7 +420,7 @@ export default function Dashboard() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
           <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: '700', color: theme.text }}>
-            {greeting}, Store Admin ðŸ‘‹
+            {greeting}, Store Admin 👋
           </h1>
           <p style={{ margin: '0.25rem 0 0 0', color: theme.textSec, fontSize: '0.875rem' }}>
             Here is what's happening at your store today.
@@ -470,7 +471,7 @@ export default function Dashboard() {
             <p style={{ margin: 0, color: theme.textSec, fontSize: '0.875rem', fontWeight: '500' }}>Net Sales</p>
             <div style={{ background: '#eff6ff', color: '#2563eb', padding: '0.5rem', borderRadius: '8px' }}><IndianRupee size={20} /></div>
           </div>
-          <h3 style={{ margin: 0, fontSize: '1.75rem', fontWeight: '700', color: theme.text }}><CountUpComp start={0} end={summary.revenue} duration={1.5} separator="," prefix="â‚¹" decimals={2} /></h3>
+          <h3 style={{ margin: 0, fontSize: '1.75rem', fontWeight: '700', color: theme.text }}><CountUpComp start={0} end={summary.revenue} duration={1.5} separator="," prefix="₹" decimals={2} /></h3>
           {getGrowthIndicator(summary.revenue, summary.prevRevenue)}
         </Card>
         
@@ -479,7 +480,7 @@ export default function Dashboard() {
             <p style={{ margin: 0, color: theme.textSec, fontSize: '0.875rem', fontWeight: '500' }}>Gross Profit</p>
             <div style={{ background: '#dcfce7', color: '#16a34a', padding: '0.5rem', borderRadius: '8px' }}><TrendingUp size={20} /></div>
           </div>
-          <h3 style={{ margin: 0, fontSize: '1.75rem', fontWeight: '700', color: theme.text }}><CountUpComp start={0} end={summary.profit || 0} duration={1.5} separator="," prefix="â‚¹" decimals={2} /></h3>
+          <h3 style={{ margin: 0, fontSize: '1.75rem', fontWeight: '700', color: theme.text }}><CountUpComp start={0} end={summary.profit || 0} duration={1.5} separator="," prefix="₹" decimals={2} /></h3>
           {getGrowthIndicator(summary.profit || 0, summary.prevProfit)}
         </Card>
 
@@ -506,7 +507,7 @@ export default function Dashboard() {
             <p style={{ margin: 0, color: theme.textSec, fontSize: '0.875rem', fontWeight: '500' }}>Average Order Value</p>
             <div style={{ background: '#fce7f3', color: '#db2777', padding: '0.5rem', borderRadius: '8px' }}><CreditCard size={20} /></div>
           </div>
-          <h3 style={{ margin: 0, fontSize: '1.75rem', fontWeight: '700', color: theme.text }}><CountUpComp start={0} end={summary.aov} duration={1.5} separator="," prefix="â‚¹" decimals={2} /></h3>
+          <h3 style={{ margin: 0, fontSize: '1.75rem', fontWeight: '700', color: theme.text }}><CountUpComp start={0} end={summary.aov} duration={1.5} separator="," prefix="₹" decimals={2} /></h3>
           {getGrowthIndicator(summary.aov, summary.prevAov)}
         </Card>
       </div>
@@ -545,7 +546,7 @@ export default function Dashboard() {
                     axisLine={false} 
                     tickLine={false} 
                     tick={{ fill: theme.textSec, fontSize: 12 }}
-                    tickFormatter={(val) => `â‚¹${val/1000}k`}
+                    tickFormatter={(val) => `₹${val/1000}k`}
                     width={60}
                   />
                   <RechartsTooltip content={<CustomTooltip />} />
@@ -566,7 +567,11 @@ export default function Dashboard() {
             <button onClick={() => navigate('/pos')} style={{ width: '100%', padding: '1rem', background: theme.border, color: theme.text, border: '1px solid #e5e7eb', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '600', fontSize: '1rem', cursor: 'pointer', transition: 'background 0.2s' }} onMouseOver={e => e.currentTarget.style.background = theme.border} onMouseOut={e => e.currentTarget.style.background = theme.border}>
               <Search size={20} style={{ flexShrink: 0, marginRight: '8px' }} />
               <span>Scan Barcode</span>
-            </button>
+              </button>
+              <button onClick={() => setShowPriceCheckModal(true)} style={{ width: '100%', padding: '1rem', background: '#e0e7ff', color: '#4338ca', border: '1px solid #c7d2fe', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '600', fontSize: '1rem', cursor: 'pointer', transition: 'background 0.2s' }} onMouseOver={e => e.currentTarget.style.background = '#c7d2fe'} onMouseOut={e => e.currentTarget.style.background = '#e0e7ff'}>
+                <Tag size={20} style={{ flexShrink: 0, marginRight: '8px' }} />
+                <span>Price Check</span>
+              </button>
             <div style={{ height: '1px', background: theme.border, margin: '0.5rem 0' }} />
             <button onClick={() => navigate('/products')} style={{ width: '100%', padding: '0.75rem', background: 'transparent', color: theme.textSec, border: 'none', display: 'flex', alignItems: 'center', gap: '0.75rem', fontWeight: '500', cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.color = theme.text} onMouseOut={e => e.currentTarget.style.color = theme.textSec}>
               <div style={{ background: theme.border, padding: '0.4rem', borderRadius: '6px' }}><Package size={18} /></div>
@@ -731,7 +736,7 @@ export default function Dashboard() {
                     <div>
                       <div style={{ fontWeight: '600', color: theme.text }}>{tp.productNameSnapshot}</div>
                       <div style={{ fontSize: '0.75rem', color: theme.textSec, marginTop: '0.125rem' }}>
-                        {tp.sizeSnapshot} {tp.colorSnapshot ? `/ ${tp.colorSnapshot}` : ''} â€¢ {tp.skuSnapshot}
+                        {tp.sizeSnapshot} {tp.colorSnapshot ? `/ ${tp.colorSnapshot}` : ''} • {tp.skuSnapshot}
                       </div>
                     </div>
                   </div>
@@ -829,7 +834,7 @@ export default function Dashboard() {
           )}
         </Card>
       </div>
+      <PriceCheckModal isOpen={showPriceCheckModal} onClose={() => setShowPriceCheckModal(false)} />
     </div>
   );
 }
-
