@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Search, Eye, EyeOff, Package, Tag } from 'lucide-react';
+import { X, Search, Eye, EyeOff, Package, Tag, Camera } from 'lucide-react';
+import CameraScanner from './CameraScanner';
 import api from '../services/api';
 import toast from 'react-hot-toast';
 
@@ -8,6 +9,7 @@ export default function PriceCheckModal({ isOpen, onClose }) {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showCP, setShowCP] = useState({});
+  const [showCamera, setShowCamera] = useState(false);
   const inputRef = useRef(null);
 
   useEffect(() => {
@@ -21,6 +23,36 @@ export default function PriceCheckModal({ isOpen, onClose }) {
 
   const toggleCP = (id) => {
     setShowCP(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const handleCameraScan = async (code) => {
+    setShowCamera(false);
+    setQuery(code);
+    
+    // Programmatically trigger search
+    setLoading(true);
+    setResults([]);
+    setShowCP({});
+    try {
+      const scanRes = await api.get(/pos/scan/ + code);
+      if (scanRes.data.success && scanRes.data.data) {
+        setResults([scanRes.data.data]);
+      } else {
+        const searchRes = await api.get(/pos/search?q= + encodeURIComponent(code));
+        if (searchRes.data.success && searchRes.data.data) setResults(searchRes.data.data);
+      }
+    } catch (err) {
+      if (err.response?.status === 404) {
+        try {
+          const searchRes = await api.get(/pos/search?q= + encodeURIComponent(code));
+          if (searchRes.data.success && searchRes.data.data) setResults(searchRes.data.data);
+        } catch (e) {}
+      } else {
+        toast.error('Error scanning product');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSearch = async (e) => {
@@ -67,6 +99,7 @@ export default function PriceCheckModal({ isOpen, onClose }) {
   if (!isOpen) return null;
 
   return (
+    <>
     <div style={{
       position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
       background: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex',
@@ -92,18 +125,25 @@ export default function PriceCheckModal({ isOpen, onClose }) {
               <div style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af' }}>
                 <Search size={18} />
               </div>
-              <input
+                            <input
                 ref={inputRef}
                 type="text"
                 placeholder="Scan barcode or type name..."
                 value={query}
                 onChange={e => setQuery(e.target.value)}
                 style={{
-                  width: '100%', padding: '0.75rem 1rem 0.75rem 2.5rem',
+                  width: '100%', padding: '0.75rem 3rem 0.75rem 2.5rem',
                   borderRadius: '8px', border: '1px solid #d1d5db', outline: 'none',
                   fontSize: '1rem', boxSizing: 'border-box'
                 }}
               />
+              <button 
+                type="button" 
+                onClick={() => setShowCamera(true)}
+                style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#6b7280', cursor: 'pointer', display: 'flex' }}
+              >
+                <Camera size={20} />
+              </button>
             </div>
             <button
               type="submit"
@@ -192,5 +232,13 @@ export default function PriceCheckModal({ isOpen, onClose }) {
         </div>
       </div>
     </div>
+    {showCamera && (
+      <CameraScanner
+        onScan={handleCameraScan}
+        onClose={() => setShowCamera(false)}
+      />
+    )}
+    </>
   );
 }
+
