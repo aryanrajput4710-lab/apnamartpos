@@ -11,6 +11,7 @@ import {
   BarChart, Bar, Cell, PieChart, Pie, Label, Sector
 } from 'recharts';
 import CountUp from 'react-countup';
+import PriceCheckModal from '../components/PriceCheckModal';
 
 const CountUpComp = CountUp.default || CountUp;
 
@@ -36,6 +37,7 @@ export default function Dashboard() {
 
   // Modals / Full views state
   const [viewAllCategories, setViewAllCategories] = useState(false);
+  const [showPriceCheckModal, setShowPriceCheckModal] = useState(false);
   const [viewAllProducts, setViewAllProducts] = useState(false);
 
   const fetchDashboard = async () => {
@@ -830,3 +832,4 @@ export default function Dashboard() {
     </div>
   );
 }
+
