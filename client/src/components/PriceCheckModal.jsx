@@ -175,7 +175,7 @@ export default function PriceCheckModal({ isOpen, onClose }) {
                 <div>
                   <h3 style={{ margin: '0 0 0.25rem', fontSize: '1.1rem', color: '#111827' }}>{item.product?.name || item.productNameSnapshot || 'Unknown Product'}</h3>
                   <p style={{ margin: 0, fontSize: '0.85rem', color: '#6b7280' }}>
-                    {item.size} {item.color ? `| ${item.color}` : ''} • SKU: {item.sku}
+                    {item.size} {item.color ? `| ${item.color}` : ''} â€¢ SKU: {item.sku}
                   </p>
                 </div>
                 <div style={{ textAlign: 'right' }}>

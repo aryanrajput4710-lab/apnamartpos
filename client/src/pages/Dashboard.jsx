@@ -90,7 +90,7 @@ export default function Dashboard() {
     if (previous === undefined || previous === null || previous === 0) return null;
     const pct = ((current - previous) / previous) * 100;
     const color = pct >= 0 ? '#16a34a' : '#ef4444';
-    const icon = pct >= 0 ? '↑' : '↓';
+    const icon = pct >= 0 ? 'â†‘' : 'â†“';
     return (
       <div style={{ color, fontSize: '0.75rem', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '0.25rem', marginTop: '0.5rem' }}>
         <span>{icon} {Math.abs(pct).toFixed(1)}%</span>
@@ -99,7 +99,7 @@ export default function Dashboard() {
     );
   };
   const formatCurrency = (val) => {
-    return '₹' + parseFloat(val || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return 'â‚¹' + parseFloat(val || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   };
 
   const Card = ({ children, style = {}, className = '' }) => (
@@ -419,7 +419,7 @@ export default function Dashboard() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
           <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: '700', color: theme.text }}>
-            {greeting}, Store Admin 👋
+            {greeting}, Store Admin ðŸ‘‹
           </h1>
           <p style={{ margin: '0.25rem 0 0 0', color: theme.textSec, fontSize: '0.875rem' }}>
             Here is what's happening at your store today.
@@ -470,7 +470,7 @@ export default function Dashboard() {
             <p style={{ margin: 0, color: theme.textSec, fontSize: '0.875rem', fontWeight: '500' }}>Net Sales</p>
             <div style={{ background: '#eff6ff', color: '#2563eb', padding: '0.5rem', borderRadius: '8px' }}><IndianRupee size={20} /></div>
           </div>
-          <h3 style={{ margin: 0, fontSize: '1.75rem', fontWeight: '700', color: theme.text }}><CountUpComp start={0} end={summary.revenue} duration={1.5} separator="," prefix="₹" decimals={2} /></h3>
+          <h3 style={{ margin: 0, fontSize: '1.75rem', fontWeight: '700', color: theme.text }}><CountUpComp start={0} end={summary.revenue} duration={1.5} separator="," prefix="â‚¹" decimals={2} /></h3>
           {getGrowthIndicator(summary.revenue, summary.prevRevenue)}
         </Card>
         
@@ -479,7 +479,7 @@ export default function Dashboard() {
             <p style={{ margin: 0, color: theme.textSec, fontSize: '0.875rem', fontWeight: '500' }}>Gross Profit</p>
             <div style={{ background: '#dcfce7', color: '#16a34a', padding: '0.5rem', borderRadius: '8px' }}><TrendingUp size={20} /></div>
           </div>
-          <h3 style={{ margin: 0, fontSize: '1.75rem', fontWeight: '700', color: theme.text }}><CountUpComp start={0} end={summary.profit || 0} duration={1.5} separator="," prefix="₹" decimals={2} /></h3>
+          <h3 style={{ margin: 0, fontSize: '1.75rem', fontWeight: '700', color: theme.text }}><CountUpComp start={0} end={summary.profit || 0} duration={1.5} separator="," prefix="â‚¹" decimals={2} /></h3>
           {getGrowthIndicator(summary.profit || 0, summary.prevProfit)}
         </Card>
 
@@ -506,7 +506,7 @@ export default function Dashboard() {
             <p style={{ margin: 0, color: theme.textSec, fontSize: '0.875rem', fontWeight: '500' }}>Average Order Value</p>
             <div style={{ background: '#fce7f3', color: '#db2777', padding: '0.5rem', borderRadius: '8px' }}><CreditCard size={20} /></div>
           </div>
-          <h3 style={{ margin: 0, fontSize: '1.75rem', fontWeight: '700', color: theme.text }}><CountUpComp start={0} end={summary.aov} duration={1.5} separator="," prefix="₹" decimals={2} /></h3>
+          <h3 style={{ margin: 0, fontSize: '1.75rem', fontWeight: '700', color: theme.text }}><CountUpComp start={0} end={summary.aov} duration={1.5} separator="," prefix="â‚¹" decimals={2} /></h3>
           {getGrowthIndicator(summary.aov, summary.prevAov)}
         </Card>
       </div>
@@ -545,7 +545,7 @@ export default function Dashboard() {
                     axisLine={false} 
                     tickLine={false} 
                     tick={{ fill: theme.textSec, fontSize: 12 }}
-                    tickFormatter={(val) => `₹${val/1000}k`}
+                    tickFormatter={(val) => `â‚¹${val/1000}k`}
                     width={60}
                   />
                   <RechartsTooltip content={<CustomTooltip />} />
@@ -731,7 +731,7 @@ export default function Dashboard() {
                     <div>
                       <div style={{ fontWeight: '600', color: theme.text }}>{tp.productNameSnapshot}</div>
                       <div style={{ fontSize: '0.75rem', color: theme.textSec, marginTop: '0.125rem' }}>
-                        {tp.sizeSnapshot} {tp.colorSnapshot ? `/ ${tp.colorSnapshot}` : ''} • {tp.skuSnapshot}
+                        {tp.sizeSnapshot} {tp.colorSnapshot ? `/ ${tp.colorSnapshot}` : ''} â€¢ {tp.skuSnapshot}
                       </div>
                     </div>
                   </div>
