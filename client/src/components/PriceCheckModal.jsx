@@ -34,17 +34,17 @@ export default function PriceCheckModal({ isOpen, onClose }) {
     setResults([]);
     setShowCP({});
     try {
-      const scanRes = await api.get(/pos/scan/ + code);
+      const scanRes = await api.get('/pos/scan/' + code);
       if (scanRes.data.success && scanRes.data.data) {
         setResults([scanRes.data.data]);
       } else {
-        const searchRes = await api.get(/pos/search?q= + encodeURIComponent(code));
+        const searchRes = await api.get('/pos/search?q=' + encodeURIComponent(code));
         if (searchRes.data.success && searchRes.data.data) setResults(searchRes.data.data);
       }
     } catch (err) {
       if (err.response?.status === 404) {
         try {
-          const searchRes = await api.get(/pos/search?q= + encodeURIComponent(code));
+          const searchRes = await api.get('/pos/search?q=' + encodeURIComponent(code));
           if (searchRes.data.success && searchRes.data.data) setResults(searchRes.data.data);
         } catch (e) {}
       } else {
