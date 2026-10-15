@@ -474,24 +474,24 @@ export default function POS() {
 
     let savingsText = '';
     if (parseFloat(discount) > 0) {
-      savingsText = `?? *You Saved: ?${discount}!*\n`;
+      savingsText = `*You Saved: \u20B9${discount}!*\n`;
     }
 
-    const customerName = orderSuccess.customer?.name ? `?? *Customer:* ${orderSuccess.customer.name}\n` : '';
+    const customerName = orderSuccess.customer?.name ? `*Customer:* ${orderSuccess.customer.name}\n` : '';
 
     const message = 
-`?? *${storeName.toUpperCase()}*
-?? ${storeAddress}
+`*${storeName.toUpperCase()}*
+${storeAddress}
 ${storePhone}----------------------------------------
-?? *Bill No:* #${billNo}
-?? *Date:* ${dateStr}, ${timeStr}
+*Bill No:* #${billNo}
+*Date:* ${dateStr}, ${timeStr}
 ${customerName}----------------------------------------
 *ITEMS:*
 ${itemsList}----------------------------------------
-*Subtotal:* ?${subtotal}
-${parseFloat(discount) > 0 ? `*Discount:* -?${discount}\n` : ''}*TOTAL AMOUNT:* ?${grandTotal}
+*Subtotal:* \u20B9${subtotal}
+${parseFloat(discount) > 0 ? `*Discount:* -\u20B9${discount}\n` : ''}*TOTAL AMOUNT:* \u20B9${grandTotal}
 ----------------------------------------
-${savingsText}?? *Thank you for shopping at ${storeName}!*
+${savingsText}*Thank you for shopping at ${storeName}!*
 _Visit again soon!_`;
 
     const fullPhone = cleanPhone.startsWith('91') && cleanPhone.length === 12 ? cleanPhone : ('91' + cleanPhone.slice(-10));
@@ -956,7 +956,7 @@ _Visit again soon!_`;
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '600', color: '#475569', marginBottom: '0.25rem' }}>Cash (?)</label>
+                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '600', color: '#475569', marginBottom: '0.25rem' }}>Cash ({'\u20B9'})</label>
                     <input 
                       type="number" 
                       value={splitCash}
@@ -969,7 +969,7 @@ _Visit again soon!_`;
                     />
                   </div>
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '600', color: '#475569', marginBottom: '0.25rem' }}>UPI / QR (?)</label>
+                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '600', color: '#475569', marginBottom: '0.25rem' }}>UPI / QR ({'\u20B9'})</label>
                     <input 
                       type="number" 
                       value={splitUPI}
@@ -983,7 +983,7 @@ _Visit again soon!_`;
                   </div>
                 </div>
                 <div style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: '#6d28d9', textAlign: 'right' }}>
-                  Total: ?{(parseFloat(splitCash || 0) + parseFloat(splitUPI || 0)).toFixed(2)} / ?{totals.total.toFixed(2)}
+                  Total: {'\u20B9'}{(parseFloat(splitCash || 0) + parseFloat(splitUPI || 0)).toFixed(2)} / {'\u20B9'}{totals.total.toFixed(2)}
                 </div>
               </div>
             )}
@@ -992,7 +992,7 @@ _Visit again soon!_`;
             {(paymentMethod === 'CASH' || paymentMethod === 'SPLIT') && (
               <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '1rem', marginBottom: '1.5rem' }}>
                 <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 'bold', color: '#1e293b', marginBottom: '0.4rem' }}>
-                  Cash Received from Customer (?)
+                  Cash Received from Customer ({'\u20B9'})
                 </label>
                 <input 
                   type="number"
@@ -1006,10 +1006,10 @@ _Visit again soon!_`;
                 <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
                   {[
                     { label: 'Exact', val: paymentMethod === 'SPLIT' ? splitCash : totals.total },
-                    { label: '?100', val: 100 },
-                    { label: '?200', val: 200 },
-                    { label: '?500', val: 500 },
-                    { label: '?2000', val: 2000 }
+                    { label: '\u20B9100', val: 100 },
+                    { label: '\u20B9200', val: 200 },
+                    { label: '\u20B9500', val: 500 },
+                    { label: '\u20B92000', val: 2000 }
                   ].map((chip, idx) => (
                     <button
                       key={idx}
@@ -1027,7 +1027,7 @@ _Visit again soon!_`;
                   <div style={{ marginTop: '0.75rem', background: '#dcfce7', border: '1px solid #86efac', padding: '0.75rem', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{ color: '#166534', fontWeight: '700', fontSize: '0.95rem' }}>Change to Return:</span>
                     <span style={{ color: '#15803d', fontWeight: '900', fontSize: '1.4rem' }}>
-                      ?{(parseFloat(cashTendered) - (paymentMethod === 'SPLIT' ? parseFloat(splitCash || 0) : totals.total)).toFixed(2)}
+                      {'\u20B9'}{(parseFloat(cashTendered) - (paymentMethod === 'SPLIT' ? parseFloat(splitCash || 0) : totals.total)).toFixed(2)}
                     </span>
                   </div>
                 )}
@@ -1037,7 +1037,7 @@ _Visit again soon!_`;
             {(paymentMethod === 'QR' || paymentMethod === 'SPLIT') && settings?.paymentQrCodeUrl && (
               <div style={{ marginBottom: '1.5rem', textAlign: 'center', background: '#f9fafb', padding: '1rem', borderRadius: '8px', border: '1px dashed #d1d5db' }}>
                 <div style={{ marginBottom: '0.5rem', fontWeight: '500', color: '#4b5563' }}>
-                  {paymentMethod === 'SPLIT' ? `Scan to Pay ?${splitUPI}` : 'Scan to Pay'}
+                  {paymentMethod === 'SPLIT' ? `Scan to Pay \u20B9${splitUPI}` : 'Scan to Pay'}
                 </div>
                 <img src={settings.paymentQrCodeUrl} alt="Store QR Code" style={{ width: '180px', height: '180px', objectFit: 'contain', margin: '0 auto' }} />
               </div>
