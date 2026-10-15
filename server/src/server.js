@@ -23,6 +23,28 @@ io.on('connection', (socket) => {
   console.log('Dashboard client connected via Socket.io');
 });
 
+// Render Keep-Alive: Prevents free-tier instance from sleeping after 15m of inactivity
+const keepAliveUrl = process.env.RENDER_EXTERNAL_URL || process.env.BACKEND_URL;
+if (keepAliveUrl) {
+  const PING_INTERVAL_MS = 10 * 60 * 1000; // 10 minutes
+  setInterval(() => {
+    try {
+      const target = keepAliveUrl.replace(/\/+$/, '') + '/health';
+      const https = require('https');
+      const http = require('http');
+      const client = target.startsWith('https') ? https : http;
+      client.get(target, (res) => {
+        console.log(`[KeepAlive] Pinged ${target} (status: ${res.statusCode})`);
+      }).on('error', (err) => {
+        console.warn(`[KeepAlive] Ping warning: ${err.message}`);
+      });
+    } catch (e) {
+      console.warn(`[KeepAlive] Error: ${e.message}`);
+    }
+  }, PING_INTERVAL_MS);
+  console.log(`[KeepAlive] Active: Automatically pinging ${keepAliveUrl}/health every 10m`);
+}
+
 // Graceful Shutdown
 const shutdown = async (signal) => {
   console.log(`\n${signal} received. Shutting down gracefully...`);
