@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, Suspense, lazy } from 'react';
-import { Search, Camera, Eye, EyeOff, Package, Tag, ArrowLeft, RefreshCw, X, Download } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Search, Camera, Eye, EyeOff, Package, Tag, ArrowLeft, RefreshCw, X, Download, Menu } from 'lucide-react';
+import { useNavigate, useOutletContext } from 'react-router-dom';
 import api from '../services/api';
 import toast from 'react-hot-toast';
 import { useBarcodeScanner } from '../hooks/useBarcodeScanner';
@@ -17,6 +17,15 @@ export default function PriceCheck() {
   const [showInstallHelp, setShowInstallHelp] = useState(false);
   const inputRef = useRef(null);
   const navigate = useNavigate();
+  const outlet = useOutletContext();
+  const setDrawerOpen = outlet?.setDrawerOpen;
+
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -109,57 +118,67 @@ export default function PriceCheck() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f8fafc', padding: '1rem', boxSizing: 'border-box' }}>
-      <div style={{ maxWidth: '650px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+    <div style={{ minHeight: '100vh', background: '#f8fafc', padding: isMobile ? '0.75rem 0.625rem' : '1.25rem', boxSizing: 'border-box', width: '100%', maxWidth: '100vw', overflowX: 'hidden' }}>
+      <div style={{ maxWidth: '650px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '0.875rem', width: '100%' }}>
         
         {/* PWA 1-Tap Install Banner (Appears when mobile browser allows installing) */}
         {installPrompt && (
-          <div style={{ background: '#eff6ff', border: '1.5px solid #bfdbfe', borderRadius: '12px', padding: '0.875rem 1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', boxShadow: '0 2px 4px rgba(37,99,235,0.06)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <img src="/apna-mart-logo.jpg" alt="Logo" style={{ width: '38px', height: '38px', borderRadius: '8px', objectFit: 'cover', border: '1px solid #bfdbfe' }} />
+          <div style={{ background: '#eff6ff', border: '1.5px solid #bfdbfe', borderRadius: '12px', padding: '0.75rem 1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', boxShadow: '0 2px 4px rgba(37,99,235,0.06)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+              <img src="/apna-mart-logo.jpg" alt="Logo" style={{ width: '34px', height: '34px', borderRadius: '8px', objectFit: 'cover', border: '1px solid #bfdbfe' }} />
               <div>
-                <div style={{ fontWeight: '700', fontSize: '0.95rem', color: '#1e40af' }}>Install Apna Mart App</div>
-                <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Fast 1-tap price checks on your phone</div>
+                <div style={{ fontWeight: '700', fontSize: '0.9rem', color: '#1e40af' }}>Install Apna Mart App</div>
+                <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Fast 1-tap price checks on your phone</div>
               </div>
             </div>
             <button
               onClick={handleInstallClick}
-              style={{ background: '#2563eb', color: '#ffffff', border: 'none', padding: '0.55rem 1rem', borderRadius: '8px', fontWeight: '700', fontSize: '0.85rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem', whiteSpace: 'nowrap' }}
+              style={{ background: '#2563eb', color: '#ffffff', border: 'none', padding: '0.5rem 0.875rem', borderRadius: '8px', fontWeight: '700', fontSize: '0.8rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem', whiteSpace: 'nowrap' }}
             >
-              <Download size={16} /> Install
+              <Download size={15} /> Install
             </button>
           </div>
         )}
 
         {/* Header Bar */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#ffffff', padding: '1rem 1.25rem', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <button 
-              onClick={() => navigate(-1)} 
-              style={{ background: '#f1f5f9', border: 'none', borderRadius: '8px', padding: '0.5rem', cursor: 'pointer', display: 'flex', alignItems: 'center', color: '#475569' }}
-              title="Go Back"
-            >
-              <ArrowLeft size={20} />
-            </button>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#ffffff', padding: isMobile ? '0.75rem 0.875rem' : '1rem 1.25rem', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+            {setDrawerOpen ? (
+              <button 
+                onClick={() => setDrawerOpen(true)} 
+                style={{ background: '#f1f5f9', border: 'none', borderRadius: '8px', padding: '0.5rem', cursor: 'pointer', display: 'flex', alignItems: 'center', color: '#475569' }}
+                title="Open Menu"
+              >
+                <Menu size={20} />
+              </button>
+            ) : (
+              <button 
+                onClick={() => navigate(-1)} 
+                style={{ background: '#f1f5f9', border: 'none', borderRadius: '8px', padding: '0.5rem', cursor: 'pointer', display: 'flex', alignItems: 'center', color: '#475569' }}
+                title="Go Back"
+              >
+                <ArrowLeft size={20} />
+              </button>
+            )}
             <div>
-              <h1 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '700', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Tag size={22} color="#2563eb" /> Price Checker
+              <h1 style={{ margin: 0, fontSize: isMobile ? '1.1rem' : '1.25rem', fontWeight: '700', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                <Tag size={20} color="#2563eb" /> Price Checker
               </h1>
-              <p style={{ margin: 0, fontSize: '0.8rem', color: '#64748b' }}>For Salesmen & Staff</p>
+              <p style={{ margin: 0, fontSize: '0.75rem', color: '#64748b' }}>Apna Mart Floor Staff</p>
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
             <button
               type="button"
               onClick={handleInstallClick}
-              style={{ background: '#eff6ff', border: '1.5px solid #bfdbfe', padding: '0.5rem 0.75rem', borderRadius: '8px', fontSize: '0.85rem', fontWeight: '700', color: '#1d4ed8', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
+              style={{ background: '#eff6ff', border: '1.5px solid #bfdbfe', padding: '0.45rem 0.65rem', borderRadius: '8px', fontSize: '0.8rem', fontWeight: '700', color: '#1d4ed8', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem', whiteSpace: 'nowrap' }}
             >
-              <Download size={14} /> Install App
+              <Download size={14} /> {isMobile ? 'App' : 'Install App'}
             </button>
             <button
               onClick={() => { setQuery(''); setResults([]); inputRef.current?.focus(); }}
-              style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '0.5rem 0.75rem', borderRadius: '8px', fontSize: '0.85rem', fontWeight: '500', color: '#475569', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
+              style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '0.45rem 0.65rem', borderRadius: '8px', fontSize: '0.8rem', fontWeight: '500', color: '#475569', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem', whiteSpace: 'nowrap' }}
             >
               <RefreshCw size={14} /> Clear
             </button>
@@ -167,9 +186,9 @@ export default function PriceCheck() {
         </div>
 
         {/* Search & Camera Input Card */}
-        <div style={{ background: '#ffffff', padding: '1.25rem', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}>
-          <form onSubmit={handleFormSubmit} style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-            <div style={{ flex: '1 1 240px', position: 'relative' }}>
+        <div style={{ background: '#ffffff', padding: isMobile ? '0.875rem' : '1.25rem', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}>
+          <form onSubmit={handleFormSubmit} style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '0.625rem' }}>
+            <div style={{ flex: 1, position: 'relative', width: '100%' }}>
               <div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }}>
                 <Search size={20} />
               </div>
@@ -201,49 +220,56 @@ export default function PriceCheck() {
               )}
             </div>
 
-            {/* Mobile Camera Scan Button */}
-            <button
-              type="button"
-              onClick={() => setShowCamera(true)}
-              style={{
-                padding: '0 1rem',
-                background: '#eff6ff',
-                color: '#2563eb',
-                border: '1.5px solid #bfdbfe',
-                borderRadius: '10px',
-                fontWeight: '600',
-                fontSize: '0.95rem',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.4rem',
-                minHeight: '48px'
-              }}
-              title="Scan with Mobile Camera"
-            >
-              <Camera size={20} />
-              <span>Camera</span>
-            </button>
+            <div style={{ display: 'flex', gap: '0.5rem', width: isMobile ? '100%' : 'auto' }}>
+              {/* Mobile Camera Scan Button */}
+              <button
+                type="button"
+                onClick={() => setShowCamera(true)}
+                style={{
+                  flex: isMobile ? 1 : 'none',
+                  padding: '0 1.25rem',
+                  background: '#eff6ff',
+                  color: '#2563eb',
+                  border: '1.5px solid #bfdbfe',
+                  borderRadius: '10px',
+                  fontWeight: '700',
+                  fontSize: '0.95rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.4rem',
+                  minHeight: '48px',
+                  whiteSpace: 'nowrap'
+                }}
+                title="Scan with Mobile Camera"
+              >
+                <Camera size={20} />
+                <span>Camera</span>
+              </button>
 
-            {/* Check Button */}
-            <button
-              type="submit"
-              disabled={loading || !query.trim()}
-              style={{
-                padding: '0 1.5rem',
-                background: '#2563eb',
-                color: '#ffffff',
-                border: 'none',
-                borderRadius: '10px',
-                fontWeight: '600',
-                fontSize: '0.95rem',
-                cursor: loading ? 'not-allowed' : 'pointer',
-                opacity: (!query.trim() || loading) ? 0.7 : 1,
-                minHeight: '48px'
-              }}
-            >
-              {loading ? 'Searching...' : 'Check Price'}
-            </button>
+              {/* Check Button */}
+              <button
+                type="submit"
+                disabled={loading || !query.trim()}
+                style={{
+                  flex: isMobile ? 1 : 'none',
+                  padding: '0 1.5rem',
+                  background: '#2563eb',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '10px',
+                  fontWeight: '700',
+                  fontSize: '0.95rem',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  opacity: (!query.trim() || loading) ? 0.7 : 1,
+                  minHeight: '48px',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                {loading ? 'Searching...' : 'Check Price'}
+              </button>
+            </div>
           </form>
         </div>
 

@@ -514,6 +514,7 @@ _Visit again soon!_`;
   const [selectedCategory, setSelectedCategory] = useState('All');
   const { setDrawerOpen } = useOutletContext();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [mobileTab, setMobileTab] = useState('products'); // 'products' | 'cart'
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -538,13 +539,48 @@ _Visit again soon!_`;
     ? quickProducts 
     : quickProducts.filter(p => p.product?.category === selectedCategory);
   return (
-    <div style={{ display: 'flex', height: '100%', background: '#f8fafc', overflow: 'hidden', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+    <div style={{ display: 'flex', height: '100%', width: '100%', maxWidth: '100vw', background: '#f8fafc', overflow: 'hidden', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
       
       {/* MAIN LAYOUT */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: isMobile ? 'column' : 'row', height: '100%', overflow: 'hidden' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: isMobile ? 'column' : 'row', height: '100%', width: '100%', overflow: 'hidden' }}>
+
+        {/* Mobile Tab Switcher */}
+        {isMobile && (
+          <div style={{ display: 'flex', background: 'white', borderBottom: '2px solid #e2e8f0', flexShrink: 0 }}>
+            <button
+              onClick={() => setMobileTab('products')}
+              style={{
+                flex: 1, padding: '0.875rem', border: 'none', background: 'transparent',
+                fontWeight: '700', fontSize: '0.95rem', cursor: 'pointer',
+                color: mobileTab === 'products' ? '#2563eb' : '#64748b',
+                borderBottom: mobileTab === 'products' ? '3px solid #2563eb' : '3px solid transparent',
+                transition: 'all 0.15s'
+              }}
+            >
+              📦 Products
+            </button>
+            <button
+              onClick={() => setMobileTab('cart')}
+              style={{
+                flex: 1, padding: '0.875rem', border: 'none', background: 'transparent',
+                fontWeight: '700', fontSize: '0.95rem', cursor: 'pointer',
+                color: mobileTab === 'cart' ? '#16a34a' : '#64748b',
+                borderBottom: mobileTab === 'cart' ? '3px solid #16a34a' : '3px solid transparent',
+                transition: 'all 0.15s',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem'
+              }}
+            >
+              🛒 Cart {cart.length > 0 && (
+                <span style={{ background: '#16a34a', color: 'white', borderRadius: '999px', fontSize: '0.7rem', fontWeight: '800', padding: '0 6px', lineHeight: '1.4' }}>
+                  {cart.length}
+                </span>
+              )}
+            </button>
+          </div>
+        )}
         
         {/* LEFT PANE - PRODUCTS & SEARCH (65%) */}
-        <div style={{ flex: isMobile ? '1' : '0 0 65%', display: 'flex', flexDirection: 'column', padding: '1.25rem', background: '#f8fafc', overflow: 'hidden' }}>
+        <div style={{ flex: isMobile ? '1' : '0 0 65%', display: isMobile && mobileTab !== 'products' ? 'none' : 'flex', flexDirection: 'column', padding: isMobile ? '0.875rem' : '1.25rem', background: '#f8fafc', overflow: 'hidden' }}>
           
           {/* TOP BAR */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
@@ -681,10 +717,28 @@ _Visit again soon!_`;
               </>
             )}
           </div>
+
+          {/* Mobile: Floating View Cart Button */}
+          {isMobile && cart.length > 0 && (
+            <div style={{ padding: '0.75rem', background: 'white', borderTop: '1px solid #e2e8f0', flexShrink: 0 }}>
+              <button
+                onClick={() => setMobileTab('cart')}
+                style={{
+                  width: '100%', padding: '0.875rem', background: '#16a34a', color: 'white',
+                  border: 'none', borderRadius: '10px', fontWeight: '700', fontSize: '1rem',
+                  cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  boxShadow: '0 4px 6px rgba(22,163,74,0.3)'
+                }}
+              >
+                <span>🛒 {cart.length} item{cart.length !== 1 ? 's' : ''}</span>
+                <span>₹{totals.total.toFixed(2)} → Cart</span>
+              </button>
+            </div>
+          )}
         </div>
 
         {/* RIGHT PANE - CART & CHECKOUT (35%) */}
-        <div style={{ flex: isMobile ? '1' : '0 0 35%', display: 'flex', flexDirection: 'column', background: 'white', borderLeft: '1px solid #e2e8f0', boxShadow: '-2px 0 10px rgba(0,0,0,0.02)', zIndex: 10 }}>
+        <div style={{ flex: isMobile ? '1' : '0 0 35%', display: isMobile && mobileTab !== 'cart' ? 'none' : 'flex', flexDirection: 'column', background: 'white', borderLeft: isMobile ? 'none' : '1px solid #e2e8f0', boxShadow: isMobile ? 'none' : '-2px 0 10px rgba(0,0,0,0.02)', zIndex: 10 }}>
           
           {/* CUSTOMER CARD */}
           <div style={{ padding: '1.25rem', borderBottom: '1px solid #e2e8f0', background: '#f8fafc' }}>

@@ -47,9 +47,27 @@ export default function AppLayout() {
 
   const currentPageName = navItems.find(item => isActiveRoute(item.path))?.name || 'Apna Mart';
   const isPOS = location.pathname === '/pos';
+  const isPriceCheck = location.pathname === '/price-check';
+
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Bottom Navigation tabs for mobile devices
+  const mobileTabs = [
+    { name: 'Price Check', path: '/price-check', icon: Tag },
+    { name: 'POS', path: '/pos', icon: ShoppingCart },
+    ...(currentUser?.role === 'ADMIN' 
+      ? [{ name: 'Dashboard', path: '/', icon: LayoutDashboard }]
+      : [{ name: 'Orders', path: '/orders', icon: FileText }]),
+    { name: 'Products', path: '/products', icon: Package },
+  ];
 
   return (
-    <div style={{ display: 'flex', height: '100vh', backgroundColor: '#f9fafb', overflow: 'hidden' }}>
+    <div style={{ display: 'flex', height: '100vh', width: '100vw', maxWidth: '100vw', backgroundColor: '#f9fafb', overflow: 'hidden' }}>
 
       {/* Drawer Backdrop */}
       {drawerOpen && (
@@ -187,11 +205,11 @@ export default function AppLayout() {
       {/* Main Content Column */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', overflow: 'hidden' }}>
 
-        {/* Global Header — hidden on POS (POS has its own top bar with the ☰ button) */}
-        {!isPOS && (
+        {/* Global Header — hidden on POS and Price Check (they manage their own headers) */}
+        {!isPOS && !isPriceCheck && (
           <header style={{
             backgroundColor: 'white',
-            padding: '0.875rem 1.5rem',
+            padding: isMobile ? '0.625rem 0.875rem' : '0.875rem 1.5rem',
             boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
             display: 'flex',
             alignItems: 'center',
@@ -230,9 +248,11 @@ export default function AppLayout() {
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '24px', height: '24px', borderRadius: '50%', background: '#3b82f6', color: 'white', fontWeight: 'bold', fontSize: '0.7rem' }}>
                 {currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'U'}
               </div>
-              <div style={{ fontSize: '0.8125rem', color: '#334155', fontWeight: '600' }}>
-                {currentUser.name}
-              </div>
+              {!isMobile && (
+                <div style={{ fontSize: '0.8125rem', color: '#334155', fontWeight: '600' }}>
+                  {currentUser.name}
+                </div>
+              )}
             </div>
           </header>
         )}
@@ -241,11 +261,88 @@ export default function AppLayout() {
         <main style={{
           flex: 1,
           overflow: isPOS ? 'hidden' : 'auto',
-          padding: isPOS ? 0 : '1.75rem',
+          padding: (isPOS || isPriceCheck) ? 0 : (isMobile ? '0.75rem' : '1.75rem'),
+          paddingBottom: isMobile ? '4.5rem' : ((isPOS || isPriceCheck) ? 0 : '1.75rem'),
           height: isPOS ? '100%' : undefined,
+          boxSizing: 'border-box',
+          width: '100%',
+          maxWidth: '100vw',
         }}>
           <Outlet context={{ setDrawerOpen }} />
         </main>
+
+        {/* Mobile Bottom Navigation Bar */}
+        {isMobile && (
+          <nav
+            role="navigation"
+            aria-label="Mobile Navigation"
+            style={{
+              position: 'fixed',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: '56px',
+              backgroundColor: '#ffffff',
+              borderTop: '1px solid #e2e8f0',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-around',
+              zIndex: 30,
+              boxShadow: '0 -2px 10px rgba(0,0,0,0.06)',
+              paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+            }}
+          >
+            {mobileTabs.map(tab => {
+              const active = isActiveRoute(tab.path);
+              const Icon = tab.icon;
+              return (
+                <Link
+                  key={tab.name}
+                  to={tab.path}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    textDecoration: 'none',
+                    color: active ? '#2563eb' : '#64748b',
+                    flex: 1,
+                    height: '100%',
+                    padding: '4px 0',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  <Icon size={20} strokeWidth={active ? 2.5 : 2} color={active ? '#2563eb' : '#64748b'} />
+                  <span style={{ fontSize: '0.7rem', fontWeight: active ? '700' : '500', marginTop: '2px', color: active ? '#2563eb' : '#64748b' }}>
+                    {tab.name}
+                  </span>
+                </Link>
+              );
+            })}
+            <button
+              onClick={() => setDrawerOpen(true)}
+              aria-label="Open More Menu"
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: 'transparent',
+                border: 'none',
+                color: '#64748b',
+                flex: 1,
+                height: '100%',
+                padding: '4px 0',
+                cursor: 'pointer',
+              }}
+            >
+              <Menu size={20} color="#64748b" />
+              <span style={{ fontSize: '0.7rem', fontWeight: '500', marginTop: '2px', color: '#64748b' }}>
+                Menu
+              </span>
+            </button>
+          </nav>
+        )}
       </div>
     </div>
   );

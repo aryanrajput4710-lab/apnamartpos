@@ -40,6 +40,22 @@ export default defineConfig({
             type: 'image/png',
             purpose: 'maskable'
           }
+        ],
+        shortcuts: [
+          {
+            name: 'Price Check',
+            short_name: 'Price Check',
+            description: 'Barcode Scanner & Price Lookup',
+            url: '/price-check',
+            icons: [{ src: '/logo192.png', sizes: '192x192' }]
+          },
+          {
+            name: 'POS Billing',
+            short_name: 'POS',
+            description: 'Point of Sale Counter Billing',
+            url: '/pos',
+            icons: [{ src: '/logo192.png', sizes: '192x192' }]
+          }
         ]
       }
     })
