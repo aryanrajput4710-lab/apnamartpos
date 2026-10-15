@@ -165,26 +165,46 @@ export default function Receipt({ order }) {
 
       {/* ── PAYMENT ── */}
       <div className="receipt-payment">
-        <div className="pay-row">
-          <span className="pay-label">PAYMENT</span>
-          <span className="pay-colon">:</span>
-          <span className="pay-method">{payMethod}</span>
-          <span className={`pay-badge ${payStatus === 'PAID' ? 'pay-paid' : 'pay-pending'}`}>
-            {payStatus}
-          </span>
-        </div>
-        {isCash && cashAmount > 0 && (
+        {order.payments && order.payments.length > 1 ? (
           <>
             <div className="pay-row">
-              <span className="pay-label">Cash Received</span>
+              <span className="pay-label">PAYMENT</span>
               <span className="pay-colon">:</span>
-              <span>₹{fmt(cashAmount)}</span>
+              <span className="pay-method">SPLIT</span>
+              <span className="pay-badge pay-paid">PAID</span>
             </div>
+            {order.payments.map((p, idx) => (
+              <div key={idx} className="pay-row">
+                <span className="pay-label">{p.method === 'CASH' ? 'Cash' : 'UPI/QR'}</span>
+                <span className="pay-colon">:</span>
+                <span>₹{fmt(p.amount)}</span>
+              </div>
+            ))}
+          </>
+        ) : (
+          <>
             <div className="pay-row">
-              <span className="pay-label">Change</span>
+              <span className="pay-label">PAYMENT</span>
               <span className="pay-colon">:</span>
-              <span>₹{fmt(changeReturned)}</span>
+              <span className="pay-method">{payMethod}</span>
+              <span className={`pay-badge ${payStatus === 'PAID' ? 'pay-paid' : 'pay-pending'}`}>
+                {payStatus}
+              </span>
             </div>
+            {isCash && cashAmount > 0 && (
+              <>
+                <div className="pay-row">
+                  <span className="pay-label">Cash Received</span>
+                  <span className="pay-colon">:</span>
+                  <span>₹{fmt(cashAmount)}</span>
+                </div>
+                <div className="pay-row">
+                  <span className="pay-label">Change</span>
+                  <span className="pay-colon">:</span>
+                  <span>₹{fmt(changeReturned)}</span>
+                </div>
+              </>
+            )}
           </>
         )}
       </div>

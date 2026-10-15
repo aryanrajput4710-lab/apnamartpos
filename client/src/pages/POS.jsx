@@ -5,7 +5,8 @@ import { Link, useOutletContext } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { ShoppingCart, User, Search, Trash2, Plus, Minus, X, Camera, Menu, LayoutDashboard, Package, Users, FileText, TrendingUp, UserPlus, Settings, LogOut, ChevronRight, Keyboard, MessageSquare } from 'lucide-react';
 import ConfirmModal from '../components/ConfirmModal';
-import CameraScanner from '../components/CameraScanner';
+import { Suspense, lazy } from 'react';
+const CameraScanner = lazy(() => import('../components/CameraScanner'));
 import { useBarcodeScanner } from '../hooks/useBarcodeScanner';
 import Receipt from '../components/Receipt';
 import ZReportReceipt from '../components/ZReportReceipt';
@@ -40,6 +41,9 @@ export default function POS() {
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [checkoutStep, setCheckoutStep] = useState('CUSTOMER');
   const [paymentMethod, setPaymentMethod] = useState('CASH');
+  const [splitCash, setSplitCash] = useState('');
+  const [splitUPI, setSplitUPI] = useState('');
+  const [cashTendered, setCashTendered] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(null);
   const [waPhone, setWaPhone] = useState('');
@@ -866,22 +870,122 @@ _Visit again soon!_`;
 
             <div style={{ marginBottom: '1.5rem' }}>
               <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Payment Method</label>
-              <div style={{ display: 'flex', gap: '1rem' }}>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
                 <button 
+                  type="button"
                   onClick={() => setPaymentMethod('CASH')}
-                  style={{ flex: 1, padding: '1rem', border: paymentMethod === 'CASH' ? '2px solid #3b82f6' : '1px solid #d1d5db', background: paymentMethod === 'CASH' ? '#eff6ff' : 'white', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}
-                >CASH</button>
+                  style={{ flex: 1, padding: '0.875rem 0.5rem', border: paymentMethod === 'CASH' ? '2px solid #16a34a' : '1px solid #d1d5db', background: paymentMethod === 'CASH' ? '#f0fdf4' : 'white', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', color: paymentMethod === 'CASH' ? '#166534' : '#334155' }}
+                >?? CASH</button>
                 <button 
+                  type="button"
                   onClick={() => setPaymentMethod('QR')}
-                  style={{ flex: 1, padding: '1rem', border: paymentMethod === 'QR' ? '2px solid #3b82f6' : '1px solid #d1d5db', background: paymentMethod === 'QR' ? '#eff6ff' : 'white', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}
-                >QR/UPI</button>
+                  style={{ flex: 1, padding: '0.875rem 0.5rem', border: paymentMethod === 'QR' ? '2px solid #2563eb' : '1px solid #d1d5db', background: paymentMethod === 'QR' ? '#eff6ff' : 'white', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', color: paymentMethod === 'QR' ? '#1e40af' : '#334155' }}
+                >?? QR/UPI</button>
+                <button 
+                  type="button"
+                  onClick={() => {
+                    setPaymentMethod('SPLIT');
+                    const half = Math.floor(totals.total / 2);
+                    setSplitCash(half);
+                    setSplitUPI((totals.total - half).toFixed(2));
+                  }}
+                  style={{ flex: 1, padding: '0.875rem 0.5rem', border: paymentMethod === 'SPLIT' ? '2px solid #7c3aed' : '1px solid #d1d5db', background: paymentMethod === 'SPLIT' ? '#f5f3ff' : 'white', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', color: paymentMethod === 'SPLIT' ? '#6d28d9' : '#334155' }}
+                >? SPLIT</button>
               </div>
             </div>
 
-            {paymentMethod === 'QR' && settings?.paymentQrCodeUrl && (
+            {/* SPLIT PAYMENT BREAKDOWN */}
+            {paymentMethod === 'SPLIT' && (
+              <div style={{ background: '#f5f3ff', border: '1.5px solid #ddd6fe', borderRadius: '8px', padding: '1rem', marginBottom: '1.5rem' }}>
+                <div style={{ fontWeight: '700', color: '#6d28d9', marginBottom: '0.5rem', fontSize: '0.95rem' }}>
+                  Split Payment Breakdown
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '600', color: '#475569', marginBottom: '0.25rem' }}>Cash (?)</label>
+                    <input 
+                      type="number" 
+                      value={splitCash}
+                      onChange={e => {
+                        const val = parseFloat(e.target.value) || 0;
+                        setSplitCash(e.target.value);
+                        setSplitUPI(Math.max(0, totals.total - val).toFixed(2));
+                      }}
+                      style={{ width: '100%', padding: '0.6rem 0.75rem', borderRadius: '6px', border: '1px solid #cbd5e1', fontWeight: '700', boxSizing: 'border-box' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '600', color: '#475569', marginBottom: '0.25rem' }}>UPI / QR (?)</label>
+                    <input 
+                      type="number" 
+                      value={splitUPI}
+                      onChange={e => {
+                        const val = parseFloat(e.target.value) || 0;
+                        setSplitUPI(e.target.value);
+                        setSplitCash(Math.max(0, totals.total - val).toFixed(2));
+                      }}
+                      style={{ width: '100%', padding: '0.6rem 0.75rem', borderRadius: '6px', border: '1px solid #cbd5e1', fontWeight: '700', boxSizing: 'border-box' }}
+                    />
+                  </div>
+                </div>
+                <div style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: '#6d28d9', textAlign: 'right' }}>
+                  Total: ?{(parseFloat(splitCash || 0) + parseFloat(splitUPI || 0)).toFixed(2)} / ?{totals.total.toFixed(2)}
+                </div>
+              </div>
+            )}
+
+            {/* CASH TENDERED & CHANGE CALCULATOR */}
+            {(paymentMethod === 'CASH' || paymentMethod === 'SPLIT') && (
+              <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '1rem', marginBottom: '1.5rem' }}>
+                <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 'bold', color: '#1e293b', marginBottom: '0.4rem' }}>
+                  Cash Received from Customer (?)
+                </label>
+                <input 
+                  type="number"
+                  placeholder="e.g. 500"
+                  value={cashTendered}
+                  onChange={e => setCashTendered(e.target.value)}
+                  style={{ width: '100%', padding: '0.75rem 1rem', fontSize: '1.2rem', fontWeight: '700', borderRadius: '8px', border: '1.5px solid #cbd5e1', outline: 'none', boxSizing: 'border-box', background: '#fff' }}
+                />
+                
+                {/* Quick Cash Chips */}
+                <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
+                  {[
+                    { label: 'Exact', val: paymentMethod === 'SPLIT' ? splitCash : totals.total },
+                    { label: '?100', val: 100 },
+                    { label: '?200', val: 200 },
+                    { label: '?500', val: 500 },
+                    { label: '?2000', val: 2000 }
+                  ].map((chip, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => setCashTendered(chip.val)}
+                      style={{ padding: '0.35rem 0.65rem', background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '0.8rem', fontWeight: '600', cursor: 'pointer', color: '#475569' }}
+                    >
+                      {chip.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Return Change Banner */}
+                {parseFloat(cashTendered) > (paymentMethod === 'SPLIT' ? parseFloat(splitCash || 0) : totals.total) && (
+                  <div style={{ marginTop: '0.75rem', background: '#dcfce7', border: '1px solid #86efac', padding: '0.75rem', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ color: '#166534', fontWeight: '700', fontSize: '0.95rem' }}>Change to Return:</span>
+                    <span style={{ color: '#15803d', fontWeight: '900', fontSize: '1.4rem' }}>
+                      ?{(parseFloat(cashTendered) - (paymentMethod === 'SPLIT' ? parseFloat(splitCash || 0) : totals.total)).toFixed(2)}
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {(paymentMethod === 'QR' || paymentMethod === 'SPLIT') && settings?.paymentQrCodeUrl && (
               <div style={{ marginBottom: '1.5rem', textAlign: 'center', background: '#f9fafb', padding: '1rem', borderRadius: '8px', border: '1px dashed #d1d5db' }}>
-                <div style={{ marginBottom: '0.5rem', fontWeight: '500', color: '#4b5563' }}>Scan to Pay</div>
-                <img src={settings.paymentQrCodeUrl} alt="Store QR Code" style={{ width: '200px', height: '200px', objectFit: 'contain', margin: '0 auto' }} />
+                <div style={{ marginBottom: '0.5rem', fontWeight: '500', color: '#4b5563' }}>
+                  {paymentMethod === 'SPLIT' ? `Scan to Pay ?${splitUPI}` : 'Scan to Pay'}
+                </div>
+                <img src={settings.paymentQrCodeUrl} alt="Store QR Code" style={{ width: '180px', height: '180px', objectFit: 'contain', margin: '0 auto' }} />
               </div>
             )}
 
@@ -1117,7 +1221,11 @@ _Visit again soon!_`;
 
       {/* Camera Scanner Modal */}
 
-      {showCamera && <CameraScanner onScan={handleCameraScan} onClose={() => setShowCamera(false)} />}
+      {showCamera && (
+        <Suspense fallback={<div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>Starting Camera...</div>}>
+          <CameraScanner onScan={handleCameraScan} onClose={() => setShowCamera(false)} />
+        </Suspense>
+      )}
 
 
       {/* Z-Report Modal */}

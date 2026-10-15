@@ -1,8 +1,9 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, Suspense, lazy } from 'react';
 import { X, Search, Eye, EyeOff, Package, Tag, Camera } from 'lucide-react';
-import CameraScanner from './CameraScanner';
 import api from '../services/api';
 import toast from 'react-hot-toast';
+
+const CameraScanner = lazy(() => import('./CameraScanner'));
 
 export default function PriceCheckModal({ isOpen, onClose }) {
   const [query, setQuery] = useState('');
@@ -233,10 +234,12 @@ export default function PriceCheckModal({ isOpen, onClose }) {
       </div>
     </div>
     {showCamera && (
-      <CameraScanner
-        onScan={handleCameraScan}
-        onClose={() => setShowCamera(false)}
-      />
+      <Suspense fallback={<div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '1.1rem' }}>Starting Camera...</div>}>
+        <CameraScanner
+          onScan={handleCameraScan}
+          onClose={() => setShowCamera(false)}
+        />
+      </Suspense>
     )}
     </>
   );

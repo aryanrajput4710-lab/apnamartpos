@@ -64,6 +64,10 @@ const scanProduct = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Product not found or inactive' });
     }
 
+    if (req.user?.role !== 'ADMIN') {
+      delete variant.costPrice;
+    }
+
     if (variant.stock <= 0) {
       // Return 200 but flag as out of stock, letting POS show proper message
       return res.status(200).json({ 
@@ -101,6 +105,10 @@ const searchProducts = async (req, res) => {
       take: 20
     });
 
+    if (req.user?.role !== 'ADMIN') {
+      variants.forEach(v => { delete v.costPrice; });
+    }
+
     res.status(200).json({ success: true, data: variants });
   } catch (error) {
     console.error('Search error:', error);
@@ -110,7 +118,7 @@ const searchProducts = async (req, res) => {
 
 const checkout = async (req, res) => {
   try {
-    let { items, customerId, customerPhone, customerName, paymentMethod, idempotencyKey, extraDiscount } = req.body;
+    let { items, customerId, customerPhone, customerName, paymentMethod, splitPayments, idempotencyKey, extraDiscount } = req.body;
 
     if (!customerId && customerPhone) {
       const existingCustomer = await prisma.customer.findUnique({ where: { phone: customerPhone } });
@@ -127,7 +135,8 @@ const checkout = async (req, res) => {
     if (!items || items.length === 0) {
       return res.status(400).json({ success: false, message: 'Cart is empty' });
     }
-    if (!paymentMethod || (paymentMethod !== 'CASH' && paymentMethod !== 'QR')) {
+    const isSplit = Array.isArray(splitPayments) && splitPayments.length > 0;
+    if (!isSplit && (!paymentMethod || (paymentMethod !== 'CASH' && paymentMethod !== 'QR'))) {
       return res.status(400).json({ success: false, message: 'Invalid payment method' });
     }
 
@@ -228,11 +237,15 @@ const checkout = async (req, res) => {
             }))
           },
           payments: {
-            create: {
+            create: isSplit ? splitPayments.map(p => ({
+              amount: parseFloat(p.amount),
+              method: p.method,
+              status: 'COMPLETED'
+            })) : [{
               amount: total,
               method: paymentMethod,
               status: 'COMPLETED'
-            }
+            }]
           }
         },
         include: { items: true, payments: true, customer: true, user: { select: { name: true } } }

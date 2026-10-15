@@ -69,6 +69,90 @@ export default function Settings() {
     }
   };
 
+  const downloadCSV = (filename, csvString) => {
+    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const exportProductsCSV = async () => {
+    try {
+      const res = await api.get('/products');
+      const prods = res.data.data || [];
+      const rows = [];
+      prods.forEach(p => {
+        (p.variants || []).forEach(v => {
+          rows.push({
+            'Product Name': p.name,
+            'Category': p.category || '',
+            'SKU': v.sku,
+            'Barcode': v.barcode,
+            'Manufacturer Barcode': v.manufacturerBarcode || '',
+            'Size': v.size || '',
+            'Color': v.color || '',
+            'MRP': v.mrp,
+            'Selling Price': v.sellingPrice,
+            'Cost Price': v.costPrice || 0,
+            'Stock': v.stock
+          });
+        });
+      });
+      const csv = Papa.unparse(rows);
+      downloadCSV('apna_mart_products_' + new Date().toISOString().slice(0, 10) + '.csv', csv);
+      toast.success('Products exported successfully!');
+    } catch (err) {
+      toast.error('Failed to export products');
+    }
+  };
+
+  const exportCustomersCSV = async () => {
+    try {
+      const res = await api.get('/customers');
+      const customers = res.data.data || [];
+      const rows = customers.map(c => ({
+        'Name': c.name,
+        'Phone': c.phone,
+        'Email': c.email || '',
+        'Address': c.address || '',
+        'Total Orders': c.totalOrders,
+        'Total Spent': c.totalSpent,
+        'Created At': new Date(c.createdAt).toLocaleDateString('en-IN')
+      }));
+      const csv = Papa.unparse(rows);
+      downloadCSV('apna_mart_customers_' + new Date().toISOString().slice(0, 10) + '.csv', csv);
+      toast.success('Customers exported successfully!');
+    } catch (err) {
+      toast.error('Failed to export customers');
+    }
+  };
+
+  const exportOrdersCSV = async () => {
+    try {
+      const res = await api.get('/orders');
+      const orders = res.data.data || [];
+      const rows = orders.map(o => ({
+        'Order Number': o.orderNumber,
+        'Date': new Date(o.createdAt).toLocaleString('en-IN'),
+        'Customer Name': o.customer?.name || 'Walk-in Guest',
+        'Customer Phone': o.customer?.phone || '',
+        'Subtotal': o.subtotal,
+        'Discount': o.discount,
+        'Total': o.total,
+        'Status': o.status,
+        'Cashier': o.user?.name || ''
+      }));
+      const csv = Papa.unparse(rows);
+      downloadCSV('apna_mart_sales_' + new Date().toISOString().slice(0, 10) + '.csv', csv);
+      toast.success('Sales history exported successfully!');
+    } catch (err) {
+      toast.error('Failed to export orders');
+    }
+  };
+
   const runIntegrityChecks = async () => {
     try {
       const res = await api.get('/integrity');
@@ -136,6 +220,39 @@ export default function Settings() {
           <div style={{ display: 'flex', gap: '1rem' }}>
             <button onClick={handleCreateBackup} style={{ padding: '0.75rem', background: '#16a34a', color: 'white', border: 'none', borderRadius: '4px' }}>Create Backup</button>
             <button onClick={handleRestoreBackup} style={{ padding: '0.75rem', background: '#dc2626', color: 'white', border: 'none', borderRadius: '4px' }}>Restore Backup</button>
+          </div>
+        </div>
+
+        <div style={{ background: 'white', padding: '1.25rem', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+          <h2 style={{ marginTop: 0, fontSize: '1.2rem', color: '#0f172a' }}>?? 1-Click Excel / CSV Export</h2>
+          <p style={{ fontSize: '0.875rem', color: '#64748b', marginBottom: '1rem' }}>
+            Download a complete offline spreadsheet copy of your store's data anytime.
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <button 
+              type="button"
+              onClick={exportProductsCSV} 
+              style={{ padding: '0.75rem 1rem', background: '#0284c7', color: 'white', border: 'none', borderRadius: '6px', fontWeight: '600', cursor: 'pointer', textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+            >
+              <span>?? Export Products & Inventory</span>
+              <span style={{ fontSize: '0.8rem', opacity: 0.85 }}>.CSV</span>
+            </button>
+            <button 
+              type="button"
+              onClick={exportCustomersCSV} 
+              style={{ padding: '0.75rem 1rem', background: '#0d9488', color: 'white', border: 'none', borderRadius: '6px', fontWeight: '600', cursor: 'pointer', textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+            >
+              <span>?? Export Customer Directory</span>
+              <span style={{ fontSize: '0.8rem', opacity: 0.85 }}>.CSV</span>
+            </button>
+            <button 
+              type="button"
+              onClick={exportOrdersCSV} 
+              style={{ padding: '0.75rem 1rem', background: '#4f46e5', color: 'white', border: 'none', borderRadius: '6px', fontWeight: '600', cursor: 'pointer', textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+            >
+              <span>?? Export Sales & Invoices</span>
+              <span style={{ fontSize: '0.8rem', opacity: 0.85 }}>.CSV</span>
+            </button>
           </div>
         </div>
 

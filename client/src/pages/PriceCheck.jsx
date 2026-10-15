@@ -1,10 +1,11 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, Suspense, lazy } from 'react';
 import { Search, Camera, Eye, EyeOff, Package, Tag, ArrowLeft, RefreshCw, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import toast from 'react-hot-toast';
-import CameraScanner from '../components/CameraScanner';
 import { useBarcodeScanner } from '../hooks/useBarcodeScanner';
+
+const CameraScanner = lazy(() => import('../components/CameraScanner'));
 
 export default function PriceCheck() {
   const [query, setQuery] = useState('');
@@ -344,10 +345,12 @@ export default function PriceCheck() {
 
       {/* Camera Barcode Scanner Modal */}
       {showCamera && (
-        <CameraScanner
-          onScan={handleCameraScan}
-          onClose={() => setShowCamera(false)}
-        />
+        <Suspense fallback={<div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '1.1rem' }}>Starting Camera...</div>}>
+          <CameraScanner
+            onScan={handleCameraScan}
+            onClose={() => setShowCamera(false)}
+          />
+        </Suspense>
       )}
     </div>
   );
