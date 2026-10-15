@@ -146,6 +146,19 @@ export default function POS() {
     if (!rawCode.trim()) return;
     try {
       let code = rawCode.trim();
+      let multiplier = 1;
+
+      // Check for quantity multiplier format: "12*barcode" or "12xbarcode"
+      const match = code.match(/^(\d+)\s*[\*xX]\s*(.+)$/);
+      if (match) {
+        multiplier = parseInt(match[1], 10) || 1;
+        code = match[2].trim();
+      } else if (scanInput.trim()) {
+        const inputMatch = scanInput.trim().match(/^(\d+)\s*[\*xX]$/);
+        if (inputMatch) {
+          multiplier = parseInt(inputMatch[1], 10) || 1;
+        }
+      }
 
       const res = await api.get(`/pos/scan/${code}`);
       const variant = res.data.data;
@@ -153,13 +166,21 @@ export default function POS() {
       if (variant.stock <= 0) {
         toast('Product is out of stock!');
       } else {
-        addToCart(variant);
+        addToCart(variant, multiplier);
+        if (multiplier > 1) {
+          toast.success(`Added ${multiplier}x ${variant.product?.name || 'items'}!`);
+        }
       }
       setScanInput('');
       setSearchResults([]);
     } catch (err) {
       if (err.response?.status === 404) {
-        searchProducts(rawCode);
+        let searchCode = rawCode.trim();
+        const m = searchCode.match(/^(\d+)\s*[\*xX]\s*(.+)$/);
+        if (m) {
+          searchCode = m[2].trim();
+        }
+        searchProducts(searchCode);
       } else {
         toast(err.response?.data?.message || 'Error scanning product');
       }
@@ -183,22 +204,47 @@ export default function POS() {
     }
   };
 
-  const addToCart = (variant) => {
+  const addToCart = (variant, quantityToAdd = 1) => {
     playBeep();
+    const qty = Math.max(1, parseInt(quantityToAdd, 10) || 1);
     setCart(prev => {
       const existing = prev.find(item => item.id === variant.id);
       if (existing) {
-        if (existing.quantity >= variant.stock) {
+        const newQty = existing.quantity + qty;
+        if (newQty > variant.stock) {
           toast(`Only ${variant.stock} available in stock.`);
-          return prev;
+          return prev.map(item => 
+            item.id === variant.id ? { ...item, quantity: variant.stock } : item
+          );
         }
         return prev.map(item => 
-          item.id === variant.id ? { ...item, quantity: item.quantity + 1 } : item
+          item.id === variant.id ? { ...item, quantity: newQty } : item
         );
       }
-      return [...prev, { ...variant, quantity: 1 }];
+      if (qty > variant.stock) {
+        toast(`Only ${variant.stock} available in stock.`);
+        return [...prev, { ...variant, quantity: variant.stock }];
+      }
+      return [...prev, { ...variant, quantity: qty }];
     });
     scanInputRef.current?.focus();
+  };
+
+  const setDirectQuantity = (id, val) => {
+    const parsed = parseInt(val, 10);
+    setCart(prev => prev.map(item => {
+      if (item.id === id) {
+        if (isNaN(parsed) || parsed < 1) {
+          return { ...item, quantity: 1 };
+        }
+        if (parsed > item.stock) {
+          toast(`Only ${item.stock} available in stock.`);
+          return { ...item, quantity: item.stock };
+        }
+        return { ...item, quantity: parsed };
+      }
+      return item;
+    }));
   };
 
 
@@ -531,7 +577,7 @@ _Visit again soon!_`;
                   setScanInput(e.target.value);
                   if (e.target.value.trim() === '') setSearchResults([]);
                 }}
-                placeholder="Scan barcode or search product..."
+                placeholder="Scan barcode, type '12*barcode', or search..."
                 style={{ width: '100%', height: '52px', padding: '0 16px', fontSize: '1.05rem', borderRadius: '12px', border: '1px solid #cbd5e1', outline: 'none', boxShadow: '0 2px 4px rgba(0,0,0,0.02)', transition: 'border-color 0.2s', boxSizing: 'border-box', background: 'white', minHeight: 'unset' }}
                 onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
                 onBlur={(e) => e.target.style.borderColor = '#cbd5e1'}
@@ -702,7 +748,15 @@ _Visit again soon!_`;
                       <div style={{ fontWeight: 'bold', color: '#0f172a', fontSize: '1.05rem' }}>₹{((parseFloat(item.sellingPrice) || 0) * item.quantity).toFixed(2)}</div>
                       <div style={{ display: 'flex', alignItems: 'center', background: '#f8fafc', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
                         <button onClick={() => updateQuantity(item.id, -1)} style={{ padding: '0.375rem', background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}><Minus size={14}/></button>
-                        <span style={{ padding: '0 0.5rem', fontWeight: '600', fontSize: '0.875rem', minWidth: '1.5rem', textAlign: 'center' }}>{item.quantity}</span>
+                        <input 
+                          type="number" 
+                          min="1" 
+                          max={item.stock}
+                          value={item.quantity} 
+                          onChange={(e) => setDirectQuantity(item.id, e.target.value)}
+                          style={{ width: '42px', textAlign: 'center', border: 'none', background: 'transparent', fontWeight: '700', fontSize: '0.9rem', outline: 'none', padding: '2px 0' }}
+                          title="Click to edit quantity directly"
+                        />
                         <button onClick={() => updateQuantity(item.id, 1)} style={{ padding: '0.375rem', background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}><Plus size={14}/></button>
                       </div>
                     </div>
