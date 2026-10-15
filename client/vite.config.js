@@ -10,14 +10,15 @@ export default defineConfig({
       devOptions: {
         enabled: true // This enables the PWA install button during npm run dev
       },
-      includeAssets: ['favicon.svg', 'logo.png'],
+      includeAssets: ['favicon.jpg', 'apna-mart-logo.jpg', 'logo.png'],
       manifest: {
         name: 'Apna Mart POS',
-        short_name: 'POS',
-        description: 'Point of Sale System for Apna Mart',
-        theme_color: '#3b82f6',
+        short_name: 'Apna Mart',
+        description: 'Point of Sale & Price Checker for Apna Mart',
+        theme_color: '#2563eb',
         background_color: '#ffffff',
         display: 'standalone',
+        orientation: 'portrait',
         icons: [
           {
             src: '/logo.png',

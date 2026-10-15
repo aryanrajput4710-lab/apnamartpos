@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, Suspense, lazy } from 'react';
-import { Search, Camera, Eye, EyeOff, Package, Tag, ArrowLeft, RefreshCw, X } from 'lucide-react';
+import { Search, Camera, Eye, EyeOff, Package, Tag, ArrowLeft, RefreshCw, X, Download } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import toast from 'react-hot-toast';
@@ -13,12 +13,30 @@ export default function PriceCheck() {
   const [loading, setLoading] = useState(false);
   const [showCP, setShowCP] = useState({});
   const [showCamera, setShowCamera] = useState(false);
+  const [installPrompt, setInstallPrompt] = useState(null);
   const inputRef = useRef(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     inputRef.current?.focus();
+
+    const handleBeforeInstall = (e) => {
+      e.preventDefault();
+      setInstallPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
+    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
   }, []);
+
+  const handleInstallClick = async () => {
+    if (!installPrompt) return;
+    installPrompt.prompt();
+    const { outcome } = await installPrompt.userChoice;
+    if (outcome === 'accepted') {
+      toast.success('Apna Mart installed successfully!');
+      setInstallPrompt(null);
+    }
+  };
 
   const handleBarcodeScan = (code) => {
     if (!code) return;
@@ -90,6 +108,25 @@ export default function PriceCheck() {
     <div style={{ minHeight: '100vh', background: '#f8fafc', padding: '1rem', boxSizing: 'border-box' }}>
       <div style={{ maxWidth: '650px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         
+        {/* PWA 1-Tap Install Banner (Appears when mobile browser allows installing) */}
+        {installPrompt && (
+          <div style={{ background: '#eff6ff', border: '1.5px solid #bfdbfe', borderRadius: '12px', padding: '0.875rem 1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', boxShadow: '0 2px 4px rgba(37,99,235,0.06)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <img src="/apna-mart-logo.jpg" alt="Logo" style={{ width: '38px', height: '38px', borderRadius: '8px', objectFit: 'cover', border: '1px solid #bfdbfe' }} />
+              <div>
+                <div style={{ fontWeight: '700', fontSize: '0.95rem', color: '#1e40af' }}>Install Apna Mart App</div>
+                <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Fast 1-tap price checks on your phone</div>
+              </div>
+            </div>
+            <button
+              onClick={handleInstallClick}
+              style={{ background: '#2563eb', color: '#ffffff', border: 'none', padding: '0.55rem 1rem', borderRadius: '8px', fontWeight: '700', fontSize: '0.85rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem', whiteSpace: 'nowrap' }}
+            >
+              <Download size={16} /> Install
+            </button>
+          </div>
+        )}
+
         {/* Header Bar */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#ffffff', padding: '1rem 1.25rem', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
