@@ -20,6 +20,7 @@ const Inventory = React.lazy(() => import('./pages/Inventory'));
 const InventoryHistory = React.lazy(() => import('./pages/InventoryHistory'));
 const BatchRestock = React.lazy(() => import('./pages/BatchRestock'));
 const POS = React.lazy(() => import('./pages/POS'));
+const PriceCheck = React.lazy(() => import('./pages/PriceCheck'));
 const ReceiptView = React.lazy(() => import('./pages/ReceiptView'));
 const Customers = React.lazy(() => import('./pages/Customers'));
 const CustomerDetail = React.lazy(() => import('./pages/CustomerDetail'));
@@ -63,6 +64,7 @@ function App() {
                 <Route element={<AppLayout />}>
                   <Route path="/" element={<RootRedirect />} />
                   <Route path="/pos" element={<POS />} />
+                  <Route path="/price-check" element={<PriceCheck />} />
                   <Route path="/customers" element={<Customers />} />
                   <Route path="/customers/:id" element={<CustomerDetail />} />
                   <Route path="/orders" element={<Orders />} />

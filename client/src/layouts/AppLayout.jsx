@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LogOut, LayoutDashboard, ShoppingCart, Package, Users, Settings, FileText, UserPlus, TrendingUp, Menu, X } from 'lucide-react';
+import { LogOut, LayoutDashboard, ShoppingCart, Package, Users, Settings, FileText, UserPlus, TrendingUp, Menu, X, Tag } from 'lucide-react';
 
 export default function AppLayout() {
   const { currentUser, logout } = useAuth();
@@ -29,6 +29,7 @@ export default function AppLayout() {
   const navItems = [
     { name: 'Dashboard', path: '/', icon: LayoutDashboard, roles: ['ADMIN'] },
     { name: 'POS', path: '/pos', icon: ShoppingCart, roles: ['ADMIN', 'CASHIER'] },
+    { name: 'Price Check', path: '/price-check', icon: Tag, roles: ['ADMIN', 'CASHIER'] },
     { name: 'Products', path: '/products', icon: Package, roles: ['ADMIN', 'CASHIER'] },
     { name: 'Inventory', path: '/inventory', icon: Package, roles: ['ADMIN', 'CASHIER'] },
     { name: 'Customers', path: '/customers', icon: Users, roles: ['ADMIN', 'CASHIER'] },

@@ -3,7 +3,7 @@ import { useState, useRef, useEffect, useMemo } from 'react';
 import api from '../services/api';
 import { Link, useOutletContext } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { ShoppingCart, User, Search, Trash2, Plus, Minus, X, Camera, Menu, LayoutDashboard, Package, Users, FileText, TrendingUp, UserPlus, Settings, LogOut, ChevronRight, Keyboard } from 'lucide-react';
+import { ShoppingCart, User, Search, Trash2, Plus, Minus, X, Camera, Menu, LayoutDashboard, Package, Users, FileText, TrendingUp, UserPlus, Settings, LogOut, ChevronRight, Keyboard, MessageSquare } from 'lucide-react';
 import ConfirmModal from '../components/ConfirmModal';
 import CameraScanner from '../components/CameraScanner';
 import { useBarcodeScanner } from '../hooks/useBarcodeScanner';
@@ -42,6 +42,7 @@ export default function POS() {
   const [paymentMethod, setPaymentMethod] = useState('CASH');
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(null);
+  const [waPhone, setWaPhone] = useState('');
   
   // Keyboard Shortcuts
   useEffect(() => {
@@ -379,11 +380,13 @@ export default function POS() {
       };
       
       const res = await api.post('/pos/checkout', payload);
-      setOrderSuccess(res.data.data);
+      const createdOrder = res.data.data;
+      setOrderSuccess(createdOrder);
+      setWaPhone(createdOrder?.customer?.phone || customerPhone || '');
       setCart([]);
       setCustomer(null);
       setCustomerPhone('');
-        setExtraDiscount('');
+      setExtraDiscount('');
     } catch (err) {
       toast(err.response?.data?.message || 'Checkout failed');
     } finally {
@@ -391,8 +394,64 @@ export default function POS() {
     }
   };
 
+  const handleSendWhatsApp = () => {
+    if (!orderSuccess) return;
+    const cleanPhone = (waPhone || '').replace(/\D/g, '');
+    if (!cleanPhone || cleanPhone.length < 10) {
+      toast.error('Please enter a valid 10-digit mobile number');
+      return;
+    }
+
+    const storeName = settings?.storeName || 'APNA MART';
+    const storeAddress = settings?.storeAddress || 'Gaya Bhagat Chowk, Golma, Saharsa - 852107';
+    const storePhone = settings?.storePhone ? `?? Ph: ${settings.storePhone}\n` : '';
+    const billNo = orderSuccess.orderNumber || orderSuccess.id?.split('-')[0].toUpperCase();
+    const dateObj = new Date(orderSuccess.createdAt || Date.now());
+    const dateStr = dateObj.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+    const timeStr = dateObj.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+
+    let itemsList = '';
+    (orderSuccess.items || []).forEach((it, idx) => {
+      const name = it.productNameSnapshot || it.variant?.product?.name || 'Item';
+      const qty = it.quantity || 1;
+      const total = parseFloat(it.total || 0).toFixed(2);
+      itemsList += `${idx + 1}. *${name}*\n   Qty: ${qty}  |  ?${total}\n`;
+    });
+
+    const subtotal = parseFloat(orderSuccess.subtotal || 0).toFixed(2);
+    const discount = parseFloat(orderSuccess.discount || 0).toFixed(2);
+    const grandTotal = parseFloat(orderSuccess.total || 0).toFixed(2);
+
+    let savingsText = '';
+    if (parseFloat(discount) > 0) {
+      savingsText = `?? *You Saved: ?${discount}!*\n`;
+    }
+
+    const customerName = orderSuccess.customer?.name ? `?? *Customer:* ${orderSuccess.customer.name}\n` : '';
+
+    const message = 
+`?? *${storeName.toUpperCase()}*
+?? ${storeAddress}
+${storePhone}----------------------------------------
+?? *Bill No:* #${billNo}
+?? *Date:* ${dateStr}, ${timeStr}
+${customerName}----------------------------------------
+*ITEMS:*
+${itemsList}----------------------------------------
+*Subtotal:* ?${subtotal}
+${parseFloat(discount) > 0 ? `*Discount:* -?${discount}\n` : ''}*TOTAL AMOUNT:* ?${grandTotal}
+----------------------------------------
+${savingsText}?? *Thank you for shopping at ${storeName}!*
+_Visit again soon!_`;
+
+    const fullPhone = cleanPhone.startsWith('91') && cleanPhone.length === 12 ? cleanPhone : ('91' + cleanPhone.slice(-10));
+    const waUrl = `https://wa.me/${fullPhone}?text=${encodeURIComponent(message)}`;
+    window.open(waUrl, '_blank');
+  };
+
   const closeSuccessModal = () => {
     setOrderSuccess(null);
+    setWaPhone('');
     setShowCheckoutModal(false);
     scanInputRef.current?.focus();
   };
@@ -814,11 +873,53 @@ export default function POS() {
               <h2 style={{ margin: '0 0 1rem 0' }}>Payment Successful!</h2>
               <p style={{ fontSize: '1.2rem', color: '#4b5563', marginBottom: '2rem' }}>Order #{orderSuccess.orderNumber}</p>
               
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                <button onClick={() => window.print()} style={{ width: '100%', padding: '1rem', background: '#1f2937', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '1.1rem', cursor: 'pointer' }}>
+              {/* WhatsApp Digital Bill Section */}
+              <div style={{ background: '#f0fdf4', border: '1.5px solid #bbf7d0', borderRadius: '10px', padding: '1rem', marginBottom: '1.25rem', textAlign: 'left' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#15803d', fontWeight: '700', fontSize: '0.9rem', marginBottom: '0.5rem' }}>
+                  <MessageSquare size={16} /> Send Bill via WhatsApp
+                </div>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <input
+                    type="tel"
+                    placeholder="10-digit mobile number"
+                    value={waPhone}
+                    onChange={e => setWaPhone(e.target.value)}
+                    style={{
+                      flex: 1,
+                      padding: '0.65rem 0.75rem',
+                      borderRadius: '8px',
+                      border: '1.5px solid #86efac',
+                      outline: 'none',
+                      fontSize: '0.95rem'
+                    }}
+                  />
+                  <button
+                    onClick={handleSendWhatsApp}
+                    style={{
+                      background: '#16a34a',
+                      color: '#ffffff',
+                      border: 'none',
+                      borderRadius: '8px',
+                      padding: '0.65rem 1rem',
+                      fontWeight: '700',
+                      fontSize: '0.9rem',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.35rem',
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
+                    Send Bill
+                  </button>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <button onClick={() => window.print()} style={{ width: '100%', padding: '0.875rem', background: '#1f2937', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '1rem', cursor: 'pointer' }}>
                   Print Bill
                 </button>
-                <button onClick={closeSuccessModal} style={{ width: '100%', padding: '1rem', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '1.1rem', cursor: 'pointer' }}>
+                <button onClick={closeSuccessModal} style={{ width: '100%', padding: '0.875rem', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '1rem', cursor: 'pointer' }}>
                   New Sale
                 </button>
               </div>
