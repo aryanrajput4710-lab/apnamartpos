@@ -14,6 +14,7 @@ export default function PriceCheck() {
   const [showCP, setShowCP] = useState({});
   const [showCamera, setShowCamera] = useState(false);
   const [installPrompt, setInstallPrompt] = useState(null);
+  const [showInstallHelp, setShowInstallHelp] = useState(false);
   const inputRef = useRef(null);
   const navigate = useNavigate();
 
@@ -29,12 +30,15 @@ export default function PriceCheck() {
   }, []);
 
   const handleInstallClick = async () => {
-    if (!installPrompt) return;
-    installPrompt.prompt();
-    const { outcome } = await installPrompt.userChoice;
-    if (outcome === 'accepted') {
-      toast.success('Apna Mart installed successfully!');
-      setInstallPrompt(null);
+    if (installPrompt) {
+      installPrompt.prompt();
+      const { outcome } = await installPrompt.userChoice;
+      if (outcome === 'accepted') {
+        toast.success('Apna Mart installed successfully!');
+        setInstallPrompt(null);
+      }
+    } else {
+      setShowInstallHelp(true);
     }
   };
 
@@ -145,12 +149,21 @@ export default function PriceCheck() {
             </div>
           </div>
 
-          <button
-            onClick={() => { setQuery(''); setResults([]); inputRef.current?.focus(); }}
-            style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '0.5rem 0.75rem', borderRadius: '8px', fontSize: '0.85rem', fontWeight: '500', color: '#475569', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
-          >
-            <RefreshCw size={14} /> Clear
-          </button>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button
+              type="button"
+              onClick={handleInstallClick}
+              style={{ background: '#eff6ff', border: '1.5px solid #bfdbfe', padding: '0.5rem 0.75rem', borderRadius: '8px', fontSize: '0.85rem', fontWeight: '700', color: '#1d4ed8', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
+            >
+              <Download size={14} /> Install App
+            </button>
+            <button
+              onClick={() => { setQuery(''); setResults([]); inputRef.current?.focus(); }}
+              style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '0.5rem 0.75rem', borderRadius: '8px', fontSize: '0.85rem', fontWeight: '500', color: '#475569', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
+            >
+              <RefreshCw size={14} /> Clear
+            </button>
+          </div>
         </div>
 
         {/* Search & Camera Input Card */}
@@ -379,6 +392,50 @@ export default function PriceCheck() {
         </div>
 
       </div>
+
+      {/* PWA Install Help Modal */}
+      {showInstallHelp && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+          <div style={{ background: '#ffffff', borderRadius: '16px', maxWidth: '450px', width: '100%', padding: '1.5rem', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.2)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <img src="/apna-mart-logo.jpg" alt="Logo" style={{ width: '36px', height: '36px', borderRadius: '8px', objectFit: 'cover' }} />
+                <h3 style={{ margin: 0, fontSize: '1.15rem', color: '#0f172a' }}>Install Apna Mart App</h3>
+              </div>
+              <button onClick={() => setShowInstallHelp(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}>
+                <X size={22} />
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '0.875rem' }}>
+                <div style={{ fontWeight: '700', color: '#1e40af', marginBottom: '0.35rem' }}>?? Android Phone (Chrome):</div>
+                <ol style={{ margin: 0, paddingLeft: '1.25rem', fontSize: '0.875rem', color: '#334155', lineHeight: '1.5' }}>
+                  <li>Tap the <strong>3 vertical dots (?)</strong> at the top right of Chrome.</li>
+                  <li>Tap <strong>"Install app"</strong> (or <strong>"Add to Home screen"</strong>).</li>
+                  <li>Tap <strong>"Install"</strong> to confirm.</li>
+                </ol>
+              </div>
+
+              <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '0.875rem' }}>
+                <div style={{ fontWeight: '700', color: '#047857', marginBottom: '0.35rem' }}>?? iPhone (Safari):</div>
+                <ol style={{ margin: 0, paddingLeft: '1.25rem', fontSize: '0.875rem', color: '#334155', lineHeight: '1.5' }}>
+                  <li>Tap the <strong>Share icon (square with arrow ?)</strong> at the bottom.</li>
+                  <li>Scroll down and tap <strong>"Add to Home Screen"</strong>.</li>
+                  <li>Tap <strong>"Add"</strong> at top right.</li>
+                </ol>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowInstallHelp(false)}
+              style={{ width: '100%', marginTop: '1.25rem', padding: '0.75rem', background: '#2563eb', color: '#ffffff', border: 'none', borderRadius: '8px', fontWeight: '700', fontSize: '0.95rem', cursor: 'pointer' }}
+            >
+              Got It!
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Camera Barcode Scanner Modal */}
       {showCamera && (
