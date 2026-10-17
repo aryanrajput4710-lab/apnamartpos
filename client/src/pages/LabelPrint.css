@@ -12,17 +12,17 @@
   padding-top: 10px;
 }
 
-/* 40mm x 30mm Label specific styles */
+/* 50mm x 25mm Label specific styles */
 .label-container {
-  width: 40mm;
-  height: 30mm;
+  width: 50mm;
+  height: 25mm;
   background-color: white;
   border: 1px solid #000;
   display: flex;
   flex-direction: column;
   color: black;
   box-sizing: border-box;
-  padding: 1mm; /* Reduced padding to maximize width for barcode */
+  padding: 1.2mm 2mm;
   overflow: hidden;
   page-break-inside: avoid;
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
@@ -49,10 +49,10 @@
 
 .label-title {
   font-weight: 800; /* Bolder */
-  font-size: 10pt; /* Smaller for 40x30 */
+  font-size: 9pt;
   line-height: 1.1;
   text-transform: uppercase;
-  margin-bottom: 3px;
+  margin-bottom: 2px;
   word-wrap: break-word;
   max-height: 2.2em;
 }
@@ -61,8 +61,8 @@
   display: flex;
   flex-wrap: wrap;
   gap: 2px 4px;
-  font-size: 7.5pt;
-  margin-bottom: 4px;
+  font-size: 7pt;
+  margin-bottom: 2px;
   line-height: 1.1;
 }
 
@@ -73,17 +73,17 @@
 .label-pricing {
   display: flex;
   flex-direction: column;
-  margin-bottom: 2px;
+  margin-bottom: 1px;
 }
 
 .label-mrp {
-  font-size: 7.5pt;
+  font-size: 7pt;
   line-height: 1.1;
   margin-bottom: 1px;
 }
 
 .label-sale {
-  font-size: 12pt; /* Slightly larger since we have more vertical space */
+  font-size: 11pt;
   font-weight: bold;
   line-height: 1.1;
 }
@@ -98,11 +98,11 @@
 
 .label-qr-value {
   font-size: 6pt;
-  margin-top: 3px;
+  margin-top: 2px;
   word-break: break-all;
   text-align: center;
   line-height: 1.1;
-  max-width: 45px;
+  max-width: 50px;
 }
 
 .label-barcode-section svg {
@@ -113,8 +113,8 @@
 /* Print specific styles */
 @media print {
   @page {
-    /* Optimize page size for 40mm x 30mm thermal paper */
-    size: 40mm 30mm;
+    /* Optimize page size for 50mm x 25mm thermal paper */
+    size: 50mm 25mm;
     margin: 0;
   }
   
@@ -143,10 +143,10 @@
   }
   
   .label-container {
-    width: 40mm;
-    height: 30mm;
+    width: 50mm;
+    height: 25mm;
     margin: 0;
-    padding: 2mm;
+    padding: 1.2mm 2mm;
     box-shadow: none !important;
     border: none !important; /* Let the physical paper edge act as the border */
     page-break-after: always;

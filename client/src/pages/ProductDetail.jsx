@@ -146,7 +146,7 @@ export default function ProductDetail() {
                           </div>
                         </>
                       ) : (
-                        <div className="label-sale" style={!showSellingPrice ? { fontSize: '1.1rem', justifyContent: 'center', fontWeight: 'bold' } : {}}>
+                        <div className="label-sale" style={!showSellingPrice ? { fontSize: '1rem', justifyContent: 'center', fontWeight: 'bold' } : {}}>
                           <div>MRP:</div>
                           <div>Rs. {variant.mrp || variant.sellingPrice}</div>
                         </div>
@@ -167,7 +167,7 @@ export default function ProductDetail() {
                         <>
                           <QRCodeSVG 
                             value={barcodeValue} 
-                            size={45} 
+                            size={42} 
                             level={"M"}
                             marginSize={0}
                             style={{ shapeRendering: 'crispEdges' }}
