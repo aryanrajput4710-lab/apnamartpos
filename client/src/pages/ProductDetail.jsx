@@ -143,21 +143,17 @@ export default function ProductDetail() {
                       {showSellingPrice && hasDiscount ? (
                         <>
                           <div className="label-mrp">MRP: Rs. {variant.mrp}</div>
-                          <div className="label-sale">
-                            <div>SALE:</div>
-                            <div>Rs. {variant.sellingPrice}</div>
-                          </div>
+                          <div className="label-sale">SALE: Rs. {variant.sellingPrice}</div>
                         </>
                       ) : (
-                        <div className="label-sale" style={!showSellingPrice ? { fontSize: '1rem', justifyContent: 'center', fontWeight: 'bold' } : {}}>
-                          <div>MRP:</div>
-                          <div>Rs. {variant.mrp || variant.sellingPrice}</div>
+                        <div className="label-sale" style={!showSellingPrice ? { justifyContent: 'center', fontWeight: 'bold' } : {}}>
+                          MRP: Rs. {variant.mrp || variant.sellingPrice}
                         </div>
                       )}
                     </div>
                     
                     {variant.remarks && (
-                      <div style={{ fontSize: '0.65rem', fontWeight: 'bold', color: '#0f172a', textAlign: 'center', marginTop: '2px', paddingTop: '2px', borderTop: '1px dashed #cbd5e1', lineHeight: '1.1' }}>
+                      <div style={{ fontSize: '5.5pt', fontWeight: 'bold', color: '#0f172a', textAlign: 'center', marginTop: '1px', borderTop: '1px dashed #cbd5e1', lineHeight: '1' }}>
                         {variant.remarks}
                       </div>
                     )}
@@ -170,7 +166,7 @@ export default function ProductDetail() {
                         <>
                           <QRCodeSVG 
                             value={barcodeValue} 
-                            size={38} 
+                            size={34} 
                             level={"M"}
                             marginSize={0}
                             style={{ shapeRendering: 'crispEdges' }}
