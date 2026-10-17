@@ -166,7 +166,7 @@ export default function ProductDetail() {
                         <>
                           <QRCodeSVG 
                             value={barcodeValue} 
-                            size={56} 
+                            size={65} 
                             level={"M"}
                             marginSize={0}
                             style={{ shapeRendering: 'crispEdges' }}
