@@ -22,6 +22,7 @@
   border: 1px solid #000;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   color: black;
   box-sizing: border-box;
   padding: 1mm 1.5mm;
@@ -37,7 +38,7 @@
   flex-direction: row; /* Side-by-side layout for 2D QR */
   flex-wrap: nowrap;
   justify-content: space-between;
-  align-items: stretch;
+  align-items: center;
   width: 100%;
   height: 100%;
   max-height: 100%;
@@ -51,11 +52,10 @@
   flex-direction: column;
   flex: 1 1 auto;
   min-width: 0;
-  height: 100%;
   max-height: 100%;
   overflow: hidden;
-  justify-content: space-between;
-  padding: 0.2mm 0;
+  justify-content: center;
+  gap: 2px;
   box-sizing: border-box;
 }
 
@@ -100,10 +100,21 @@
 }
 
 .label-sale {
+  display: flex;
+  align-items: baseline;
+  white-space: nowrap;
+}
+
+.sale-tag {
+  font-size: 8pt;
+  font-weight: 800;
+  margin-right: 3px;
+}
+
+.sale-val {
   font-size: 11pt;
   font-weight: 900;
-  line-height: 1.1;
-  white-space: nowrap;
+  letter-spacing: -0.2px;
 }
 
 .label-qr-section {
@@ -111,19 +122,19 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  flex: 0 0 auto;
-  height: 100%;
+  flex: 0 0 42px;
+  width: 42px;
   overflow: hidden;
 }
 
 .label-qr-value {
-  font-size: 5.5pt;
+  font-size: 5pt;
   font-weight: 600;
   margin-top: 1.5px;
   word-break: break-all;
   text-align: center;
   line-height: 1;
-  max-width: 54px;
+  width: 100%;
 }
 
 .label-barcode-section svg {
@@ -177,6 +188,7 @@
     page-break-inside: avoid !important;
     break-inside: avoid !important;
     overflow: hidden !important;
+    justify-content: center !important;
   }
 
   .label-container:not(:last-child) {
@@ -194,7 +206,7 @@
     flex-direction: row !important;
     flex-wrap: nowrap !important;
     justify-content: space-between !important;
-    align-items: stretch !important;
+    align-items: center !important;
     width: 100% !important;
     height: 100% !important;
     max-height: 100% !important;
@@ -210,11 +222,10 @@
     flex-direction: column !important;
     flex: 1 1 auto !important;
     min-width: 0 !important;
-    height: 100% !important;
     max-height: 100% !important;
     overflow: hidden !important;
-    justify-content: space-between !important;
-    padding: 0.2mm 0 !important;
+    justify-content: center !important;
+    gap: 2px !important;
     box-sizing: border-box !important;
   }
 
@@ -246,27 +257,38 @@
   }
 
   .label-sale {
-    font-size: 11pt !important;
-    line-height: 1.1 !important;
-    font-weight: 900 !important;
+    display: flex !important;
+    align-items: baseline !important;
     white-space: nowrap !important;
+  }
+
+  .sale-tag {
+    font-size: 8pt !important;
+    font-weight: 800 !important;
+    margin-right: 3px !important;
+  }
+
+  .sale-val {
+    font-size: 11pt !important;
+    font-weight: 900 !important;
+    letter-spacing: -0.2px !important;
   }
 
   .label-qr-section {
     display: flex !important;
     flex-direction: column !important;
-    flex: 0 0 auto !important;
+    flex: 0 0 42px !important;
+    width: 42px !important;
     align-items: center !important;
     justify-content: center !important;
-    height: 100% !important;
     overflow: hidden !important;
   }
 
   .label-qr-value {
-    font-size: 5.5pt !important;
+    font-size: 5pt !important;
     font-weight: 600 !important;
     margin-top: 1.5px !important;
-    max-width: 54px !important;
+    width: 100% !important;
     line-height: 1 !important;
   }
   

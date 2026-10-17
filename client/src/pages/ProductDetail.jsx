@@ -143,11 +143,15 @@ export default function ProductDetail() {
                       {showSellingPrice && hasDiscount ? (
                         <>
                           <div className="label-mrp">MRP: Rs. {variant.mrp}</div>
-                          <div className="label-sale">SALE: Rs. {variant.sellingPrice}</div>
+                          <div className="label-sale">
+                            <span className="sale-tag">SALE:</span>
+                            <span className="sale-val">Rs. {variant.sellingPrice}</span>
+                          </div>
                         </>
                       ) : (
                         <div className="label-sale" style={!showSellingPrice ? { justifyContent: 'center', fontWeight: 'bold' } : {}}>
-                          MRP: Rs. {variant.mrp || variant.sellingPrice}
+                          <span className="sale-tag">MRP:</span>
+                          <span className="sale-val">Rs. {variant.mrp || variant.sellingPrice}</span>
                         </div>
                       )}
                     </div>
@@ -166,7 +170,7 @@ export default function ProductDetail() {
                         <>
                           <QRCodeSVG 
                             value={barcodeValue} 
-                            size={50} 
+                            size={40} 
                             level={"M"}
                             marginSize={0}
                             style={{ shapeRendering: 'crispEdges' }}
