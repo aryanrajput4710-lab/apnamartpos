@@ -113,8 +113,8 @@
 /* Print specific styles */
 @media print {
   @page {
-    /* Optimize page size for 50mm x 25mm thermal paper */
-    size: 50mm 25mm;
+    /* Optimize page size for 50mm x 25mm thermal paper in landscape */
+    size: 50mm 25mm landscape;
     margin: 0;
   }
   
@@ -143,15 +143,53 @@
   }
   
   .label-container {
-    width: 50mm;
-    height: 25mm;
-    margin: 0;
-    padding: 1.2mm 2mm;
+    width: 50mm !important;
+    height: 25mm !important;
+    max-width: 50mm !important;
+    max-height: 25mm !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 1mm 2mm !important;
     box-shadow: none !important;
     border: none !important; /* Let the physical paper edge act as the border */
-    page-break-after: always;
-    page-break-inside: avoid;
-    break-inside: avoid;
+    page-break-after: always !important;
+    break-after: page !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    overflow: hidden !important;
+  }
+
+  .label-content {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  .label-text-section {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    max-height: 100% !important;
+  }
+
+  .label-qr-section {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 0 0 auto !important;
+    align-items: center !important;
+    justify-content: center !important;
+    overflow: hidden !important;
   }
   
   .no-print {

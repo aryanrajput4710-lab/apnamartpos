@@ -64,7 +64,7 @@ export default function ProductDetail() {
           </button>
         </div>
 
-        <div style={{ marginBottom: '1rem' }}>
+        <div style={{ marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
           <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', color: '#334155' }}>
             <input 
               type="checkbox" 
@@ -74,6 +74,9 @@ export default function ProductDetail() {
             />
             Show Selling Price on Label
           </label>
+          <div style={{ padding: '0.5rem 0.75rem', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '6px', fontSize: '0.8rem', color: '#1e40af', lineHeight: '1.4' }}>
+            ℹ️ <strong>50mm × 25mm Print Settings:</strong> In the print preview, verify <strong>Layout: Landscape</strong> (not Portrait), <strong>Paper size: 50×25mm</strong>, and <strong>Margins: None</strong>.
+          </div>
         </div>
 
         <div>
@@ -167,7 +170,7 @@ export default function ProductDetail() {
                         <>
                           <QRCodeSVG 
                             value={barcodeValue} 
-                            size={42} 
+                            size={38} 
                             level={"M"}
                             marginSize={0}
                             style={{ shapeRendering: 'crispEdges' }}
